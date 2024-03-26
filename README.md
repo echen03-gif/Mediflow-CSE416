@@ -1,5 +1,20 @@
 # Mediflow-CSE416 - Team Orange
 
+npm packages:
+
+running npm install in client and server directory should install all packages
+
+client:
+axios
+react
+react-dom
+
+server:
+cors
+express
+firebase-admin
+react
+
 To update your branch to the most recent changes do the following:
 (Do this before starting to work on your branch)
 
