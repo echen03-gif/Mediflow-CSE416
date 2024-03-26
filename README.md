@@ -1,4 +1,4 @@
-# Mediflow-CSE416
+# Mediflow-CSE416 - Team Orange
 
 To update your branch to the most recent changes do the following:
 (Do this before starting to work on your branch)
