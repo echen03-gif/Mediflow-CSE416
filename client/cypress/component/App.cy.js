@@ -1,9 +1,13 @@
-import React from 'react'
-import App from '../../src/App.js'
+import App from "../../src/App"
+import LoginPage from '../../src/components/LoginPage';
 
 describe('<App />', () => {
-  it('renders', () => {
+    it('renders app and checks login page is present', () => {
+        
+        cy.mount(<App />);
     
-    cy.mount(<App />)
-  })
+        cy.get('h5').should('contain', 'Welcome Back, Login.');
+        cy.get('form').should('be.visible');
+      });
+
 })
