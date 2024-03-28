@@ -1,11 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
+import MediFlow from './components/MediFlow';
 
 function App() {
   return (
-    <div className="App">
-      <p>Mediflow</p>
-    </div>
+    <MediFlow/>
   );
 }
 

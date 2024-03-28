@@ -4,6 +4,7 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "firebase-admin": "^12.0.0",
+    "libvips": "^0.0.2",
     "react": "^18.2.0",
     "sharp": "^0.33.3",
     "socket.io": "^4.7.5"

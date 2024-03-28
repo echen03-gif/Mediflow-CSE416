@@ -11,6 +11,7 @@ client:
 - `@mui/material`, `@emotion/react`, `@emotion/styled`
 - `@fullcalendar/react`, `@fullcalendar/daygrid`
 - `socket.io-client`
+- `web-vitals`
 client testing:
 - `cypress`
 
@@ -19,6 +20,7 @@ server:
 - `express`
 - `firebase-admin`
 - `react`
+- `socket.io`
 - `sharp`
 server testing:
 - `supertest`
