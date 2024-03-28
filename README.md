@@ -5,15 +5,24 @@ npm packages:
 running npm install in client and server directory should install all packages
 
 client:
-axios
-react
-react-dom
+- `axios`
+- `react`
+- `react-dom`
+- `@mui/material`, `@emotion/react`, `@emotion/styled`
+- `@fullcalendar/react`, `@fullcalendar/daygrid`
+- `socket.io-client`
+client testing:
+- `cypress`
 
 server:
-cors
-express
-firebase-admin
-react
+- `cors`
+- `express`
+- `firebase-admin`
+- `react`
+- `sharp`
+server testing:
+- `supertest`
+- `jest`
 
 To update your branch to the most recent changes do the following:
 (Do this before starting to work on your branch)
