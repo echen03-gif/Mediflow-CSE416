@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, MenuItem, Button, Box, Typography } from '@mui/material';
 import { addDoc, collection } from 'firebase/firestore';
-import db from "../firebaseConfig.js";
+import { db } from "../firebaseConfig.js";
 
 export default function AddItem() {
     const navigate = useNavigate();

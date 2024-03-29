@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import db from '../firebaseConfig.js';
+import { db } from '../firebaseConfig.js';
 import { collection, getDocs } from 'firebase/firestore';
 import { Button } from '@mui/material';
 import { functions } from '../firebaseConfig.js';
@@ -15,7 +15,7 @@ function Inventory() {
     };
 
     useEffect(() => {
-        const fetchData = async () => {
+        /*const fetchData = async () => {
             try {
                 const querySnapshot = await getDocs(collection(db, 'Test'));
                 const data = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
@@ -23,7 +23,7 @@ function Inventory() {
             } catch (error) {
                 console.error("Error fetching data from Firestore", error);
             }
-        };
+        };*/
         async function fetchTestData() {
             const retrieveTestData = httpsCallable(functions, 'retrieveTestData');
 
