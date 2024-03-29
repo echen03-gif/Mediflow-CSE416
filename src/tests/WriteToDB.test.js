@@ -31,7 +31,7 @@ describe('Firestore Tests', () => {
 });
 
 describe('API Tests', () => {
-  test('Should write data to Firestore via API endpoint', async () => {
+  test('Ensure nonexistent route supertest', async () => {
     
     const response = await request(app)
       .post('/api/users')
