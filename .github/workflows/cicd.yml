@@ -17,5 +17,5 @@ jobs:
         with:
           build: npm run build
           start: npm start
-          spec: integration/**/*.cy.js
+          spec: cypress/integration/**/*.cy.js
 
