@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebaseConfig.js';
-import { collection, getDocs } from 'firebase/firestore';
 import { Button } from '@mui/material';
 import { functions } from '../firebaseConfig.js';
 import { httpsCallable } from 'firebase/functions';
