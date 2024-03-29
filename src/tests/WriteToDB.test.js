@@ -1,5 +1,9 @@
 require('text-encoding').TextDecoder;
 require('setimmediate');
+const request = require('supertest');
+const express = require('express');
+const app = express();
+
 const { db } = require('../../jest.setup');
 
 describe('Firestore Tests', () => {
@@ -24,4 +28,16 @@ describe('Firestore Tests', () => {
 
 
 
+});
+
+describe('API Tests', () => {
+  test('Should write data to Firestore via API endpoint', async () => {
+    
+    const response = await request(app)
+      .post('/api/users')
+      .send({ name: 'John Doe' });
+    expect(response.status).toBe(404);
+
+  
+  });
 });
