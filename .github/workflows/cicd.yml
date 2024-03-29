@@ -9,13 +9,14 @@ jobs:
   cypress-run:
     runs-on: ubuntu-latest
     steps:
+        
+      - name: Checkout
+        uses: actions/checkout@v4
+      
       - name: Jest Run
         env:
           FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASEKEY }}
         run: npm test
-        
-      - name: Checkout
-        uses: actions/checkout@v4
       
       - name: Cypress run
         uses: cypress-io/github-action@v6
