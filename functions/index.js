@@ -10,3 +10,11 @@ exports.retrieveTestData = functions.https.onCall(async (data, context) => {
     const testData = testCollectionSnapshot.docs.map(doc => doc.data());
     return testData;
 });
+exports.addTestData = functions.https.onCall(async (data, context) => {
+    try {
+        const docRef = await db.collection('Test').add(data);
+        return { id: docRef.id };
+    } catch (error) {
+        throw new functions.https.HttpsError('unknown', 'Failed to add the test data', error);
+    }
+});

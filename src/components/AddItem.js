@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, MenuItem, Button, Box, Typography } from '@mui/material';
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from "../firebaseConfig.js";
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 export default function AddItem() {
     const navigate = useNavigate();
+    const functions = getFunctions();
     const [equipmentData, setEquipmentData] = useState({
         equipmentID: '',
         name: '',
@@ -19,23 +19,24 @@ export default function AddItem() {
     };
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-        const newEquipmentData = {
-        equipmentID: Number(equipmentData.equipmentID),
-        Test: equipmentData.name,
-        type: equipmentData.type,
-        status: equipmentData.status,
-        location: equipmentData.location,
-        };
+        e.preventDefault();
+        const addTestData = httpsCallable(functions, 'addTestData');
+        try {
+            const newEquipmentData = {
+            equipmentID: Number(equipmentData.equipmentID),
+            Test: equipmentData.name,
+            type: equipmentData.type,
+            status: equipmentData.status,
+            location: equipmentData.location,
+            };
 
-        const docRef = await addDoc(collection(db, 'Test'), newEquipmentData);
-        console.log("Document written with ID: ", docRef.id);
-        navigate('/main/inventory');
-    } catch (error) {
-        console.error('Error adding document: ', error);
-        alert('Error adding equipment');
-    }
+            const result = await addTestData(newEquipmentData);
+            console.log("Document written with ID: ", result.id);
+            navigate('/main/inventory');
+        } catch (error) {
+            console.error('Error adding document: ', error);
+            alert('Error adding equipment');
+        }
     };
 
     return (

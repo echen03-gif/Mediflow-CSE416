@@ -15,15 +15,6 @@ function Inventory() {
     };
 
     useEffect(() => {
-        /*const fetchData = async () => {
-            try {
-                const querySnapshot = await getDocs(collection(db, 'Test'));
-                const data = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-                setTests(data);
-            } catch (error) {
-                console.error("Error fetching data from Firestore", error);
-            }
-        };*/
         async function fetchTestData() {
             const retrieveTestData = httpsCallable(functions, 'retrieveTestData');
 
