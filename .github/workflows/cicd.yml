@@ -15,7 +15,4 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          build: npm run build
-          start: npm start
-          spec: cypress/integration/**/*.cy.js
-
+          component: true
