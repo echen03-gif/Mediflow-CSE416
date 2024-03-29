@@ -11,6 +11,7 @@ import {
   Typography
 } from '@mui/material';
 import Schedule from "./Schedule";
+import Inventory from "./Inventory";
 
 export default function MainPage() {
   const drawerWidth = 200; // Adjust as needed
@@ -63,7 +64,9 @@ export default function MainPage() {
             <Toolbar />
             <Routes>
             <Route path="schedule" element={<Schedule />} />
-            {/*<Route path="inventory" element={<Inventory />} />
+            <Route path="inventory" element={<Inventory />} />
+            {
+            /*
             <Route path="staff" element={<Staff />} />
             <Route path="rooms" element={<Rooms />} />
             <Route path="inbox" element={<Inbox />} />*/}
