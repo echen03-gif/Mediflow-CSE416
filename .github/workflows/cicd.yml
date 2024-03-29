@@ -17,4 +17,6 @@ jobs:
         with:
           component: true
       - name: Jest Run
+        env:
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASEKEY }}
         run: npm test
