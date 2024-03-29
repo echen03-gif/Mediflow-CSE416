@@ -16,3 +16,5 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           component: true
+      - name: Jest Run
+        run: npm test
