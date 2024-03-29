@@ -17,3 +17,4 @@ jobs:
         with:
           build: npm run build
           start: npm start
+          spec: src/**/*.spec.js
