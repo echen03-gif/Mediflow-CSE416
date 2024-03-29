@@ -6,7 +6,15 @@ on:
       - main
 
 jobs:
-  frontend-test:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Run Cypress Tests
+      run: npx cypress run --headless
