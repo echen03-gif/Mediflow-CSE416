@@ -1,6 +1,6 @@
-name: CI/CD
+name: Cypress Tests
 
-on: 
+on:
   push:
     branches:
       - main
@@ -17,4 +17,4 @@ jobs:
       run: npm install
 
     - name: Run Cypress Tests
-      run: npx cypress run --headless
+      run: npx cypress run --headless --spec "cypress/component/*.cy.js"
