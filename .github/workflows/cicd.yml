@@ -13,13 +13,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Jest Run
-        env:
-          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASEKEY }}
-        run: npm test
-      
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
           component: true
+
+      - name: Jest Run
+        env:
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASEKEY }}
+        run: npm test
 
