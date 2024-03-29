@@ -50,6 +50,8 @@
     ]
   },
   "devDependencies": {
-    "cypress": "^13.7.1"
+    "css-loader": "^6.10.0",
+    "cypress": "^13.7.1",
+    "style-loader": "^3.3.4"
   }
 }
