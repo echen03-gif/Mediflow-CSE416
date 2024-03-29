@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-env:
-  CI: false
 
 jobs:
   cypress-run:
@@ -16,5 +14,4 @@ jobs:
       
       - name: Cypress run
         uses: cypress-io/github-action@v6
-        with:
-          env: CI=false
+        spec: cypress/integration/**/*.cy
