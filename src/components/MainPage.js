@@ -11,14 +11,16 @@ import {
   Typography
 } from '@mui/material';
 import Schedule from "./Schedule";
+//import Schedule from './Schedule copy';
 import Inventory from "./Inventory";
 import AddItem from "./AddItem";
+import Request from "./RequestAppointment";
 
 export default function MainPage() {
   const drawerWidth = 200; // Adjust as needed
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
         {/* Sidebar */}
         <Drawer
             variant="permanent"
@@ -61,16 +63,13 @@ export default function MainPage() {
         </Drawer>
 
         {/* Main content */}
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-            <Toolbar />
+        <Box component="main" sx={{ flexGrow: 1, p: 3, width: `calc(100vw - ${drawerWidth}px)`, height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
             <Routes>
-            <Route path="schedule" element={<Schedule />} />
-            <Route path="inventory" element={<Inventory />} />
-            <Route path="additem" element={<AddItem />} />
-            {/*
-            <Route path="staff" element={<Staff />} />
-            <Route path="rooms" element={<Rooms />} />
-            <Route path="inbox" element={<Inbox />} />*/}
+              <Route path="schedule" element={<Schedule />} />
+              <Route path="inventory" element={<Inventory />} />
+              <Route path="additem" element={<AddItem />} />
+              <Route path="request" element={<Request />} />
+              {/* Other routes */}
             </Routes>
         </Box>
 
