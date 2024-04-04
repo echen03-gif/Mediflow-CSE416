@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, TextField, MenuItem, Button, Typography, Container, Paper } from '@mui/material';
+import { Box, TextField, MenuItem, Button, Typography, Container } from '@mui/material';
 
 export default function RequestAppointment() {
   const [appointmentData, setAppointmentData] = useState({
