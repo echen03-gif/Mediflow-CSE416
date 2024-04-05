@@ -15,6 +15,7 @@ import Schedule from "./Schedule";
 import Inventory from "./Inventory";
 import AddItem from "./AddItem";
 import Request from "./RequestAppointment";
+import Rooms from "./Rooms";
 
 export default function MainPage() {
   const drawerWidth = 200; // Adjust as needed
@@ -69,6 +70,7 @@ export default function MainPage() {
               <Route path="inventory" element={<Inventory />} />
               <Route path="additem" element={<AddItem />} />
               <Route path="request" element={<Request />} />
+              <Route path="rooms" element={<Rooms />} />
               {/* Other routes */}
             </Routes>
         </Box>
