@@ -106,10 +106,8 @@ app.post('/createUser', async (req, res) => {
         name: req.body.name,
         email: req.body.email
     })
-
-    await newUser.save();
     
-    res.send(newUser);
+    res.send(await newUser.save());
 })
 
 
