@@ -115,7 +115,7 @@ export default function MainPage() {
           <Route path="addstaff" element={<AddStaff />} />
           <Route path="addinventory" element={<AddInventory />} />
           <Route path="addroom" element={<AddRoom />} />
-          <Route path="chatscreen/:personId" element={<ChatScreen/>}/>
+          <Route path="chatscreen" element={<ChatScreen/>}/>
           <Route path="inbox" element={<Inbox />} />
           <Route path="createprocess" element={<CreateProcess />} />
           {/* Other routes */}
