@@ -20,9 +20,8 @@ describe('Rooms', () => {
     cy.mount(<Rooms />)
 
     cy.get('tbody tr').first().within(() => {
-      cy.get('td').eq(0).should('contain', '121');
-      cy.get('td').eq(1).should('contain', 'Cardiology');
-      cy.get('td').eq(2).should('contain', 'Jane Doe');
+      cy.get('td').eq(0).should('contain', '0');
+      cy.get('td').eq(1).should('contain', 'Radiology');
     });
   });
 

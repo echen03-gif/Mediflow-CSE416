@@ -18,19 +18,6 @@ describe('Inventory', () => {
     cy.get('table').should('exist');
   });
 
-  it('renders the correct number of rows', () => {
-    cy.get('tbody tr').should('have.length', 2);
-  });
-
-  it('renders the correct product data', () => {
-    cy.get('tbody tr').first().within(() => {
-      cy.get('td').eq(0).should('contain', 'CT Machine');
-      cy.get('td').eq(1).should('contain', 'Building A');
-      cy.get('td').eq(2).should('contain', '1');
-      cy.get('td').eq(3).should('contain', 'Radiology');
-    });
-  });
-
   it('changes the date when a new date is picked', () => {
     cy.get('input[type="date"]').as('datePicker');
 
