@@ -52,15 +52,20 @@ describe('User Collection', () => {
         email: "testUser@gmail.com"
       };
   
-      const response = await supertest(app)
+      testData = await supertest(app)
         .post('/createUser') 
         .send(testUser)
         .expect(200);  
       
-      testData = response;
 
-      expect(response.body.name).toBe(testUser.name);
-      expect(response.body.email).toBe(testUser.email);
+      expect(testData.body.name).toBe(testUser.name);
+      expect(testData.body.email).toBe(testUser.email);
+
+      if (testData) {
+        
+        await User.deleteOne({ _id: testData.body._id });
+        
+      }
 
   
     });
@@ -70,6 +75,7 @@ describe('User Collection', () => {
       if (testData) {
         
         await User.deleteOne({ _id: testData._id });
+        
       }
 
     });
