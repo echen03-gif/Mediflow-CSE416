@@ -103,13 +103,90 @@ app.get('/processes', async (req, res) => {
 app.post('/createUser', async (req, res) => {
     
     const newUser = new Users({
+        admin: req.body.admin,
         name: req.body.name,
-        email: req.body.email
+        email: req.body.email,
+        joined: new Date(),
+        password: req.body.password,
+        processes: [],
+        role: req.body.role,
+        staffID: req.body.staffID,
+        status: req.body.status
     })
     
     res.send(await newUser.save());
-})
 
+});
+
+app.post('/createProcedure', async (req, res) => {
+    
+    const newProcedure = new Procedures({
+
+        created: new Date(),
+        description: req.body.description,
+        estimatedDuration: req.body.estimatedDuration,
+        name: req.body.name,
+        procedureID: req.body.procedureID,
+        requiredRoomEquipment: req.body.requiredRoomEquipment,
+        requiredRoomType: req.body.requiredRoomType,
+        scheduledEndTime: req.body.scheduledEndTime,
+        scheduledStartTime: req.body.scheduledStartTime
+
+    })
+    
+    res.send(await newProcedure.save());
+    
+});
+
+app.post('/createEquipmentHead', async (req, res) => {
+    
+    const newEquipmentHead = new EquipmentHeads({
+
+        name: req.body.name,
+        quantity: req.body.quantity,
+        equipment: [],
+        type: req.body.type,
+        location: req.body.location
+
+    })
+    
+    res.send(await newEquipmentHead.save());
+    
+});
+
+app.post('/createEquipment', async (req, res) => {
+    
+    const newEquipment = new Equipment({
+        
+        created: new Date(),
+        equipmentID: req.body.equipmentID,
+        location: req.body.location,
+        name: req.body.name,
+        status: req.body.status,
+        type: req.body.type,
+        updatedAt: new Date()
+    })
+    
+    res.send(await newEquipment.save());
+    
+});
+
+app.post('/createProcess', async (req, res) => {
+    
+    const newProcess = new Processes({
+
+        completed: req.body.completed,
+        components: req.body.components,
+        created: new Date(),
+        equipment: req.body.equipment,
+        staff: req.body.staff,
+        status: req.body.status
+        
+    })
+    
+    res.send(await newProcess.save());
+    
+})
 
 // for supertest
 module.exports = {app, server};

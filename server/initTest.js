@@ -4,7 +4,7 @@
 
     Testing Data: Sample Admin, User, Processes, Procedures, Rooms and Equipment
 
-    CLEAR BEFORE PUSHING TO MAIN -> Delete Mediflow DB in Mongo DB ATLAS Console
+    Consider clearing DB before pushing to main to include init.js (actual data) -> Mongo DB Atlas Console and Delete Mediflow DB
 
 */
 
@@ -88,7 +88,10 @@ function createRoom(name, roomID, status, type){
 
 const populate = async () => {
     
-    let testAdmin = await createUser(false, "testadmin@gmail.com", "testAdmin", "testAdmin", "admin", 0, "NOT AVAILABLE");
+    let testAdmin = await createUser(true, "testadmin@gmail.com", "testAdmin", "testAdmin", "admin", 0, "NOT AVAILABLE");
+    let testDoctor = await createUser(false, "testDoctor@gmail.com", "testDoctor", "testDoctor", "doctor", 0, "ON CALL");
+    let testDoctor2 = await createUser(false, "testDoctor2@gmail.com", "testDoctor2", "testDoctor2", "doctor", 0, "ON DUTY");
+
     let testRoom = await createRoom("Test Room", 0, "Open", "Radiology");
     let testEquipment = await createEquipmentHead("CT Machine", 2, "Radiology", testRoom);
     
