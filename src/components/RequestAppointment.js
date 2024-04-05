@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Box, TextField, MenuItem, Button, Typography, Container } from '@mui/material';
+import { useNavigate } from "react-router-dom";
 
 export default function RequestAppointment() {
   const [appointmentData, setAppointmentData] = useState({
@@ -9,6 +10,7 @@ export default function RequestAppointment() {
     equipment: '',
     room: '',
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setAppointmentData({ ...appointmentData, [e.target.name]: e.target.value });
@@ -16,13 +18,12 @@ export default function RequestAppointment() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle the form submission logic here
-    console.log(appointmentData);
+    navigate("/main/schedule");
   };
 
   return (
-    <Container maxWidth="lg" sx={{ display: 'flex', mt: 4 }}>
-      <Box sx={{ width: '70%', mr: 4 }}>
+    <Container maxWidth="lg" sx={{ display: "flex", mt: 4 }}>
+      <Box sx={{ width: "70%", mr: 4 }}>
         <Typography variant="h4" sx={{ mb: 4 }}>
           Add Appointment
         </Typography>
@@ -35,6 +36,7 @@ export default function RequestAppointment() {
             name="patientName"
             value={appointmentData.patientName}
             onChange={handleChange}
+            required
           />
           <TextField
             select
@@ -45,8 +47,8 @@ export default function RequestAppointment() {
             name="date"
             value={appointmentData.date}
             onChange={handleChange}
+            required
           >
-            
             <MenuItem value="">--Select--</MenuItem>
           </TextField>
           <TextField
@@ -58,6 +60,7 @@ export default function RequestAppointment() {
             name="staff"
             value={appointmentData.staff}
             onChange={handleChange}
+            required
           >
             <MenuItem value="">--Select--</MenuItem>
           </TextField>
@@ -70,6 +73,7 @@ export default function RequestAppointment() {
             name="equipment"
             value={appointmentData.equipment}
             onChange={handleChange}
+            required
           >
             <MenuItem value="">--Select--</MenuItem>
           </TextField>
@@ -82,10 +86,19 @@ export default function RequestAppointment() {
             name="room"
             value={appointmentData.room}
             onChange={handleChange}
+            required
           >
             <MenuItem value="">--Select--</MenuItem>
           </TextField>
-          <Button type="submit" variant="contained" sx={{ backgroundColor: '#FF8241', '&:hover': { backgroundColor: '#FF5034' } }}>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{
+              color: "black",
+              backgroundColor: "#CCEEFF",
+              "&:hover": { backgroundColor: "#CCFFFF" },
+            }}
+          >
             Submit
           </Button>
         </form>

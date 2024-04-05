@@ -1,0 +1,67 @@
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
+const AddRoom = () => {
+  const [roomNumber, setRoomNumber] = useState("");
+  const [roomType, setRoomType] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    navigate("/main/rooms");
+  };
+
+  return (
+    <Box sx={{ mt: 8, mx: 4 }}>
+      <Typography variant="h6">Add Room</Typography>
+      <form onSubmit={handleSubmit}>
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="roomNumber"
+          label="Room Number"
+          name="roomNumber"
+          autoComplete="room-number"
+          autoFocus
+          value={roomNumber}
+          onChange={(e) => setRoomNumber(e.target.value)}
+        />
+        <FormControl fullWidth margin="normal">
+          <InputLabel id="room-type-label">Room Type</InputLabel>
+          <Select
+            labelId="room-type-label"
+            id="roomType"
+            value={roomType}
+            label="Room Type"
+            onChange={(e) => setRoomType(e.target.value)}
+          >
+            <MenuItem value={"General"}>General</MenuItem>
+            <MenuItem value={"ICU"}>ICU</MenuItem>
+            <MenuItem value={"Surgery"}>Surgery</MenuItem>
+          </Select>
+        </FormControl>
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{ mt: 3, mb: 2 }}
+        >
+          Add Room
+        </Button>
+      </form>
+    </Box>
+  );
+};
+
+export default AddRoom;

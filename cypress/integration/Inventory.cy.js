@@ -1,8 +1,12 @@
+import { BrowserRouter } from 'react-router-dom';
 import Inventory from '../../src/components/Inventory';
 
 describe('Inventory', () => {
   beforeEach(() => {
-    cy.mount(<Inventory />);
+    cy.mount(
+        <BrowserRouter>
+        <Inventory />
+        </BrowserRouter>);
   });
 
   it('renders the component', () => {

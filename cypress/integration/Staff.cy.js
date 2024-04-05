@@ -1,8 +1,13 @@
 import Staff from '../../src/components/Staff';
+import { BrowserRouter } from 'react-router-dom';
 
 describe('Staff', () => {
   beforeEach(() => {
-    cy.mount(<Staff />);
+    cy.mount(
+    <BrowserRouter>
+    <Staff />
+    </BrowserRouter>);
+    
   });
 
   it('renders the component', () => {
