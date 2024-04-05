@@ -53,7 +53,8 @@ export default function MainPage() {
           [`& .MuiDrawer-paper`]: {
             width: drawerWidth,
             boxSizing: "border-box",
-            backgroundColor: "#CCEEFF",
+            background: "linear-gradient(to bottom, #FFBA51, #FF4D34)",
+
           },
         }}
       >
@@ -131,7 +132,7 @@ export default function MainPage() {
           justifyContent: "flex-start",
           alignItems: "center",
           width: drawerWidth,
-          bgcolor: "#CCEEFF",
+          background: "linear-gradient(to bottom, #FFBA51, #FF4D34)",
           p: 1,
         }}
       >
