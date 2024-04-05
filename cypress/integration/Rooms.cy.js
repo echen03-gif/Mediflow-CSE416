@@ -1,11 +1,18 @@
 import Rooms from '../../src/components/Rooms';
+import { BrowserRouter } from 'react-router-dom';
 
 describe('Rooms', () => {
 
+    beforeEach(() => {
+        cy.mount(
+        <BrowserRouter>
+        <Rooms />
+        </BrowserRouter>);
+        
+      });
+
 
   it('renders various component', () => {
-
-    cy.mount(<Rooms />)
 
     cy.get('h4').contains('Room Availability');
 
@@ -36,7 +43,6 @@ describe('Rooms', () => {
   
   it('changes the date when a new date is picked', () => {
     // Get the date picker
-    cy.mount(<Rooms />)
     cy.get('input[type="date"]').as('datePicker');
 
     let initialDate;
