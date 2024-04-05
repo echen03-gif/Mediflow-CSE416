@@ -3,15 +3,15 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { useNavigate } from 'react-router-dom';
-import { Dialog, DialogTitle, DialogContent, Typography, List, ListItem, ListItemText } from '@mui/material';
+//import { useNavigate } from 'react-router-dom';
+import { Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
 
 
 export default function Schedule() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null); // Add a state for the selected event
   const calendarRef = useRef(null);
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
 
 
   const events = [
@@ -27,9 +27,9 @@ export default function Schedule() {
     calendarApi.changeView('timeGridDay', arg.date);
   };
 
-  const handleRequest = () => {
-    navigate('/main/request');
-  }
+  // const handleRequest = () => {
+  //   navigate('/main/request');
+  // }
 
   const handleEventClick = (info) => {
     setSelectedEvent(info.event);

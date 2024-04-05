@@ -14,7 +14,7 @@ function Rooms() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  //const [roomList, setRooms] = useState([]);
+  const [roomList, setRooms] = useState([]);
   const navigate = useNavigate();
 
   //commented out for now
