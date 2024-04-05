@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+//import { useParams } from 'react-router-dom';
 import { Typography, TextField, Button, Paper, Box } from '@mui/material';
 
 function ChatScreen() {

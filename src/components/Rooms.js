@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
+//import React, { useEffect } from 'react';
+
+//import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, FormControl, Button } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 
@@ -12,12 +14,7 @@ function Rooms() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [roomList, setRooms] = useState([
-    { roomNumber: 1, roomID: 'Room 1', type: 'Cardiology' },
-    { roomNumber: 2, roomID: 'Room 2', type: 'PT' },
-    { roomNumber: 3, roomID: 'Room 3', type: 'Optometry' },
-    // Add more rooms as needed
-  ]);
+  const [roomList, setRooms] = useState([]);
   const navigate = useNavigate();
 
   //commented out for now
@@ -27,7 +24,11 @@ function Rooms() {
 
 //   }, []);
 
+  const rooms = [{ roomNumber: 1, roomID: 'Room 1', type: 'Cardiology' },
+  { roomNumber: 2, roomID: 'Room 2', type: 'PT' },
+  { roomNumber: 3, roomID: 'Room 3', type: 'Optometry' },]
 
+  setRooms(rooms)
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
