@@ -1,7 +1,8 @@
 const supertest = require('supertest')
 
 // server
-const server = require('../server.js')
+const {app, server} = require('../server.js');
+
 // Schemas
 const User = require('../models/users.js');
 
@@ -51,7 +52,7 @@ describe('User Collection', () => {
         email: "testUser@gmail.com"
       };
   
-      const response = await supertest(server)
+      const response = await supertest(app)
         .post('/createUser') 
         .send(testUser)
         .expect(200);  
@@ -71,6 +72,11 @@ describe('User Collection', () => {
         await User.deleteOne({ _id: testData._id });
       }
 
+    });
+
+    afterAll((done) => {
+      if (server) server.close(done); 
+      else done(); 
     });
 
   

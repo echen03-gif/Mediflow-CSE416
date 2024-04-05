@@ -19,7 +19,7 @@ mongoose.connect(uri);
 
 let db = mongoose.connection;
 
-app.listen(port, () => {
+let server = app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
@@ -114,4 +114,4 @@ app.post('/createUser', async (req, res) => {
 
 
 // for supertest
-module.exports = app;
+module.exports = {app, server};
