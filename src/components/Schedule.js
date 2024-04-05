@@ -23,12 +23,13 @@ export default function Schedule() {
   return (
     <div style={{ 
       display: 'flex', 
-      height: '100vh',
+      height: '100%',
       overflowY: 'hidden',
       padding: 0,
       margin: 0,
       boxSizing: 'border-box',
-      width: '100%'
+      width: '100%',
+      backgroundColor: 'white'
       }}>
       {/* Left div for schedule label, request button, and monthly grid calendar */}
       <div style={{ flex: 1, overflow: 'hidden'}}>
@@ -39,7 +40,8 @@ export default function Schedule() {
             color: 'white', 
             padding: '8px 16px', 
             border: 'none', 
-            borderRadius: '4px' }}
+            borderRadius: '4px',
+            cursor: 'pointer' }}
             onClick={handleRequest}>
             +Request
           </button>

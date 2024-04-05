@@ -40,9 +40,11 @@
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(to bottom, #FFBA51, #FF4D34); /* Adjust the colors to match the gradient you want */
-  height: 100vh; /* Full viewport height */
+  background: linear-gradient(to bottom, #FFBA51, #FF4D34);
+  height: 100vh;
   display: flex;
-  align-items: center; /* Vertically centers the content */
-  justify-content: center; /* Horizontally centers the content */
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
+
