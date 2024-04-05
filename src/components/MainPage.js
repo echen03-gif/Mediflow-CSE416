@@ -18,13 +18,12 @@ import AddItem from "./AddItem";
 import Request from "./RequestAppointment";
 import Rooms from "./Rooms";
 import Staff from "./Staff";
-
 import Inbox from "./Inbox";
 import ChatScreen from './ChatScreen';
-
 import AddStaff from "./AddStaff";
 import AddInventory from "./AddInventory";
 import AddRoom from "./AddRoom";
+import CreateProcess from "./CreateProcess";
 
 
 // Mock array of upcoming patients
@@ -118,6 +117,7 @@ export default function MainPage() {
           <Route path="addroom" element={<AddRoom />} />
           <Route path="chatscreen/:personId" element={<ChatScreen/>}/>
           <Route path="inbox" element={<Inbox />} />
+          <Route path="createprocess" element={<CreateProcess />} />
           {/* Other routes */}
         </Routes>
       </Box>
