@@ -10,8 +10,7 @@ import {
   Toolbar,
   Typography,
   Avatar,
-  IconButton,
-  Badge
+  IconButton
 } from '@mui/material';
 import Schedule from "./Schedule";
 import Inventory from "./Inventory";
