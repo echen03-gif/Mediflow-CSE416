@@ -19,7 +19,7 @@ describe('MainPage', () => {
     cy.get('div').contains('Inventory');
     cy.get('div').contains('Staff');
     cy.get('div').contains('Rooms');
-    cy.get('div').contains('Index');
+    cy.get('div').contains('Inbox');
   });
 
   it('navigates to the  page when the  link is clicked', () => {
