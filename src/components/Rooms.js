@@ -20,13 +20,14 @@ function Rooms() {
   //commented out for now
   
 
-  const rooms = [{ roomNumber: 1, roomID: 'Room 1', type: 'Cardiology' },
-  { roomNumber: 2, roomID: 'Room 2', type: 'PT' },
-  { roomNumber: 3, roomID: 'Room 3', type: 'Optometry' },]
+ 
 
   useEffect(() => {
 
     //     axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) });
+    const rooms = [{ roomNumber: 1, roomID: 'Room 1', type: 'Cardiology' },
+    { roomNumber: 2, roomID: 'Room 2', type: 'PT' },
+    { roomNumber: 3, roomID: 'Room 3', type: 'Optometry' },]
           setRooms(rooms)
        }, []);
 
