@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
     password: {type: String},
     processes: [{type: mongoose.Schema.Types.ObjectId, ref:'Processes'}],
     role: {type: String},
-    staffID: {type: Number}
+    staffID: {type: Number},
+    status: {type: String}
 
 });
 
