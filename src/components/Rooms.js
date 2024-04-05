@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-//import React, { useEffect } from 'react';
+import  { useEffect } from 'react';
 
 //import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, FormControl, Button } from '@mui/material';
@@ -18,17 +18,19 @@ function Rooms() {
   const navigate = useNavigate();
 
   //commented out for now
-//   useEffect(() => {
-
-//     axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) });
-
-//   }, []);
+  
 
   const rooms = [{ roomNumber: 1, roomID: 'Room 1', type: 'Cardiology' },
   { roomNumber: 2, roomID: 'Room 2', type: 'PT' },
   { roomNumber: 3, roomID: 'Room 3', type: 'Optometry' },]
 
-  setRooms(rooms)
+  useEffect(() => {
+
+    //     axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) });
+          setRooms(rooms)
+       }, []);
+
+  
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
