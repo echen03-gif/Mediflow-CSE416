@@ -2,15 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, ButtonBase } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Routes, Route, Link } from "react-router-dom";
+
 
 
 function Inbox() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [peopleList, setPeople] = useState([]);
-  const [personId, setPersonId] = useState('');
-  const [showChatScreen, setShowChatScreen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +26,7 @@ function Inbox() {
   };
 
   const handleRowClick = (personId) => {
-    navigate('/main/chatscreen/${personId}');
+    navigate('/main/chatscreen');
   };
 
     return (

@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { Typography, TextField, Button, Paper, Box } from '@mui/material';
 
 function ChatScreen() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const { personId } = useParams();
 
-  // Dummy data for conversation between you and TestAdmin
   useEffect(() => {
     const dummyMessages = [
       { id: 1, sender: 'TestAdmin', text: 'Hello, how can I help you?' },
