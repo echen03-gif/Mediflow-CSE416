@@ -1,16 +1,28 @@
-require('text-encoding').TextDecoder;
-require('dotenv').config();
-const { Firestore } = require('@firebase/testing');
+if (typeof TextEncoder === "undefined") {
+  const { TextEncoder, TextDecoder } = require("util");
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+}
 
-const PROJECT_ID = 'mediflow-568ba';
-const admin = require('firebase-admin');
+jest.setTimeout(10000);
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_PRIVATE_KEY); 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  projectId: PROJECT_ID 
+const mongoose = require('mongoose');
+
+const uri = process.env.MEDIFLOWKEY;
+
+async function connectDB() {
+  await mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  return mongoose;
+}
+
+beforeAll(async () => {
+  await connectDB();
+
 });
 
-const db = admin.firestore();
-
-export { db };
+afterAll(async () => {
+  await mongoose.connection.close();
+});
