@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, FormControl } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, FormControl, Button } from '@mui/material';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 function isProductAvailable(productName, date) {
   // For now, let's assume all rooms are available on even-numbered days.
@@ -14,6 +15,8 @@ function Inventory() {
 
   const [inventoryHeadList, setInventoryHead] = useState([]);
   const [roomList, setRooms] = useState([]);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
 
@@ -40,22 +43,29 @@ function Inventory() {
     setSelectedDate(new Date(event.target.value));
   };
 
+  const navigateToAddInventory = () => {
+    navigate("/main/addinventory");
+  };
+
   return (
     <Box sx={{ flexGrow: 1, padding: 2 }}>
       <Typography variant="h4" gutterBottom>
         Inventory
       </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-        <TextField
-          label="Search"
-          variant="outlined"
-        />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: 2,
+        }}
+      >
+        <TextField label="Search" variant="outlined" />
         <FormControl variant="outlined">
           <TextField
             id="date"
             label="Date"
             type="date"
-            defaultValue={selectedDate.toISOString().split('T')[0]}
+            defaultValue={selectedDate.toISOString().split("T")[0]}
             onChange={handleDateChange}
             InputLabelProps={{
               shrink: true,
@@ -63,6 +73,13 @@ function Inventory() {
           />
         </FormControl>
       </Box>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={navigateToAddInventory}
+      >
+        Add Inventory
+      </Button>
       <TableContainer component={Paper} sx={{ height: 500 }}>
         <Table aria-label="simple table">
           <TableHead>
@@ -75,25 +92,43 @@ function Inventory() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {inventoryHeadList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((product) => (
-              <TableRow key={product.name}>
-                <TableCell component="th" scope="row" style={{ padding: '10px', paddingRight: '0' }}>
-                  <div style={{ width: '15px', height: '30px', backgroundColor: isProductAvailable(product.name, selectedDate) ? 'green' : 'red', marginRight: '10px' }}></div>
-                </TableCell>
-                <TableCell>{product.name}</TableCell>
-                <TableCell align="center">{
-                  roomList && roomList.length > 0
-                    ? roomList.find(room => room._id === product.location)?.name || 'Room not found'
-                    : 'Loading...'
-                }</TableCell>
-                <TableCell align="center">{product.quantity}</TableCell>
-                <TableCell align="center">{product.type}</TableCell>
-
-              </TableRow>
-            ))}
+            {inventoryHeadList
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((product) => (
+                <TableRow key={product.name}>
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    style={{ padding: "10px", paddingRight: "0" }}
+                  >
+                    <div
+                      style={{
+                        width: "15px",
+                        height: "30px",
+                        backgroundColor: isProductAvailable(
+                          product.name,
+                          selectedDate
+                        )
+                          ? "green"
+                          : "red",
+                        marginRight: "10px",
+                      }}
+                    ></div>
+                  </TableCell>
+                  <TableCell>{product.name}</TableCell>
+                  <TableCell align="center">
+                    {roomList && roomList.length > 0
+                      ? roomList.find((room) => room._id === product.location)
+                          ?.name || "Room not found"
+                      : "Loading..."}
+                  </TableCell>
+                  <TableCell align="center">{product.quantity}</TableCell>
+                  <TableCell align="center">{product.type}</TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
-        <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", padding: 2 }}>
           <TablePagination
             rowsPerPageOptions={[10]}
             component="div"

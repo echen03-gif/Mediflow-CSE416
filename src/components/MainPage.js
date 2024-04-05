@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import {
   Box,
@@ -10,124 +10,158 @@ import {
   Toolbar,
   Typography,
   Avatar,
-  IconButton
-} from '@mui/material';
+  IconButton,
+} from "@mui/material";
 import Schedule from "./Schedule";
 import Inventory from "./Inventory";
 import AddItem from "./AddItem";
 import Request from "./RequestAppointment";
 import Rooms from "./Rooms";
 import Staff from "./Staff";
+import AddStaff from "./AddStaff";
+import AddInventory from "./AddInventory";
+import AddRoom from "./AddRoom";
 
-
-const doctorMessages = [
-  { name: "Doctor 1", message: "asdfjnasdf;js" },
-  { name: "Doctor 2", message: "asdfjasdfsd" },
-  { name: "Doctor 3", message: "askdjlfasdf" },
-  { name: "Doctor 4", message: "askdfjasdfklj" },
-  { name: "Doctor 5", message: "asdfasdf" },
+// Mock array of upcoming patients
+const upcomingPatients = [
+  { name: "Patient 1", timeUntilTurn: "15 mins", stage: "Waiting" },
+  { name: "Patient 2", timeUntilTurn: "30 mins", stage: "Check-in" },
+  { name: "Patient 3", timeUntilTurn: "45 mins", stage: "Screening" },
 ];
 
 export default function MainPage() {
   const drawerWidth = 200; // Adjust as needed
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
-        {/* Sidebar */}
-        <Drawer
-            variant="permanent"
-            sx={{
+    <Box
+      sx={{
+        display: "flex",
+        height: "100vh",
+        width: "100vw",
+        overflow: "hidden",
+      }}
+    >
+      {/* Sidebar */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: drawerWidth,
+          [`& .MuiDrawer-paper`]: {
             width: drawerWidth,
-            [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box', backgroundColor: '#FF8141' },
-            }}
-        >
-            <Toolbar />
-            <List>
-                <ListItem>
-                    <Typography variant="h5" sx={{ marginBottom: 4 }}>MediFlow</Typography>
-                </ListItem>
-                <ListItem disablePadding>
-                    <ListItemButton component={Link} to="/main/schedule">
-                    <ListItemText primary="Schedule" />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                    <ListItemButton component={Link} to="/main/inventory">
-                    <ListItemText primary="Inventory" />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                    <ListItemButton component={Link} to="/main/staff">
-                    <ListItemText primary="Staff" />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                    <ListItemButton component={Link} to="/main/rooms">
-                    <ListItemText primary="Rooms" />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                    <ListItemButton component={Link} to="/main/index">
-                    <ListItemText primary="Index" />
-                    </ListItemButton>
-                </ListItem>
-            </List>
-        </Drawer>
-
-        {/* Main content */}
-        <Box 
-            component="main" 
-            sx={{ 
-                flexGrow: 1, 
-                p: 3, 
-                width: `calc(100vw - ${drawerWidth}px)`, 
-                height: 'calc(100vh)', 
-                overflow: 'hidden',
-                backgroundColor: 'white'
-            }}
-            >
-            <Routes>
-              <Route path="schedule" element={<Schedule />} />
-              <Route path="inventory" element={<Inventory />} />
-              <Route path="additem" element={<AddItem />} />
-              <Route path="request" element={<Request />} />
-              <Route path="rooms" element={<Rooms />} />
-              <Route path="staff" element={<Staff />} />
-              {/* Other routes */}
-            </Routes>
-        </Box>
-
-        {/* Profile Bar */}
-        <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            justifyContent: 'flex-start',
-            alignItems: 'center', 
-            width: drawerWidth, 
-            bgcolor: '#FF8141', 
-            p: 1
-        }}>
-        <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-        >
-        </IconButton>
-        <Typography variant="h6" noWrap component="div" sx={{ display: { xs: 'none', md: 'flex' } }}>
-            Dr. Jane Doe
-        </Typography>
-        <Avatar alt="Remy Sharp" src="https://mui.com/static/images/avatar/1.jpg" />
-        {/* displaying inbox */}
-        <Box sx={{ maxHeight: 200, overflowY: 'auto', width: '100%', mt: 2 }}>
-            {doctorMessages.map((message, index) => (
-            <Typography key={index} variant="body2" sx={{ mt: 1, textAlign: 'center' }}>
-                {message.name}: {message.message}
+            boxSizing: "border-box",
+            backgroundColor: "#CCEEFF",
+          },
+        }}
+      >
+        <Toolbar />
+        <List>
+          <ListItem>
+            <Typography variant="h5" sx={{ marginBottom: 4 }}>
+              MediFlow
             </Typography>
-            ))}
-        </Box>
-        </Box>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/main/schedule">
+              <ListItemText primary="Schedule" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/main/inventory">
+              <ListItemText primary="Inventory" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/main/staff">
+              <ListItemText primary="Staff" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/main/rooms">
+              <ListItemText primary="Rooms" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/main/index">
+              <ListItemText primary="Index" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Drawer>
+
+      {/* Main content */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          pl: 3,
+          pr: 3,
+          width: `calc(100vw - ${drawerWidth}px)`,
+          height: "calc(100vh)",
+          overflow: "hidden",
+          backgroundColor: "white",
+        }}
+      >
+        <Routes>
+          <Route path="schedule" element={<Schedule />} />
+          <Route path="inventory" element={<Inventory />} />
+          <Route path="additem" element={<AddItem />} />
+          <Route path="request" element={<Request />} />
+          <Route path="rooms" element={<Rooms />} />
+          <Route path="staff" element={<Staff />} />
+          <Route path="addstaff" element={<AddStaff />} />
+          <Route path="addinventory" element={<AddInventory />} />
+          <Route path="addroom" element={<AddRoom />} />
+          {/* Other routes */}
+        </Routes>
+      </Box>
+
+      {/* Profile Bar */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          alignItems: "center",
+          width: drawerWidth,
+          bgcolor: "#CCEEFF",
+          p: 1,
+        }}
+      >
+        <IconButton
+          size="large"
+          edge="start"
+          color="inherit"
+          aria-label="menu"
+          sx={{ mr: 2 }}
+        ></IconButton>
+        <Typography
+          variant="h4"
+          noWrap
+          component="div"
+          sx={{ display: { xs: "none", md: "flex" } }}
+        >
+          Dr. Jane Doe
+        </Typography>
+        <Avatar
+          alt="Remy Sharp"
+          src="https://mui.com/static/images/avatar/1.jpg"
+        />
+        <Typography
+          variant="h6"
+          noWrap
+          component="div"
+          sx={{ display: { xs: "none", md: "flex" }, mb: 2 }}
+        >
+          Upcoming Patients
+        </Typography>
+        {upcomingPatients.map((patient, index) => (
+          <Box key={index} sx={{ width: "100%", textAlign: "center", mb: 1 }}>
+            <Typography variant="body1">{patient.name}</Typography>
+            <Typography variant="body2">{`Time until turn: ${patient.timeUntilTurn}`}</Typography>
+            <Typography variant="body2">{`Stage: ${patient.stage}`}</Typography>
+          </Box>
+        ))}
+      </Box>
     </Box>
   );
 }
