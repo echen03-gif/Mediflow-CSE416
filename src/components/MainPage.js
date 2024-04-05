@@ -62,7 +62,7 @@ export default function MainPage() {
         <List>
           <ListItem>
             <Typography variant="h5" sx={{ marginBottom: 4 }}>
-              MediFlow
+              MediFlow⚕️
             </Typography>
           </ListItem>
           <ListItem disablePadding>

@@ -3,7 +3,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-//import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
 
 
@@ -11,7 +11,7 @@ export default function Schedule() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null); // Add a state for the selected event
   const calendarRef = useRef(null);
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
 
 
   const events = [
@@ -23,13 +23,13 @@ export default function Schedule() {
 
   const handleDateClick = (arg) => {
     setSelectedDate(arg.date);
-    let calendarApi = calendarRef.current.getApi();
-    calendarApi.changeView('timeGridDay', arg.date);
+    //let calendarApi = calendarRef.current.getApi();
+    //calendarApi.changeView('timeGridDay', arg.date);
   };
 
-  // const handleRequest = () => {
-  //   navigate('/main/request');
-  // }
+  const handleRequest = () => {
+    navigate('/main/request');
+  }
 
   const handleEventClick = (info) => {
     setSelectedEvent(info.event);
@@ -54,7 +54,20 @@ export default function Schedule() {
     >
       {/* Left div for schedule label, request button, and monthly grid calendar */}
       <div style={{ flex: 1, overflow: "hidden", paddingRight: "24px", paddingTop: "50px" }}>
-        {/* ... */}
+        <h4>SCHEDULE</h4>
+        <button
+            style={{
+              backgroundColor: "#1976D2",
+              color: "white",
+              padding: "8px 16px",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+            onClick={handleRequest}
+          >
+            + Request
+          </button>
         {/* Monthly grid calendar */}
         <FullCalendar
           ref={calendarRef}
