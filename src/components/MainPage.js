@@ -18,6 +18,8 @@ import AddItem from "./AddItem";
 import Request from "./RequestAppointment";
 import Rooms from "./Rooms";
 import Staff from "./Staff";
+import Inbox from "./Inbox";
+import ChatScreen from './ChatScreen';
 
 
 const doctorMessages = [
@@ -67,8 +69,8 @@ export default function MainPage() {
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
-                    <ListItemButton component={Link} to="/main/index">
-                    <ListItemText primary="Index" />
+                    <ListItemButton component={Link} to="/main/inbox">
+                    <ListItemText primary="Inbox" />
                     </ListItemButton>
                 </ListItem>
             </List>
@@ -93,6 +95,9 @@ export default function MainPage() {
               <Route path="request" element={<Request />} />
               <Route path="rooms" element={<Rooms />} />
               <Route path="staff" element={<Staff />} />
+              <Route path="chatscreen/:personId" element={<ChatScreen/>}/>
+              <Route path="inbox" element={<Inbox/>}/>
+              
               {/* Other routes */}
             </Routes>
         </Box>
