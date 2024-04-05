@@ -1,6 +1,6 @@
 const supertest = require('supertest')
 
-// server
+// import server file
 const {app, server} = require('../server.js');
 
 // Schemas
