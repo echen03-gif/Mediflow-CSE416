@@ -13,9 +13,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Cypress run
+      - name: Cypress Run
         uses: cypress-io/github-action@v6
         with:
           component: true
+
+      - name: Jest/Supertest Run
+        env:
+          MEDIFLOWKEY: ${{ secrets.MEDIFLOWKEY }}
+        run: npm test
 
 

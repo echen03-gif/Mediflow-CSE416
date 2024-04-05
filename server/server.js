@@ -100,4 +100,18 @@ app.get('/processes', async (req, res) => {
 });
 
 
+app.post('/createUser', async (req, res) => {
+    
+    const newUser = new Users({
+        name: req.body.name,
+        email: req.body.email
+    })
 
+    await newUser.save();
+    
+    res.send(newUser);
+})
+
+
+// for supertest
+module.exports = app;
