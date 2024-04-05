@@ -46,7 +46,7 @@ export default function RequestAppointment() {
             value={appointmentData.date}
             onChange={handleChange}
           >
-            {/* Map over your dates here */}
+            
             <MenuItem value="">--Select--</MenuItem>
           </TextField>
           <TextField
@@ -59,7 +59,6 @@ export default function RequestAppointment() {
             value={appointmentData.staff}
             onChange={handleChange}
           >
-            {/* Map over your staff here */}
             <MenuItem value="">--Select--</MenuItem>
           </TextField>
           <TextField
@@ -72,7 +71,6 @@ export default function RequestAppointment() {
             value={appointmentData.equipment}
             onChange={handleChange}
           >
-            {/* Map over your equipment here */}
             <MenuItem value="">--Select--</MenuItem>
           </TextField>
           <TextField
@@ -85,7 +83,6 @@ export default function RequestAppointment() {
             value={appointmentData.room}
             onChange={handleChange}
           >
-            {/* Map over your rooms here */}
             <MenuItem value="">--Select--</MenuItem>
           </TextField>
           <Button type="submit" variant="contained" sx={{ backgroundColor: '#FF8241', '&:hover': { backgroundColor: '#FF5034' } }}>
