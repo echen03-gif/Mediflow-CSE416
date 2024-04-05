@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Grid, Avatar, Typography, TextField, Box } from '@mui/material';
 
-// Sample data
-const staffData = [
-  { name: 'Doctor 1', status: 'ON DUTY', avatar: '' },
-  { name: 'Doctor 2', status: 'ON DUTY', avatar: '' },
-  { name: 'Doctor 3', status: 'ON CALL', avatar: '' },
-  { name: 'Doctor 4', status: 'ON CALL', avatar: '' },
-  { name: 'Doctor 5', status: 'NOT AVAILABLE', avatar: '' },
-  { name: 'Doctor 6', status: 'NOT AVAILABLE', avatar: '' },
-];
 
 const Staff = () => {
   const [search, setSearch] = useState('');
+  const [usersList, setUsers] = useState([]);
+
+  useEffect(() => {
+
+    axios.get('https://mediflow-cse416.onrender.com/users').then(res => { setUsers(res.data) });
+
+  }, []);
 
   const handleSearch = (event) => {
     setSearch(event.target.value);
@@ -43,11 +42,11 @@ const Staff = () => {
           <Grid item xs={12} key={status}>
             <Typography variant="h6" align='center'>{status}</Typography>
             <Grid container spacing={2} justifyContent='center'>
-              {staffData
+              {usersList
                 .filter((staff) => staff.status === status && staff.name.toLowerCase().includes(search.toLowerCase()))
                 .map((staff) => (
                   <Grid item key={staff.name}>
-                    <Avatar alt={staff.name} src={staff.avatar} style={{ width: 60, height: 60 }} />
+                    <Avatar alt={staff.name} src={''} style={{ width: 60, height: 60 }} />
                     <Typography>{staff.name}</Typography>
                   </Grid>
                 ))}
