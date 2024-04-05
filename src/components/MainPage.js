@@ -18,9 +18,14 @@ import AddItem from "./AddItem";
 import Request from "./RequestAppointment";
 import Rooms from "./Rooms";
 import Staff from "./Staff";
+
+import Inbox from "./Inbox";
+import ChatScreen from './ChatScreen';
+
 import AddStaff from "./AddStaff";
 import AddInventory from "./AddInventory";
 import AddRoom from "./AddRoom";
+
 
 // Mock array of upcoming patients
 const upcomingPatients = [
@@ -81,9 +86,9 @@ export default function MainPage() {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/main/index">
-              <ListItemText primary="Index" />
-            </ListItemButton>
+             <ListItemButton component={Link} to="/main/inbox">
+                <ListItemText primary="Inbox" />
+              </ListItemButton>
           </ListItem>
         </List>
       </Drawer>
@@ -111,9 +116,11 @@ export default function MainPage() {
           <Route path="addstaff" element={<AddStaff />} />
           <Route path="addinventory" element={<AddInventory />} />
           <Route path="addroom" element={<AddRoom />} />
+           <Route path="chatscreen/:personId" element={<ChatScreen/>}/>
           {/* Other routes */}
         </Routes>
       </Box>
+
 
       {/* Profile Bar */}
       <Box
