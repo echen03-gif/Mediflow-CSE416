@@ -16,6 +16,7 @@ import Schedule from "./Schedule";
 import Inventory from "./Inventory";
 import AddItem from "./AddItem";
 import Request from "./RequestAppointment";
+import Rooms from "./Rooms";
 
 const doctorMessages = [
   { name: "Doctor 1", message: "asdfjnasdf;js" },
@@ -88,6 +89,7 @@ export default function MainPage() {
               <Route path="inventory" element={<Inventory />} />
               <Route path="additem" element={<AddItem />} />
               <Route path="request" element={<Request />} />
+              <Route path="rooms" element={<Rooms />} />
               {/* Other routes */}
             </Routes>
         </Box>
