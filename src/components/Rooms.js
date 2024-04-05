@@ -14,7 +14,7 @@ function Rooms() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [roomList, setRooms] = useState([]);
+  //const [roomList, setRooms] = useState([]);
   const navigate = useNavigate();
 
   //commented out for now
@@ -24,11 +24,10 @@ function Rooms() {
 
 //   }, []);
 
-  const rooms = [{ roomNumber: 1, roomID: 'Room 1', type: 'Cardiology' },
+  const roomList = [{ roomNumber: 1, roomID: 'Room 1', type: 'Cardiology' },
   { roomNumber: 2, roomID: 'Room 2', type: 'PT' },
   { roomNumber: 3, roomID: 'Room 3', type: 'Optometry' },]
 
-  setRooms(rooms)
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
