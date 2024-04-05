@@ -14,16 +14,18 @@ client:
 - `@fullcalendar/react`, `@fullcalendar/daygrid`
 - `socket.io-client`
 - `web-vitals`
+- `sharp`
+
 client testing:
 - `cypress`
 
 server:
 - `cors`
 - `express`
-- `firebase-admin`
-- `react`
+- `mongodb`
 - `socket.io`
-- `sharp`
+
+
 server testing:
 - `supertest`
 - `jest`
