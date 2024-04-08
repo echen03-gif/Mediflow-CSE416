@@ -171,6 +171,23 @@ app.post('/createEquipment', async (req, res) => {
     
 });
 
+app.post('/createRoom', async (req, res) => {
+    
+    const newRoom = new Rooms({
+        
+        created: new Date(),
+        equipment: [],
+        name: req.body.name,
+        status: req.body.status,
+        type: req.body.type,
+        updatedAt: new Date(),
+        //roomID: req.body.roomID
+    })
+    
+    res.send(await newRoom.save());
+    
+});
+
 app.post('/createProcess', async (req, res) => {
     
     const newProcess = new Processes({
