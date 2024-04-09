@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import  { useEffect } from 'react';
 import {
   Box,
   Button,
@@ -15,13 +16,27 @@ import axios from 'axios';
 const AddRoom = () => {
   const [roomNumber, setRoomNumber] = useState("");
   const [roomType, setRoomType] = useState("");
+  const [rooms, setRooms] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) }).then(console.log('found rooms'));
+   }, []);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const roomExists = rooms.some((room) => room.name === roomNumber);
+    if (roomExists) {
+      alert("Room with this number already exists.");
+      return;
+    }
+
     await axios.post("https://mediflow-cse416.onrender.com/createRoom", {
       name: roomNumber,
       type: roomType,
+      roomID: rooms.length + 1,
       status: "Open"
     }).then(console.log("Added room")).then(navigate("/main/rooms"));
   };
