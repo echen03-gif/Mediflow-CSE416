@@ -181,7 +181,7 @@ app.post('/createRoom', async (req, res) => {
         status: req.body.status,
         type: req.body.type,
         updatedAt: new Date(),
-        //roomID: req.body.roomID
+        roomID: req.body.roomID
     })
     
     res.send(await newRoom.save());

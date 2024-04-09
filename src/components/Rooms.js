@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import  { useEffect } from 'react';
 
-//import axios from 'axios';
+import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, FormControl, Button } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 
-function isRoomAvailable(roomNumber, date) {
+function isRoomAvailable(roomName, date) {
   // For now, let's assume all rooms are available on even-numbered days.
   return date.getDate() % 2 === 0;
 }
@@ -23,12 +23,7 @@ function Rooms() {
  
 
   useEffect(() => {
-
-    //     axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) });
-    const rooms = [{ roomNumber: 1, roomID: 'Room 1', type: 'Cardiology' },
-    { roomNumber: 2, roomID: 'Room 2', type: 'PT' },
-    { roomNumber: 3, roomID: 'Room 3', type: 'Optometry' },]
-          setRooms(rooms)
+        axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) }).then(console.log('found rooms'));
        }, []);
 
   
@@ -112,7 +107,7 @@ function Rooms() {
                       }}
                     ></div>
                   </TableCell>
-                  <TableCell>{room.roomID}</TableCell>
+                  <TableCell>{room.name}</TableCell>
                   <TableCell align="right">{room.type}</TableCell>
                   <TableCell align="right">
                     Assigned Processes/Appointment
