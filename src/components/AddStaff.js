@@ -12,6 +12,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 const AddStaff = () => {
   const [firstName, setFirstName] = useState("");
@@ -25,7 +26,14 @@ const AddStaff = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    navigate("/main/staff");
+    axios.post("https://mediflow-cse416.onrender.com/createUser", {
+      admin: isAdmin,
+      name: firstName + " " + lastName,
+      email: email,
+      password: password,
+      role: position
+    }).then(navigate("/main/staff"));
+    
   };
 
   return (

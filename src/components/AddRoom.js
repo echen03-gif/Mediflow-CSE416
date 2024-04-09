@@ -10,6 +10,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 const AddRoom = () => {
   const [roomNumber, setRoomNumber] = useState("");
@@ -18,7 +19,11 @@ const AddRoom = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/main/rooms");
+    await axios.post("https://mediflow-cse416.onrender.com/createRoom", {
+      name: roomNumber,
+      type: roomType,
+      status: "Open"
+    }).then(console.log("Added room")).then(navigate("/main/rooms"));
   };
 
   return (

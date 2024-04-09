@@ -20,6 +20,7 @@ const AddInventory = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
     navigate("/main/inventory");
   };
 
