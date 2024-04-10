@@ -48,14 +48,13 @@ function createUser(adminBool, email, name, password, role, staffID, status){
 
 }
 
-function createEquipmentHead(name, quantity, type, location){
+function createEquipmentHead(name, quantity, type){
 
     let testEquipmentHead = {
         name: name,
         quantity: quantity,
         equipment: [],
         type: type,
-        location: location,
     }
 
     let addEquipmentHead = new EquipmentHeads(testEquipmentHead);
@@ -93,7 +92,7 @@ const populate = async () => {
     let testDoctor2 = await createUser(false, "testDoctor2@gmail.com", "testDoctor2", "testDoctor2", "doctor", 0, "ON DUTY");
 
     let testRoom = await createRoom("Test Room", 0, "Open", "Radiology");
-    let testEquipment = await createEquipmentHead("CT Machine", 2, "Radiology", testRoom);
+    let testEquipment = await createEquipmentHead("CT Machine", 0, "Radiology");
     
 
     if (db) db.close();
