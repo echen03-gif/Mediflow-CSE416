@@ -5,8 +5,7 @@ const equipmentHeadSchema = new mongoose.Schema({
     name: {type: String},
     quantity: {type: Number},
     equipment: [{type: mongoose.Schema.Types.ObjectId, ref:'Equipment'}],
-    type: {type: String},
-    location: {type: mongoose.Schema.Types.ObjectId, ref:'Room'}
+    type: {type: String}
 
 
 });
