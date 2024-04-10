@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 
+
+const shiftSchema = new mongoose.Schema({
+    start: {type: String},
+    end: {type: String}
+});
+
+
 const userSchema = new mongoose.Schema({
 
     admin: {type: Boolean},
@@ -10,7 +17,16 @@ const userSchema = new mongoose.Schema({
     processes: [{type: mongoose.Schema.Types.ObjectId, ref:'Processes'}],
     role: {type: String},
     staffID: {type: Number},
-    status: {type: String}
+    schedule: {
+        Monday: [shiftSchema],
+        Tuesday: [shiftSchema],
+        Wednesday: [shiftSchema],
+        Thursday: [shiftSchema],
+        Friday: [shiftSchema],
+        Saturday: [shiftSchema],
+        Sunday: [shiftSchema]
+    },
+
 
 });
 

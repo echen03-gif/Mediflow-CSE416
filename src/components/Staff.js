@@ -17,7 +17,10 @@ const Staff = () => {
 
   useEffect(() => {
     axios.get("https://mediflow-cse416.onrender.com/users").then((res) => {
-      setUsers(res.data);
+      const usersWithStatus = res.data.map(user => {
+        return {...user, status: getStatus(user.schedule)};
+      });
+      setUsers(usersWithStatus);
     });
   }, []);
 
@@ -29,6 +32,33 @@ const Staff = () => {
     navigate("/main/addstaff");
   };
 
+  const getStatus = (schedule) => {
+    
+  
+    const now = new Date();
+    const currentDay = now.toLocaleString('default', { weekday: 'long' });
+    const currentTime = now.getHours() * 60 + now.getMinutes();  // Current time in minutes since midnight
+  
+    const todaysSchedule = schedule[currentDay];
+    console.log(todaysSchedule, currentDay)
+  
+    if (!todaysSchedule) {
+      return "NOT AVAILABLE";
+    }
+  
+    for(let i = 0; i < todaysSchedule.length; i++) {
+      const shiftStart = parseInt(todaysSchedule[i].start.split(':')[0]) * 60 + parseInt(todaysSchedule[i].start.split(':')[1]);  // Shift start time in minutes since midnight
+      const shiftEnd = parseInt(todaysSchedule[i].end.split(':')[0]) * 60 + parseInt(todaysSchedule[i].end.split(':')[1]);  // Shift end time in minutes since midnight
+      console.log(shiftEnd)
+      console.log(shiftStart)
+      if(currentTime >= shiftStart && currentTime <= shiftEnd) {
+        return "ON DUTY";
+      }
+    }
+  
+    return "NOT AVAILABLE";
+  };
+  
   return (
     <Box pt={5} sx={{ flexGrow: 1, padding: 2 }}>
       <Grid container spacing={3}>
