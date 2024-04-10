@@ -11,7 +11,6 @@ function isProductAvailable(productName, date) {
 function Inventory() {
   const [page, setPage] = useState(0);
   const [inventoryPage, setInventoryPage] = useState('default');
-  const [viewingEquipment, setViewingEquipment] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -37,7 +36,6 @@ function Inventory() {
   const switchInventoryPage = (equipment) => {
 
 
-    setViewingEquipment(equipment);
 
     setInventoryPage('equipmentViewing');
 
@@ -113,7 +111,7 @@ function Inventory() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {equipmentList.length == 0 ? (
+                {equipmentList.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={4} style={{ textAlign: 'center' }}>
                       Loading...
@@ -145,7 +143,7 @@ function Inventory() {
                       <TableCell> 
                         {equipmentDB.find(equipment => equipment._id === product).name}
                       </TableCell>
-                      <TableCell align="center">{roomList.find(room => room._id == (equipmentDB.find(equipment => equipment._id === product).location)).name}</TableCell>
+                      <TableCell align="center">{roomList.find(room => room._id === (equipmentDB.find(equipment => equipment._id === product).location)).name}</TableCell>
                       <TableCell align="center">{equipmentDB.find(equipment => equipment._id === product).status}</TableCell>
                     </TableRow>
                   ))}
@@ -258,6 +256,9 @@ function Inventory() {
           </TableContainer>
         </Box>
       );
+
+    default:
+      return;
 
   }
 

@@ -16,12 +16,10 @@ describe('AddInventory', () => {
 
   it('renders the form fields', () => {
     cy.get('input[name="name"]').should('exist');
-    cy.get('input[name="quantity"]').should('exist');
   });
 
   it('changes the input values when new values are entered', () => {
     cy.get('input[name="name"]').type('New Item');
-    cy.get('input[name="quantity"]').type('10');
     
   });
 

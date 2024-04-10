@@ -36,7 +36,6 @@ const upcomingPatients = [
 export default function MainPage() {
   const drawerWidth = 200; // Adjust as needed
 
-  const navigate = useNavigate();
   const location = useLocation();
 
   const handleRefreshClick = (targetPath) => (event) => {
