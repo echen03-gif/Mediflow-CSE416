@@ -117,7 +117,7 @@ app.post('/createUser', async (req, res) => {
         processes: [],
         role: req.body.role,
         staffID: req.body.staffID,
-        status: req.body.status
+        schedule: JSON.parse(req.body.schedule),
     })
     
     res.send(await newUser.save());
