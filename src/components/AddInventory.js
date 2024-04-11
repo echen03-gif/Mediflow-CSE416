@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from 'axios';
 import {
   Box,
   Button,
@@ -11,15 +12,72 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
+
 const AddInventory = () => {
   const [name, setName] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [location, setLocation] = useState("");
-  const [category, setCategory] = useState("");
+  const [equipmentLocation, setLocation] = useState("");
+  const [equipmentCategory, setCategory] = useState("");
+  const [equipmentHeadList, setEquipmentHead] = useState([]);
+  const [rooms, setRooms] = useState([]);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    axios.get('https://mediflow-cse416.onrender.com/equipmentHead').then(res => { setEquipmentHead(res.data) }).then(console.log('found rooms'));
+  }, []);
+
+  useEffect(() => {
+    axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) }).then(console.log('found rooms'));
+  }, []);
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const equipmentHeadExists = equipmentHeadList.some((object) => object.name === name);
+    if (equipmentHeadExists) {
+
+      let newItem = await axios.post("https://mediflow-cse416.onrender.com/createEquipment", {
+        location: equipmentLocation,
+        name: name,
+        type: equipmentCategory
+
+      }).then(console.log("Added Equipment"));
+
+      await axios.put("https://mediflow-cse416.onrender.com/changeEquipmentHead", {
+
+        name: name,
+        equipment: newItem.data
+
+      }).then(console.log("Updated Head"));
+
+    }
+    else {
+
+      await axios.post("https://mediflow-cse416.onrender.com/createEquipmentHead", {
+
+        name: name,
+        type: equipmentCategory
+
+      }).then(console.log("Added Equipment Head"));
+
+
+      let newItem = await axios.post("https://mediflow-cse416.onrender.com/createEquipment", {
+        location: equipmentLocation,
+        name: name,
+        type: equipmentCategory
+
+      }).then(console.log("Added Equipment"));
+
+      await axios.put("https://mediflow-cse416.onrender.com/changeEquipmentHead", {
+
+        name: name,
+        equipment: newItem.data
+
+      }).then(console.log("Updated Head"));
+
+    }
+
+
     navigate("/main/inventory");
   };
 
@@ -39,29 +97,18 @@ const AddInventory = () => {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="quantity"
-          label="Quantity"
-          name="quantity"
-          type="number"
-          autoComplete="quantity"
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.value)}
-        />
         <FormControl fullWidth margin="normal">
           <InputLabel id="location-label">Location</InputLabel>
           <Select
             labelId="location-label"
             id="location"
-            value={location}
+            value={equipmentLocation}
             label="Location"
             onChange={(e) => setLocation(e.target.value)}
           >
-            <MenuItem value={"Location 1"}>Location 1</MenuItem>
-            <MenuItem value={"Location 2"}>Location 2</MenuItem>
+            {rooms.map((room) =>
+              <MenuItem value={room}>{room.name}</MenuItem>
+            )}
           </Select>
         </FormControl>
         <FormControl fullWidth margin="normal">
@@ -69,7 +116,7 @@ const AddInventory = () => {
           <Select
             labelId="category-label"
             id="category"
-            value={category}
+            value={equipmentCategory}
             label="Category"
             onChange={(e) => setCategory(e.target.value)}
           >

@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
 import {
   Box,
   Drawer,
@@ -36,6 +36,17 @@ const upcomingPatients = [
 export default function MainPage() {
   const drawerWidth = 200; // Adjust as needed
 
+  const location = useLocation();
+
+  const handleRefreshClick = (targetPath) => (event) => {
+    console.log("hello");
+    if (location.pathname === targetPath) {
+      event.preventDefault(); 
+      window.location.href = targetPath;
+    }
+    
+  };
+
   return (
     <Box
       sx={{
@@ -71,7 +82,7 @@ export default function MainPage() {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/main/inventory">
+            <ListItemButton component={Link} to="/main/inventory" onClick={handleRefreshClick("/main/inventory")}>
               <ListItemText primary="Inventory" />
             </ListItemButton>
           </ListItem>

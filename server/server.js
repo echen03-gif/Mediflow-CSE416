@@ -39,8 +39,11 @@ let Rooms = require('./models/room.js');
 let Communication = require('./models/communication.js');
 let Processes = require('./models/processes.js');
 const equipment = require('./models/equipment.js');
+const equipmentHead = require('./models/equipmentHead.js');
 
 // Define Backend Functions
+
+// GET FUNCTIONS
 
 app.get('/users', async (req, res) => {
 
@@ -87,7 +90,7 @@ app.get('/communication', async (req, res) => {
 
     let communication = await Communication.find();
 
-    res.send(commuincation);
+    res.send(communication);
 
 });
 
@@ -98,6 +101,9 @@ app.get('/processes', async (req, res) => {
     res.send(processes);
 
 });
+
+
+// POST FUNCTIONS
 
 
 app.post('/createUser', async (req, res) => {
@@ -111,7 +117,7 @@ app.post('/createUser', async (req, res) => {
         processes: [],
         role: req.body.role,
         staffID: req.body.staffID,
-        status: req.body.status
+        schedule: JSON.parse(req.body.schedule),
     })
     
     res.send(await newUser.save());
@@ -143,10 +149,9 @@ app.post('/createEquipmentHead', async (req, res) => {
     const newEquipmentHead = new EquipmentHeads({
 
         name: req.body.name,
-        quantity: req.body.quantity,
+        quantity: 0,
         equipment: [],
-        type: req.body.type,
-        location: req.body.location
+        type: req.body.type
 
     })
     
@@ -159,15 +164,31 @@ app.post('/createEquipment', async (req, res) => {
     const newEquipment = new Equipment({
         
         created: new Date(),
-        equipmentID: req.body.equipmentID,
         location: req.body.location,
         name: req.body.name,
-        status: req.body.status,
+        status: "Functional",
         type: req.body.type,
         updatedAt: new Date()
     })
     
     res.send(await newEquipment.save());
+    
+});
+
+app.post('/createRoom', async (req, res) => {
+    
+    const newRoom = new Rooms({
+        
+        created: new Date(),
+        equipment: [],
+        name: req.body.name,
+        status: req.body.status,
+        type: req.body.type,
+        updatedAt: new Date(),
+        roomID: req.body.roomID
+    })
+    
+    res.send(await newRoom.save());
     
 });
 
@@ -186,7 +207,27 @@ app.post('/createProcess', async (req, res) => {
     
     res.send(await newProcess.save());
     
-})
+});
+
+// PUT FUNCTIONS
+
+app.put('/changeEquipmentHead', async (req, res) => {
+
+    let equipmentHeadUpdate = await equipmentHead.findOne({name: req.body.name});
+
+    equipmentHeadUpdate.quantity += 1;
+
+    equipmentHeadUpdate.equipment.push(req.body.equipment);
+
+    await equipmentHeadUpdate.save();
+
+    res.send("Equipemnt Head Updated");
+
+
+});
+
+// DELETE FUNCTIONS
+
 
 // for supertest
 module.exports = {app, server};

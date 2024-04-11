@@ -12,6 +12,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 const AddStaff = () => {
   const [firstName, setFirstName] = useState("");
@@ -22,10 +23,37 @@ const AddStaff = () => {
   const [email, setEmail] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+  const [shiftStart, setShiftStart] = useState("");
+  const [shiftEnd, setShiftEnd] = useState("");
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    navigate("/main/staff");
+
+    const [startHour, startMinutes] = shiftStart.split(':');
+    const [endHour, endMinutes] = shiftEnd.split(':');
+    
+
+    const schedule = {
+      Monday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
+      Tuesday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
+      Wednesday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
+      Thursday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
+      Friday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
+      Saturday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
+      Sunday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
+      
+    };
+    
+    axios.post("https://mediflow-cse416.onrender.com/createUser", {
+      admin: isAdmin,
+      name: firstName + " " + lastName,
+      email: email,
+      password: password,
+      role: position,
+      schedule: JSON.stringify(schedule),
+    }).then(navigate("/main/staff"));
+    
   };
 
   return (
@@ -91,6 +119,40 @@ const AddStaff = () => {
           }}
           value={dateOfBirth}
           onChange={(e) => setDateOfBirth(e.target.value)}
+        />
+                <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="shiftStart"
+          label="Shift Start Time"
+          name="shiftStart"
+          type="time"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          inputProps={{
+            step: 300, // 5 min
+          }}
+          value={shiftStart}
+          onChange={(e) => setShiftStart(e.target.value)}
+        />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="shiftEnd"
+          label="Shift End Time"
+          name="shiftEnd"
+          type="time"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          inputProps={{
+            step: 300, // 5 min
+          }}
+          value={shiftEnd}
+          onChange={(e) => setShiftEnd(e.target.value)}
         />
         <FormControl fullWidth margin="normal">
           <InputLabel id="position-label">Position</InputLabel>
