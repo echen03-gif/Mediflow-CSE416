@@ -23,27 +23,31 @@ const AddStaff = () => {
   const [email, setEmail] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
-  const [shiftStart, setShiftStart] = useState("");
-  const [shiftEnd, setShiftEnd] = useState("");
+  
+  const [shifts, setShifts] = useState({
+    Monday: { start: "", end: "", isWorking: true },
+    Tuesday: { start: "", end: "", isWorking: true },
+    Wednesday: { start: "", end: "", isWorking: true },
+    Thursday: { start: "", end: "", isWorking: true },
+    Friday: { start: "", end: "", isWorking: true },
+    Saturday: { start: "", end: "", isWorking: true },
+    Sunday: { start: "", end: "", isWorking: true },
+  });
 
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const [startHour, startMinutes] = shiftStart.split(':');
-    const [endHour, endMinutes] = shiftEnd.split(':');
-    
-
-    const schedule = {
-      Monday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
-      Tuesday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
-      Wednesday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
-      Thursday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
-      Friday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
-      Saturday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
-      Sunday: [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }],
-      
-    };
+    const schedule = {};
+    for (const day in shifts) {
+      if (shifts[day].isWorking) {
+        const [startHour, startMinutes] = shifts[day].start.split(':');
+        const [endHour, endMinutes] = shifts[day].end.split(':');
+        schedule[day] = [{ start: startHour + ':' + startMinutes, end: endHour + ':' + endMinutes }];
+      } else {
+        schedule[day] = [];
+      }
+    }
     
     axios.post("https://mediflow-cse416.onrender.com/createUser", {
       admin: isAdmin,
@@ -57,7 +61,8 @@ const AddStaff = () => {
   };
 
   return (
-    <Box sx={{ mt: 8, mx: 4 }}>
+    <Box pt={5} sx={{ flexGrow: 1}}>
+      <div style={{ overflowY: 'auto', maxHeight: '90vh', padding: "1%" }}>
       <Typography variant="h6">Add Staff Member</Typography>
       <form onSubmit={handleSubmit}>
         <TextField
@@ -120,40 +125,6 @@ const AddStaff = () => {
           value={dateOfBirth}
           onChange={(e) => setDateOfBirth(e.target.value)}
         />
-                <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="shiftStart"
-          label="Shift Start Time"
-          name="shiftStart"
-          type="time"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          inputProps={{
-            step: 300, // 5 min
-          }}
-          value={shiftStart}
-          onChange={(e) => setShiftStart(e.target.value)}
-        />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="shiftEnd"
-          label="Shift End Time"
-          name="shiftEnd"
-          type="time"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          inputProps={{
-            step: 300, // 5 min
-          }}
-          value={shiftEnd}
-          onChange={(e) => setShiftEnd(e.target.value)}
-        />
         <FormControl fullWidth margin="normal">
           <InputLabel id="position-label">Position</InputLabel>
           <Select
@@ -169,6 +140,59 @@ const AddStaff = () => {
             <MenuItem value={"Support Staff"}>Support Staff</MenuItem>
           </Select>
         </FormControl>
+        {Object.keys(shifts).map((day) => (
+          <React.Fragment key={day}>
+            <Typography variant="h6">{day}</Typography>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={shifts[day].isWorking}
+                  onChange={(e) => setShifts({ ...shifts, [day]: { ...shifts[day], isWorking: e.target.checked } })}
+                />
+              }
+              label="Scheduled To Work"
+            />
+            {shifts[day].isWorking && (
+              <>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id={`${day}ShiftStart`}
+                  label="Shift Start Time"
+                  name={`${day}ShiftStart`}
+                  type="time"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    step: 300, // 5 min
+                  }}
+                  value={shifts[day].start}
+                  onChange={(e) => setShifts({ ...shifts, [day]: { ...shifts[day], start: e.target.value } })}
+                />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id={`${day}ShiftEnd`}
+                  label="Shift End Time"
+                  name={`${day}ShiftEnd`}
+                  type="time"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    step: 300, // 5 min
+                  }}
+                  value={shifts[day].end}
+                  onChange={(e) => setShifts({ ...shifts, [day]: { ...shifts[day], end: e.target.value } })}
+                />
+              </>
+            )}
+          </React.Fragment>
+        ))}
+
         <FormControlLabel
           control={
             <Switch
@@ -187,6 +211,7 @@ const AddStaff = () => {
           Add Staff
         </Button>
       </form>
+      </div>
     </Box>
   );
 };
