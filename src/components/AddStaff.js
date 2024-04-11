@@ -51,7 +51,7 @@ const AddStaff = () => {
       email: email,
       password: password,
       role: position,
-      schedule: JSON.stringify(schedule),
+      schedule: schedule,
     }).then(navigate("/main/staff"));
     
   };
