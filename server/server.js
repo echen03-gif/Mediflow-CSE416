@@ -107,21 +107,27 @@ app.get('/processes', async (req, res) => {
 
 
 app.post('/createUser', async (req, res) => {
+    const { admin, name, email, password, role, schedule } = req.body;
     
+    // Extract schedule data for each day
+    const processedSchedule = {};
+    for (const day in schedule) {
+        processedSchedule[day] = schedule[day].map(({ start, end }) => ({ start, end }));
+    }
+
     const newUser = new Users({
-        admin: req.body.admin,
-        name: req.body.name,
-        email: req.body.email,
+        admin,
+        name,
+        email,
         joined: new Date(),
-        password: req.body.password,
+        password,
         processes: [],
-        role: req.body.role,
+        role,
         staffID: req.body.staffID,
-        schedule: req.body.schedule,
-    })
+        schedule: processedSchedule, // Use the processed schedule data
+    });
     
     res.send(await newUser.save());
-
 });
 
 app.post('/createProcedure', async (req, res) => {
