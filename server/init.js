@@ -47,12 +47,12 @@ function createUser(adminBool, email, name, password, role, staffID, schedule){
 
 }
 
-function createEquipmentHead(name, quantity, type){
+function createEquipmentHead(name, quantity, type, equipment){
 
     let createEquipmentHead = {
         name: name,
         quantity: quantity,
-        equipment: [],
+        equipment: [equipment],
         type: type,
     }
 
@@ -159,8 +159,8 @@ const populate = async () => {
 
     // EQUIPMENT
 
-    let heartLungMachineHead = await createEquipmentHead("Heart Lung Machine", 1, "Cardiology");
     let heartLungMachineOne = await createEquipment("Heart-Lung Machine One", storageRoom, "Cardiology");
+    let heartLungMachineHead = await createEquipmentHead("Heart Lung Machine", 1, "Cardiology", heartLungMachineOne);
 
     // PROCEDURES
 
