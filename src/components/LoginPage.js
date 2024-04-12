@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { Container, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+//import axios from 'axios';
+
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -8,13 +10,9 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const handleLogin = (event) => {
-    event.preventDefault();
-    console.log('Username:', username);
-    console.log('Password:', password);
-    /**
-     * IMPLEMENT LOGIN VERIFICATION HERE
-     */
-    navigate('/main/schedule'); 
+
+    navigate('/main/schedule');
+
   };
 
   return (
@@ -67,6 +65,7 @@ export default function LoginPage() {
             </Button>
         </form>
         <Button color="secondary">Forgot Password</Button>
+        <p id="loginError"></p>
     </Container>
   );
 }
