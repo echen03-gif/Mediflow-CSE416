@@ -22,7 +22,7 @@ export default function RequestAppointment() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let newAppointment = await axios.post("http://localhost:8000/createAppointment", {
+    let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/createAppointment", {
 
         name: patientName,
         staff: [staff],
@@ -33,7 +33,7 @@ export default function RequestAppointment() {
 
     }).then(console.log("Added Appointment"));
 
-    await axios.put("http://localhost:8000/changeStaffAppointment", {
+    await axios.put("https://mediflow-cse416.onrender.com/changeStaffAppointment", {
 
         staffName: staff,
         appointment: newAppointment.data
