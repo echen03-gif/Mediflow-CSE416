@@ -2,11 +2,12 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
 
 app.use(express.json());
 app.use(cors());
-
 
 const port = 8000;
 // The below URL is for npm start and local host
@@ -16,6 +17,13 @@ const uri = process.env.MEDIFLOWKEY;
 let mongoose = require('mongoose');
 
 mongoose.connect(uri);
+
+app.use(session({
+    secret: 'medi-flow-cse-416',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: uri }),
+  }));
 
 let db = mongoose.connection;
 
@@ -215,6 +223,20 @@ app.post('/createProcess', async (req, res) => {
     
 });
 
+app.post('/login', async (req, res) => {
+    console.log("Trying to login...")
+    const { username, password } = req.body;
+    const user = await Users.findOne({ email: username });
+    if (user && bcrypt.compareSync(password, user.password)) {
+        req.session.userId = user._id;
+        res.send({ success: true });
+    } else {
+        console.log("Failed to Login")
+        res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
+    }
+  });
+  
+
 // PUT FUNCTIONS
 
 app.put('/changeEquipmentHead', async (req, res) => {
@@ -232,8 +254,5 @@ app.put('/changeEquipmentHead', async (req, res) => {
 
 });
 
-// DELETE FUNCTIONS
 
-
-// for supertest
 module.exports = {app, server};
