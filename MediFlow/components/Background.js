@@ -5,7 +5,7 @@ import { theme } from '../core/theme'
 export default function Background({ children }) {
   return (
     <ImageBackground
-      source={require('../assets/background_dot.png')}
+      source={require('../assets/background_dot2x.png')}
       resizeMode="repeat"
       style={styles.background}
     >
@@ -20,7 +20,6 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     width: '100%',
-    backgroundColor: "lightgray",
   },
   container: {
     flex: 1,

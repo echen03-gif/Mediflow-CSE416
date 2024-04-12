@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { DataTable, TextInput } from 'react-native-paper';
-import { theme } from '../core/theme';
-import Button from '../components/Button';
+import { theme } from '../../core/theme';
+import Button from '../../components/Button';
+import MainPageHeader from '../../components/MainPageHeader'
 
 export default function Inventory() {
   const [page, setPage] = React.useState(0);
@@ -29,7 +30,7 @@ export default function Inventory() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Inventory</Text>
+      <MainPageHeader>Inventory</MainPageHeader>
       <View style={styles.searchContainer}>
         <TextInput label="Search" variant="outlined" />
         <Button mode="contained" style={styles.dateButton}>
