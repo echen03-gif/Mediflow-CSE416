@@ -8,7 +8,8 @@ const roomSchema = new mongoose.Schema({
     roomID: {type: Number},
     status: {type: String},
     type: {type: String},
-    updatedAt: {type: Date}
+    updatedAt: {type: Date},
+    appointments: [{type: mongoose.Schema.Types.ObjectId, ref:'Appointments'}]
 
 });
 

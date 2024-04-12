@@ -62,13 +62,13 @@ function createEquipmentHead(name, quantity, type){
 
 }
 
-function createEquipment(name, quantity, type){
+function createEquipment(name, locationRoom, type){
 
     let createEquipment = {
+        location: locationRoom,
         name: name,
-        quantity: quantity,
-        equipment: [],
-        type: type,
+        status: "Functional",
+        type: type
     }
 
     let addEquipment = new Equipment(createEquipment);
@@ -96,17 +96,18 @@ function createRoom(name, roomID, status, type){
 
 }
 
-function createProcedure(description, estimatedDuration, name, procedureID, requiredEquipment, requiredRoomType, scheduledEndTime, scheduledStartTime){
+function createProcedure(description, estimatedDuration, name, procedureID, requiredEquipment, requiredRoomType, locationRoom){
 
     let createProcedure = {
 
-        created: newDate(),
+        created: new Date(),
         description: description,
         estimatedDuration: estimatedDuration,
         name: name,
         procedureID: procedureID,
         requiredEquipment: requiredEquipment,
-        requiredRoomType: requiredRoomType
+        requiredRoomType: requiredRoomType,
+        location: locationRoom
 
     }
 
@@ -116,20 +117,17 @@ function createProcedure(description, estimatedDuration, name, procedureID, requ
 }
 
 
-function createProcess(procedures, equipment, staff, status, scheduledEndTime, scheduledStartTime){
+function createProcess(name, procedures){
 
     let createProcess = {
 
-        components: procedures,
-        equipment: equipment,
-        staff: staff,
-        status: status,
-        scheduledEndTime: scheduledEndTime,
-        scheduledStartTime: scheduledStartTime
+        name: name,
+        components: procedures
+        
 
     }
 
-    let addProcess = new Procedures(createProcess);
+    let addProcess = new Processes(createProcess);
 
     return addProcess.save();
 }
@@ -153,7 +151,27 @@ const populate = async () => {
         Sunday: [{start: "04:00", end: "15:00"}]
     });
 
-    
+    // ROOMS
+
+    let storageRoom = await createRoom("Storage Room", 0, "OPEN", "Storage");
+    let heartRoom = await createRoom("Room 101", 1, "OPEN", "Cardiology");
+    let icu = await createRoom("Room 102", 2, "OPEN", "ICU");
+
+    // EQUIPMENT
+
+    let heartLungMachineHead = await createEquipmentHead("Heart Lung Machine", 1, "Cardiology");
+    let heartLungMachineOne = await createEquipment("Heart-Lung Machine One", storageRoom, "Cardiology");
+
+    // PROCEDURES
+
+    let heartSurgeryPreOp = await createProcedure("Patient needs to complete chest x-ray, blood tests, and fasting diet requirements.", 1000, "Heart Surgery PreOP", 0, [], null, null);
+    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 2000, "Heart Surgery OP", 1, [heartLungMachineOne], "Cardiology", heartRoom);
+    let heartSurgeryPostOp = await createProcedure("Patient needs to rest and be monitored", 1000, "Heart Surgery PostOP", 2, [], "ICU", icu);
+
+    // PROCESSES
+
+    let heartSurgery = await createProcess("Heart Surgery",[heartSurgeryPreOp, heartSurgeryOp, heartSurgeryPostOp]);
+
     
     if (db) db.close();
     console.log('Preset Data Inserted into DB');

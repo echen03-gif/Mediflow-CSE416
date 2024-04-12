@@ -46,6 +46,7 @@ let EquipmentHeads = require('./models/equipmentHead.js')
 let Rooms = require('./models/room.js');
 let Communication = require('./models/communication.js');
 let Processes = require('./models/processes.js');
+let Appointment = require('./models/appointment.js');
 const equipment = require('./models/equipment.js');
 const equipmentHead = require('./models/equipmentHead.js');
 
@@ -235,6 +236,24 @@ app.post('/login', async (req, res) => {
         res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
     }
   });
+
+app.post('/createAppointment' , async (req, res) => {
+
+    const newAppointment = new Appointment({
+
+        created: new Date(),
+        patientName: req.body.name,
+        staff: req.body.staff,
+        scheduledStartTime: req.body.start,
+        scheduledEndTime: req.body.end,
+        process: req.body.process,
+        location: req.body.room
+    })
+
+    res.send(await newAppointment.save());
+
+
+});
   
 
 // PUT FUNCTIONS
@@ -252,6 +271,17 @@ app.put('/changeEquipmentHead', async (req, res) => {
     res.send("Equipemnt Head Updated");
 
 
+});
+
+app.put('/changeStaffAppointment', async (req,res) =>{
+
+    let staffUpdate = await Users.findOne({name: req.body.staffName.name});
+
+    staffUpdate.appointments.push(req.body.appointment);
+
+    await staffUpdate.save();
+
+    res.send("Users's Appointment Updated");
 });
 
 

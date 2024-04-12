@@ -3,10 +3,8 @@ const mongoose = require('mongoose');
 const processesSchema = new mongoose.Schema({
     
     name: {type: String},
-    completed: {type: Date},
     components: [{type: mongoose.Schema.Types.ObjectId, ref:'Procedure'}],
     created: {type: Date},
-    status: {type: String}
 
 });
 
