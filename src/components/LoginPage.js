@@ -1,7 +1,7 @@
 import React, { useState} from 'react';
 import { Container, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-//import axios from 'axios';
+import axios from 'axios';
 
 
 export default function LoginPage() {
@@ -11,7 +11,31 @@ export default function LoginPage() {
 
   const handleLogin = (event) => {
 
-    navigate('/main/schedule');
+    console.log("Handling Login")
+    event.preventDefault();
+    try {
+      if (username === '' || password === '') {
+        document.getElementById('loginError').innerHTML = 'Invalid Input';
+      } else {
+        axios.post("https://mediflow-cse416.onrender.com/login", { username, password })
+          .then(res => {
+            console.log(res.data)
+            if (res.data.success) {
+              navigate('/main/schedule');
+            } else {
+              console.log("Error")
+              document.getElementById('loginError').innerHTML = res.data.message;
+            }
+          })
+          .catch(error => {
+            document.getElementById('loginError').innerHTML = "Error, please try again!";
+            console.log(error);
+          });
+      }
+    } catch (error) {
+      document.getElementById('loginError').innerHTML = "Error, please try again!";
+      console.log(error);
+    }
 
   };
 
