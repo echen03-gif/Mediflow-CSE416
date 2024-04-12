@@ -12,6 +12,13 @@ jobs:
         
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install Client Dependencies
+        run: npm install
+
+      - name: Install Server Dependencies
+        working-directory: ./server
+        run: npm install
       
       - name: Cypress Run
         uses: cypress-io/github-action@v6

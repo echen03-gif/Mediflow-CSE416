@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     joined: {type: Date},
     name: {type: String},
     password: {type: String},
-    processes: [{type: mongoose.Schema.Types.ObjectId, ref:'Processes'}],
+    appointments: [{type: mongoose.Schema.Types.ObjectId, ref:'Appointments'}],
     role: {type: String},
     staffID: {type: Number},
     schedule: {

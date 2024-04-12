@@ -1,14 +1,12 @@
 const mongoose = require('mongoose');
 
 const processesSchema = new mongoose.Schema({
-
+    
+    name: {type: String},
     completed: {type: Date},
     components: [{type: mongoose.Schema.Types.ObjectId, ref:'Procedure'}],
     created: {type: Date},
-    equipment: [{type: mongoose.Schema.Types.ObjectId, ref:'Equipment'}],
-    staff: [{type: mongoose.Schema.Types.ObjectId, ref:'Users'}],
     status: {type: String}
-
 
 });
 
