@@ -13,9 +13,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Client Dependencies
-        run: npm install
-
       - name: Install Server Dependencies
         working-directory: ./server
         run: npm install
