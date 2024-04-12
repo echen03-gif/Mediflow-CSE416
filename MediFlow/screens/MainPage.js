@@ -1,10 +1,12 @@
-import React from "react";
-import { useNavigation } from '@react-navigation/native'; 
-import { View, SafeAreaView, Text } from 'react-native'; // Replace Box
+import React, { useState } from "react";
+//import { useNavigation } from '@react-navigation/native'; 
+//import { createStackNavigator } from '@react-navigation/native-stack';
+import { View, SafeAreaView, Text, StyleSheet } from 'react-native';
 import { Drawer, List, Avatar, Title, Caption  } from 'react-native-paper';
-/*import Schedule from "./Schedule";
+import Logo from "../components/Logo";
+import Schedule from "./Schedule";
 import Inventory from "./Inventory";
-import AddItem from "./AddItem";
+/*import AddItem from "./AddItem";
 import Request from "./RequestAppointment"
 import Rooms from "./Rooms";
 import Staff from "./Staff";
@@ -15,43 +17,48 @@ import AddInventory from "./AddInventory";
 import AddRoom from "./AddRoom";
 import CreateProcess from "./CreateProcess";*/
 
+//const ContentStack = createStackNavigator(); 
+
 // Mock array of upcoming patients
 const upcomingPatients = [
   // ... your data 
 ];
 
+// Define a mapping from route names to components
+const COMPONENT_MAP = {
+  Schedule: Schedule,
+  Inventory: Inventory,
+  // Add other components here as needed
+};
+
 export default function MainPage() {
-    const drawerWidth = 200; 
-    const navigation = useNavigation();
+    const [activeComponent, setActiveComponent] = useState('Schedule');
+    //const navigation = useNavigation();
 
-    const handleNavigation = (routeName) => () => {
-        navigation.navigate(routeName);
+    const handleContentChange = (routeName) => () => {
+        //navigation.navigate(routeName);
+        setActiveComponent(routeName); 
     };
 
-    const handleRefreshClick = (targetPath) => (event) => {
-        if (navigation.getCurrentRoute().name === targetPath) {
-        event.preventDefault(); 
-        navigation.reset({
-            index: 0,
-            routes: [{ name: targetPath }],
-        });
-        }
-    };
+    // Dynamically select the component based on the activeComponent state
+    const ActiveComponent = COMPONENT_MAP[activeComponent];
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <View style={{ flex: 1, flexDirection: 'row' }}>
-                <Drawer.Section>
-                    <List.Item title="Schedule" onPress={handleNavigation("Schedule")} />
-                    <List.Item title="Inventory" onPress={handleRefreshClick("Inventory")} />
+            <View style={styles.container}>
+                <Drawer.Section style={styles.sidebar}>
+                    <Logo style={{fontSize: 30}}/>
+                    <List.Item title="Schedule" onPress={handleContentChange("Schedule")} />
+                    <List.Item title="Inventory" onPress={handleContentChange("Inventory")} />
                     {/* ... Other List Items */}
                 </Drawer.Section>
 
-                <View style={{ flex: 1, backgroundColor: 'white' }}> 
-                    {/* Main Content Area - Adjust background as needed */}
+                <View style={{ flex: 1, backgroundColor: 'white' }}>
+                    {/* Render the active component */}
+                    {ActiveComponent && <ActiveComponent />}
                 </View>
 
-                <View style={{ /* ... Profile Bar Styles */ }}>
+                <View style={styles.sidebar}>
                     <Avatar.Image size={50} source={require('../assets/profilePic.jpeg')} />
                     <Text>Dr. Jane Doe</Text>
                     <Text>Upcoming Patients</Text>
@@ -61,7 +68,22 @@ export default function MainPage() {
                     </View>
                     ))}
                 </View>
-        </View>
+            </View>
         </SafeAreaView>
     );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  sidebar: {
+    width: '20%',
+    backgroundColor: 'lightgray',
+  },
+  center: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+});
