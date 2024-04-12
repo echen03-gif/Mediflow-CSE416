@@ -11,10 +11,7 @@ const mongoose = require('mongoose');
 const uri = process.env.MEDIFLOWKEY;
 
 async function connectDB() {
-  await mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await mongoose.connect(uri);
   return mongoose;
 }
 
@@ -25,6 +22,6 @@ beforeAll(async () => {
 
 afterAll(async () => {
 
-  mongoose.connection.close().then(() => done());
+  await mongoose.connection.close();
  
 });
