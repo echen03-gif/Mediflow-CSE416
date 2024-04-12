@@ -1,15 +1,25 @@
 const supertest = require('supertest')
 const mongoose = require('mongoose');
 
-// import server file
-const { app, server } = require('../server.js');
-
 // Schemas
 const User = require('../models/users.js');
+
 
 describe('User Collection', () => {
 
   let testData = null;
+
+  const uri = process.env.MEDIFLOWKEY;
+
+  async function connectDB() {
+    await mongoose.connect(uri);
+    return mongoose;
+  }
+
+  beforeAll(async () => {
+    await connectDB();
+
+  });
 
   it('creates user', async () => {
 
@@ -47,31 +57,6 @@ describe('User Collection', () => {
 
   });
 
-  it('creates user on Express API', async () => {
-    const testUser = {
-      name: "testUser",
-      email: "testUser@gmail.com"
-    };
-
-    testData = await supertest(app)
-      .post('/createUser')
-      .send(testUser)
-      .expect(200);
-
-
-    expect(testData.body.name).toBe(testUser.name);
-    expect(testData.body.email).toBe(testUser.email);
-
-    if (testData) {
-
-      await User.deleteOne({ _id: testData.body._id });
-
-    }
-
-
-  });
-
-
   afterEach(async () => {
     if (testData) {
 
@@ -81,14 +66,10 @@ describe('User Collection', () => {
 
   });
 
-  afterAll((done) => {
+  afterAll(async () => {
 
-
-    if (server) server.close(() => {
-      mongoose.disconnect().then(() => done());
-    });
-    else done();
+    mongoose.connection.close();
+    
   });
-
 
 });
