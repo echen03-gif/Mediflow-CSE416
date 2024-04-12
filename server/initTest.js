@@ -86,9 +86,14 @@ function createRoom(name, roomID, status, type){
 
 // Populate
 
+
+const admin_password = "testpassword"
+const saltRounds = 10;
+const hashedPass = bcrypt.hashSync(admin_password, saltRounds);
+
 const populate = async () => {
     
-    let testAdmin = await createUser(true, "testadmin@gmail.com", "testAdmin", "testAdmin", "admin", 0,
+    let testAdmin = await createUser(true, "testadmin@gmail.com", "testAdmin", hashedPass, "admin", 0,
      {
         Monday: [{start: "09:00", end: "17:00"}],
         Tuesday: [{start: "09:00", end: "17:00"}],
@@ -98,7 +103,7 @@ const populate = async () => {
         Saturday: [{start: "15:00", end: "18:00"}],
         Sunday: [{start: "04:00", end: "15:00"}]
     });
-    let testDoctor = await createUser(false, "testDoctor@gmail.com", "testDoctor", "testDoctor", "doctor", 0, 
+    let testDoctor = await createUser(false, "testDoctor@gmail.com", "testDoctor", hashedPass, "doctor", 0, 
     {
         Monday: [{start: "05:00", end: "13:00"}],
         Tuesday: [{start: "04:00", end: "20:00"}],
@@ -108,7 +113,7 @@ const populate = async () => {
         Saturday: [{start: "01:00", end: "10:00"}],
         Sunday: [{start: "01:00", end: "10:00"}]
     });
-    let testDoctor2 = await createUser(false, "testDoctor2@gmail.com", "testDoctor2", "testDoctor2", "doctor", 0, {
+    let testDoctor2 = await createUser(false, "testDoctor2@gmail.com", "testDoctor2", hashedPass, "doctor", 0, {
         Monday: [{start: "10:00", end: "23:00"}],
         Tuesday: [{start: "10:00", end: "23:00"}],
         Wednesday: [{start: "05:00", end: "17:00"}],

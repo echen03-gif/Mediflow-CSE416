@@ -9,8 +9,6 @@ const procedureSchema = new mongoose.Schema({
     procedureID: {type: Number},
     requiredEquipment: [{type: mongoose.Schema.Types.ObjectId, ref:'Equipment'}],
     requiredRoomType: {type: String},
-    scheduledEndTime: {type: Date},
-    scheduledStartTime: {type: Date}
 
 });
 

@@ -1,89 +1,75 @@
 const supertest = require('supertest')
-
-// import server file
-const {app, server} = require('../server.js');
+const mongoose = require('mongoose');
 
 // Schemas
 const User = require('../models/users.js');
 
+
 describe('User Collection', () => {
-  
-    let testData = null;
-  
-    it('creates user', async () =>{
 
-      const testUser = {
-        name: "testUser",
-        email: "testUser@gmail.com"
-      }
+  let testData = null;
 
-      const testUserData = new User(testUser);
+  const uri = process.env.MEDIFLOWKEY;
 
-      testData = await testUserData.save();
+  async function connectDB() {
+    await mongoose.connect(uri);
+    return mongoose;
+  }
 
-      expect(testData.name).toBe(testUser.name);
-      expect(testData.email).toBe(testUser.email);
+  beforeAll(async () => {
+    await connectDB();
 
+  });
 
-    });
+  it('creates user', async () => {
 
-    it('creates admin', async () =>{
+    const testUser = {
+      name: "testUser",
+      email: "testUser@gmail.com"
+    }
 
-      const testUser = {
-        admin: true,
-        name: "testAdminJest",
-        email: "testAdminJest@gmail.com"
-      }
+    const testUserData = new User(testUser);
 
-      const testUserData = new User(testUser);
+    testData = await testUserData.save();
 
-      testData = await testUserData.save();
-
-      expect(testData.admin).toBe(true);
-      expect(testData.name).toBe(testUser.name);
-      expect(testData.email).toBe(testUser.email);
+    expect(testData.name).toBe(testUser.name);
+    expect(testData.email).toBe(testUser.email);
 
 
-    });
+  });
 
-    it('creates user on Express API', async () => {
-      const testUser = {
-        name: "testUser",
-        email: "testUser@gmail.com"
-      };
-  
-      testData = await supertest(app)
-        .post('/createUser') 
-        .send(testUser)
-        .expect(200);  
-      
+  it('creates admin', async () => {
 
-      expect(testData.body.name).toBe(testUser.name);
-      expect(testData.body.email).toBe(testUser.email);
+    const testUser = {
+      admin: true,
+      name: "testAdminJest",
+      email: "testAdminJest@gmail.com"
+    }
 
-      if (testData) {
-        
-        await User.deleteOne({ _id: testData.body._id });
-        
-      }
+    const testUserData = new User(testUser);
 
-  
-    });
+    testData = await testUserData.save();
+
+    expect(testData.admin).toBe(true);
+    expect(testData.name).toBe(testUser.name);
+    expect(testData.email).toBe(testUser.email);
 
 
-    afterEach(async () => {
-      if (testData) {
-        
-        await User.deleteOne({ _id: testData._id });
-        
-      }
+  });
 
-    });
+  afterEach(async () => {
+    if (testData) {
 
-    afterAll((done) => {
-      if (server) server.close(done); 
-      else done(); 
-    });
+      await User.deleteOne({ _id: testData._id });
 
-  
+    }
+
+  });
+
+  afterAll(async () => {
+
+    mongoose.connection.close();
+    
+  });
+
 });

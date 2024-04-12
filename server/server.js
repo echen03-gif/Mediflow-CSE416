@@ -2,11 +2,12 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
 
 app.use(express.json());
 app.use(cors());
-
 
 const port = 8000;
 // The below URL is for npm start and local host
@@ -16,6 +17,13 @@ const uri = process.env.MEDIFLOWKEY;
 let mongoose = require('mongoose');
 
 mongoose.connect(uri);
+
+app.use(session({
+    secret: 'medi-flow-cse-416',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: uri }),
+  }));
 
 let db = mongoose.connection;
 
@@ -38,6 +46,7 @@ let EquipmentHeads = require('./models/equipmentHead.js')
 let Rooms = require('./models/room.js');
 let Communication = require('./models/communication.js');
 let Processes = require('./models/processes.js');
+let Appointment = require('./models/appointment.js');
 const equipment = require('./models/equipment.js');
 const equipmentHead = require('./models/equipmentHead.js');
 
@@ -215,6 +224,38 @@ app.post('/createProcess', async (req, res) => {
     
 });
 
+app.post('/login', async (req, res) => {
+    console.log("Trying to login...")
+    const { username, password } = req.body;
+    const user = await Users.findOne({ email: username });
+    if (user && bcrypt.compareSync(password, user.password)) {
+        req.session.userId = user._id;
+        res.send({ success: true });
+    } else {
+        console.log("Failed to Login")
+        res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
+    }
+  });
+
+app.post('/createAppointment' , async (req, res) => {
+
+    const newAppointment = new Appointment({
+
+        created: new Date(),
+        patientName: req.body.name,
+        staff: req.body.staff,
+        scheduledStartTime: req.body.start,
+        scheduledEndTime: req.body.end,
+        process: req.body.process,
+        location: req.body.room
+    })
+
+    res.send(await newAppointment.save());
+
+
+});
+  
+
 // PUT FUNCTIONS
 
 app.put('/changeEquipmentHead', async (req, res) => {
@@ -232,8 +273,16 @@ app.put('/changeEquipmentHead', async (req, res) => {
 
 });
 
-// DELETE FUNCTIONS
+app.put('/changeStaffAppointment', async (req,res) =>{
+
+    let staffUpdate = await Users.findOne({name: req.body.staffName.name});
+
+    staffUpdate.appointments.push(req.body.appointment);
+
+    await staffUpdate.save();
+
+    res.send("Users's Appointment Updated");
+});
 
 
-// for supertest
 module.exports = {app, server};

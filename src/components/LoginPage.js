@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { Container, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -8,13 +10,33 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const handleLogin = (event) => {
+
+    console.log("Handling Login")
     event.preventDefault();
-    console.log('Username:', username);
-    console.log('Password:', password);
-    /**
-     * IMPLEMENT LOGIN VERIFICATION HERE
-     */
-    navigate('/main/schedule'); 
+    try {
+      if (username === '' || password === '') {
+        document.getElementById('loginError').innerHTML = 'Invalid Input';
+      } else {
+        axios.post("https://mediflow-cse416.onrender.com/login", { username, password })
+          .then(res => {
+            console.log(res.data)
+            if (res.data.success) {
+              navigate('/main/schedule');
+            } else {
+              console.log("Error")
+              document.getElementById('loginError').innerHTML = res.data.message;
+            }
+          })
+          .catch(error => {
+            document.getElementById('loginError').innerHTML = "Error, please try again!";
+            console.log(error);
+          });
+      }
+    } catch (error) {
+      document.getElementById('loginError').innerHTML = "Error, please try again!";
+      console.log(error);
+    }
+
   };
 
   return (
@@ -67,6 +89,7 @@ export default function LoginPage() {
             </Button>
         </form>
         <Button color="secondary">Forgot Password</Button>
+        <p id="loginError"></p>
     </Container>
   );
 }

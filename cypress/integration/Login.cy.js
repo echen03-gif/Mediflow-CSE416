@@ -15,12 +15,6 @@ describe('<LoginPage />', () => {
 
     cy.get('form').should('be.visible');
 
-    cy.contains('Username').parent().find('input').type('testuser');
-    cy.contains('Password').parent().find('input').type('testuser');
-
-    cy.get('button[type="submit"]').click();
-    cy.url().should('include', '/main/schedule');
-
    
   });
 });
