@@ -112,6 +112,16 @@ app.get('/processes', async (req, res) => {
 });
 
 
+app.get('/check-session', (req, res) => {
+    if (req.session.userId) {
+        res.send({ loggedIn: true });
+    } else {
+        res.send({ loggedIn: false });
+    }
+});
+
+
+
 // POST FUNCTIONS
 
 
