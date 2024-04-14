@@ -7,7 +7,10 @@ const MongoStore = require('connect-mongo');
 
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: 'https://mediflow-568ba.web.app',
+    credentials: true
+}));
 
 const port = 8000;
 // The below URL is for npm start and local host
