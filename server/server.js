@@ -8,7 +8,6 @@ const MongoStore = require('connect-mongo');
 
 app.use(express.json());
 app.use(cors({
-    origin: 'https://mediflow-568ba.web.app',
     credentials: true
 }));
 
