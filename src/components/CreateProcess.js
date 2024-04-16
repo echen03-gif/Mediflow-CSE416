@@ -53,10 +53,10 @@ function CreateProcess() {
     ));
 
     console.log("Added New Procedures", proceduresToAdd);
-    
+
     // adds process
 
-    const newProcess = await axios.post("https://mediflow-cse416.onrender.com/createProcess", {
+    await axios.post("https://mediflow-cse416.onrender.com/createProcess", {
       name: processName,
       components: proceduresToAdd.map(proc => proc.data) // assuming the server response includes the data you need
     }).then(console.log("Added Process"));
@@ -161,13 +161,13 @@ function CreateProcess() {
                 <TextField
                   fullWidth
                   id={`descriptionName${index}`}
-                  label="Description" 
-                  value={section.description} 
+                  label="Description"
+                  value={section.description}
                   onChange={(e) => handleSectionChange(index, "description", e.target.value)}
                   variant="outlined"
                   margin="normal"
                   InputLabelProps={{
-                    shrink: true, 
+                    shrink: true,
                   }}
                 />
               </FormControl>

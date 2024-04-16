@@ -292,5 +292,17 @@ app.put('/changeStaffAppointment', async (req,res) =>{
     res.send("Users's Appointment Updated");
 });
 
+app.put('/changeRoomAppointment', async (req,res) =>{
+
+    console.log(req.body.roomName);
+
+    let roomUpdate = await Rooms.findOne({_id: req.body.roomName._id});
+
+    roomUpdate.appointments.push(req.body.appointment);
+
+    await roomUpdate.save();
+
+    res.send("Users's Appointment Updated");
+});
 
 module.exports = {app, server};
