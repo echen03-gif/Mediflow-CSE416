@@ -96,7 +96,7 @@ function createRoom(name, roomID, status, type){
 
 }
 
-function createProcedure(description, estimatedDuration, name, procedureID, requiredEquipment, requiredRoomType, locationRoom){
+function createProcedure(description, estimatedDuration, name, procedureID, requiredEquipment, requiredRoomType, locationRoom, staffType){
 
     let createProcedure = {
 
@@ -107,7 +107,8 @@ function createProcedure(description, estimatedDuration, name, procedureID, requ
         procedureID: procedureID,
         requiredEquipment: requiredEquipment,
         requiredRoomType: requiredRoomType,
-        location: locationRoom
+        location: locationRoom,
+        staffType: staffType
 
     }
 
@@ -164,9 +165,9 @@ const populate = async () => {
 
     // PROCEDURES
 
-    let heartSurgeryPreOp = await createProcedure("Patient needs to complete chest x-ray, blood tests, and fasting diet requirements.", 1000, "Heart Surgery PreOP", 0, [], null, null);
-    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 2000, "Heart Surgery OP", 1, [heartLungMachineOne], "Cardiology", heartRoom);
-    let heartSurgeryPostOp = await createProcedure("Patient needs to rest and be monitored", 1000, "Heart Surgery PostOP", 2, [], "ICU", icu);
+    let heartSurgeryPreOp = await createProcedure("Patient needs to complete chest x-ray, blood tests, and fasting diet requirements.", 1000, "Heart Surgery PreOP", 0, [], null, null, "Nurse");
+    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 2000, "Heart Surgery OP", 1, [heartLungMachineOne], "Cardiology", heartRoom, "Doctor");
+    let heartSurgeryPostOp = await createProcedure("Patient needs to rest and be monitored", 1000, "Heart Surgery PostOP", 2, [], "ICU", icu, "Nurse");
 
     // PROCESSES
 

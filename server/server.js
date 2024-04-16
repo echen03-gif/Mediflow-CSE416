@@ -157,13 +157,12 @@ app.post('/createProcedure', async (req, res) => {
 
         created: new Date(),
         description: req.body.description,
-        estimatedDuration: req.body.estimatedDuration,
+        estimatedDuration: req.body.timeDuration,
         name: req.body.name,
-        procedureID: req.body.procedureID,
-        requiredRoomEquipment: req.body.requiredRoomEquipment,
+        procedureID: 0,
+        requiredEquipment: req.body.requiredEquipment,
         requiredRoomType: req.body.requiredRoomType,
-        scheduledEndTime: req.body.scheduledEndTime,
-        scheduledStartTime: req.body.scheduledStartTime
+        staffType: req.body.staffType
 
     })
     
@@ -223,12 +222,9 @@ app.post('/createProcess', async (req, res) => {
     
     const newProcess = new Processes({
 
-        completed: req.body.completed,
+        name: req.body.name,
         components: req.body.components,
-        created: new Date(),
-        equipment: req.body.equipment,
-        staff: req.body.staff,
-        status: req.body.status
+        created: new Date()
         
     })
     

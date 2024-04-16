@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from 'axios';
 import {
   Box,
   Button,
@@ -19,13 +20,47 @@ function CreateProcess() {
       roomType: "",
       staffType: "",
       timeDuration: "",
+      requiredEquipment: []
+
     },
   ]);
   const [isFormValid, setIsFormValid] = useState(false); // State to track form validity
+  const [equipmentList, setEquipment] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+
+    axios.get('https://mediflow-cse416.onrender.com/equipment').then(res => { setEquipment(res.data) });
+
+
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // adds procedures
+
+    const proceduresToAdd = await Promise.all(sections.map(section =>
+
+      axios.post("https://mediflow-cse416.onrender.com/createProcedure", {
+        name: section.name,
+        requiredRoomType: section.roomType,
+        description: section.description,
+        staffType: section.staffType,
+        timeDuration: section.timeDuration,
+        requiredEquipment: section.requiredEquipment
+      })
+    ));
+
+    console.log("Added New Procedures", proceduresToAdd);
+    
+    // adds process
+
+    const newProcess = await axios.post("https://mediflow-cse416.onrender.com/createProcess", {
+      name: processName,
+      components: proceduresToAdd.map(proc => proc.data) // assuming the server response includes the data you need
+    }).then(console.log("Added Process"));
+
     navigate("/main/request");
   };
 
@@ -34,9 +69,11 @@ function CreateProcess() {
       ...sections,
       {
         name: "",
+        description: "",
         roomType: "",
         staffType: "",
         timeDuration: "",
+        requiredEquipment: []
       },
     ]);
   };
@@ -49,14 +86,23 @@ function CreateProcess() {
 
   const handleSectionChange = (index, field, value) => {
     const updatedSections = [...sections];
-    updatedSections[index][field] = value;
+
+    if (field === "equipmentType") {
+
+      updatedSections[index].requiredEquipment = value;
+    } else {
+      updatedSections[index][field] = value;
+    }
+
     setSections(updatedSections);
 
+
     const allFieldsFilled = updatedSections.every((section) =>
-      Object.values(section).every((val) => val !== "")
+      section.name && section.roomType && section.staffType && section.timeDuration && section.requiredEquipment.length > 0
     );
     setIsFormValid(allFieldsFilled);
   };
+
 
   return (
     <Box sx={{ mt: 8, mx: 4 }}>
@@ -109,6 +155,23 @@ function CreateProcess() {
                   <MenuItem value={"Recovery"}>Recovery</MenuItem>
                 </Select>
               </FormControl>
+              <FormControl fullWidth margin="normal" sx={{ mt: 1 }}>
+                <InputLabel htmlFor={`descriptionName${index}`} id={`description-label-${index}`}>
+                </InputLabel>
+                <TextField
+                  fullWidth
+                  id={`descriptionName${index}`}
+                  label="Description" 
+                  value={section.description} 
+                  onChange={(e) => handleSectionChange(index, "description", e.target.value)}
+                  variant="outlined"
+                  margin="normal"
+                  InputLabelProps={{
+                    shrink: true, 
+                  }}
+                />
+              </FormControl>
+
               <TextField
                 margin="normal"
                 required
@@ -165,6 +228,27 @@ function CreateProcess() {
                   <MenuItem value={"Nurse"}>Nurse</MenuItem>
                 </Select>
               </FormControl>
+              <FormControl fullWidth margin="normal" sx={{ mt: 1 }}>
+                <InputLabel id={`equipment-type-label-${index}`}>
+                  Equipment
+                </InputLabel>
+                <Select
+                  labelId={`equipment-type-label-${index}`}
+                  id={`equipmentType${index}`}
+                  multiple
+                  value={section.requiredEquipment}
+                  onChange={(e) => handleSectionChange(index, "equipmentType", e.target.value)}
+                  variant="outlined"
+                  renderValue={(selected) => selected.map(item => item.name).join(', ')}
+                >
+                  {equipmentList.map(equipment => (
+                    <MenuItem key={equipment.id} value={equipment}>
+                      {equipment.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
               <Button
                 type="button"
                 variant="outlined"

@@ -9,6 +9,7 @@ const procedureSchema = new mongoose.Schema({
     procedureID: {type: Number},
     requiredEquipment: [{type: mongoose.Schema.Types.ObjectId, ref:'Equipment'}],
     requiredRoomType: {type: String},
+    staffType: {type: String}
 
 });
 
