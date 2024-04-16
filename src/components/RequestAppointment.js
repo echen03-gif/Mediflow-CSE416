@@ -214,7 +214,6 @@ export default function RequestAppointment() {
                   )}
                 />
                 <Autocomplete
-                  multiple
                   options={roomsList}
                   getOptionLabel={(option) => option.name}
                   value={roomSelections[procedure]}
