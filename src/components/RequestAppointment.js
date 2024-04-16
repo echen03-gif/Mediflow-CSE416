@@ -39,7 +39,7 @@ export default function RequestAppointment() {
       }));
     }).flat();
 
-    let newAppointment = await axios.post("http://localhost:8000/createAppointment", {
+    let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/createAppointment", {
 
       name: patientName,
       staff: staffAssigned,
@@ -58,7 +58,7 @@ export default function RequestAppointment() {
     }))
 
     await Promise.all(roomAssigned.map(({ room }) => {
-      return axios.put("http://localhost:8000/changeRoomAppointment", {
+      return axios.put("https://mediflow-cse416.onrender.com/changeRoomAppointment", {
         roomName: room, 
         appointment: newAppointment.data 
       });
