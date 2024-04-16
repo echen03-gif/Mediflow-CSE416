@@ -77,7 +77,7 @@ export default function MainPage() {
             </Typography>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/main/schedule">
+            <ListItemButton component={Link} to="/main/schedule" onClick={handleRefreshClick("/main/schedule")}>
               <ListItemText primary="Schedule" />
             </ListItemButton>
           </ListItem>
@@ -87,17 +87,17 @@ export default function MainPage() {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/main/staff">
+            <ListItemButton component={Link} to="/main/staff" onClick={handleRefreshClick("/main/staff")}>
               <ListItemText primary="Staff" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/main/rooms">
+            <ListItemButton component={Link} to="/main/rooms" onClick={handleRefreshClick("/main/rooms")}>
               <ListItemText primary="Rooms" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-             <ListItemButton component={Link} to="/main/inbox">
+             <ListItemButton component={Link} to="/main/inbox" onClick={handleRefreshClick("/main/inbox")}>
                 <ListItemText primary="Inbox" />
               </ListItemButton>
           </ListItem>

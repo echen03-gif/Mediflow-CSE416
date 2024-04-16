@@ -37,11 +37,18 @@ function Inventory() {
 
 
 
-    setInventoryPage('equipmentViewing');
 
-    setEquipmentList(inventoryHeadList.find((equipmentHead) => equipmentHead.name === equipment).equipment);
 
-    console.log(inventoryHeadList.find((equipmentHead) => equipmentHead.name === equipment).equipment);
+    if (inventoryHeadList.find((equipmentHead) => equipmentHead.name === equipment).equipment.length === 0) {
+
+    } else {
+      
+      setEquipmentList(inventoryHeadList.find((equipmentHead) => equipmentHead.name === equipment).equipment);
+      setInventoryPage('equipmentViewing');
+
+
+    }
+
 
   };
 
@@ -140,7 +147,7 @@ function Inventory() {
                           }}
                         ></div>
                       </TableCell>
-                      <TableCell> 
+                      <TableCell>
                         {equipmentDB.find(equipment => equipment._id === product).name}
                       </TableCell>
                       <TableCell align="center">{roomList.find(room => room._id === (equipmentDB.find(equipment => equipment._id === product).location)).name}</TableCell>
@@ -151,13 +158,13 @@ function Inventory() {
             </Table>
             <Box sx={{ display: "flex", justifyContent: "center", padding: 2 }}>
               <TablePagination
-              rowsPerPageOptions={[10]}
-              component="div"
-              count={inventoryHeadList.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
+                rowsPerPageOptions={[10]}
+                component="div"
+                count={inventoryHeadList.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </Box>
           </TableContainer>
