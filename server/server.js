@@ -2,14 +2,19 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 
 app.use(express.json());
 app.use(cors({
-    credentials: true
+    origin: 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
+
+app.use(cookieParser());
+
 
 const port = 8000;
 // The below URL is for npm start and local host
@@ -19,13 +24,6 @@ const uri = process.env.MEDIFLOWKEY;
 let mongoose = require('mongoose');
 
 mongoose.connect(uri);
-
-app.use(session({
-    secret: 'medi-flow-cse-416',
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: uri }),
-  }));
 
 let db = mongoose.connection;
 
@@ -241,12 +239,28 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await Users.findOne({ email: username });
     if (user && bcrypt.compareSync(password, user.password)) {
-        req.session.userId = user._id;
-        res.send({ success: true });
+
+        const token = jwt.sign({ id: user._id }, 'mediflow-jwt-secret-key', { expiresIn: '3h' });
+
+        // Send JWT in a cookie
+        res.cookie('token', token, { httpOnly: true });
+        console.log(token)
+        res.send({ success: true});
     } else {
         console.log("Failed to Login")
         res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
     }
+  });
+
+  app.post('/logout', async (req, res) => {
+    console.log("Trying to logout...")
+    // Extract the JWT token from the cookie
+    const token = req.cookies.token;
+    console.log(token)
+
+    res.clearCookie('token', {httpOnly: "true"});
+    res.json({ success: true });
+    
   });
 
 app.post('/createAppointment' , async (req, res) => {
