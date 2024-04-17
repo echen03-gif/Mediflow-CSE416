@@ -17,7 +17,7 @@ export default function LoginPage() {
       if (username === '' || password === '') {
         document.getElementById('loginError').innerHTML = 'Invalid Input';
       } else {
-        axios.post("https://mediflow-cse416.onrender.com/login", { username, password })
+        axios.post("https://mediflow-cse416.onrender.com/login", { username, password }, { withCredentials: true })
           .then(res => {
             console.log(res.data)
             if (res.data.success) {
