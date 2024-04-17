@@ -22,10 +22,10 @@ export default function Schedule() {
       .then(res => {
         if (res.data.loggedIn) {
           console.log("User is logged in");
-          // User is logged in, you can perform actions based on this condition here
+          
         } else {
           console.log("User is not logged in");
-          // User is not logged in, you can perform actions based on this condition here
+          
         }
       })
       .catch(error => {
