@@ -50,18 +50,31 @@ export default function RequestAppointment() {
     }).then(console.log("Added Appointment"));
 
     const uniqueStaffIds = new Set();
-    staffAssigned.forEach(({ staff }) => {
+    const uniqueEquipmentIds = new Set();
+
+    staffAssigned.forEach(({ staff, equipment }) => {
       staff.forEach(staffId => {
         uniqueStaffIds.add(staffId);
       });
+      equipment.forEach(equipmentId => {
+        uniqueEquipmentIds.add(equipmentId);
+      });
     });
 
-    await Promise.all(Array.from(uniqueStaffIds).map(staffId =>
-      axios.put("https://mediflow-cse416.onrender.com/changeStaffAppointment", {
-        staffName: staffId,
-        appointment: newAppointment.data
-      })
-    ));
+    await Promise.all([
+      ...Array.from(uniqueStaffIds).map(staffId =>
+        axios.put("https://mediflow-cse416.onrender.com/changeStaffAppointment", {
+          staffName: staffId,
+          appointment: newAppointment.data
+        })
+      ),
+      ...Array.from(uniqueEquipmentIds).map(equipmentId =>
+        axios.put("http://localhost:8000/changeEquipmentAppointment", {
+          equipment: equipmentId,
+          appointment: newAppointment.data
+        })
+      )
+    ]);
 
 
     await Promise.all(roomAssigned.map(({ room }) => {

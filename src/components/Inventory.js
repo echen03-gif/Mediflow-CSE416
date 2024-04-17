@@ -14,6 +14,8 @@ function Inventory() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  const [appointmentList, setAppointmentList] = useState([]);
+  const [appointmentIds, setAppointmentIds] = useState([]);
   const [inventoryHeadList, setInventoryHead] = useState([]);
   const [equipmentList, setEquipmentList] = useState([]);
   const [equipmentDB, setEquipmentDB] = useState([]);
@@ -29,28 +31,38 @@ function Inventory() {
 
     axios.get('https://mediflow-cse416.onrender.com/equipment').then(res => { setEquipmentDB(res.data) });
 
+    axios.get('http://localhost:8000/appointments').then(res => { setAppointmentList(res.data) });
+
   }, []);
 
 
 
   const switchInventoryPage = (equipment) => {
 
-
-
-
-
     if (inventoryHeadList.find((equipmentHead) => equipmentHead.name === equipment).equipment.length === 0) {
 
     } else {
-      
+
       setEquipmentList(inventoryHeadList.find((equipmentHead) => equipmentHead.name === equipment).equipment);
       setInventoryPage('equipmentViewing');
-
 
     }
 
 
   };
+
+  const viewSpecificAppointments = (equipment) => {
+
+    if (equipment.appointments.length === 0) {
+
+    } else {
+
+      setAppointmentIds(equipment.appointments)
+
+      setInventoryPage('appointmentViewing')
+
+    }
+  }
 
 
 
@@ -72,6 +84,102 @@ function Inventory() {
   };
 
   switch (inventoryPage) {
+
+    case 'appointmentViewing':
+      return (
+        <Box sx={{ flexGrow: 1, padding: 2 }}>
+          <Typography variant="h4" gutterBottom>
+            Inventory
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: 2,
+            }}
+          >
+            <TextField label="Search" variant="outlined" />
+            <FormControl variant="outlined">
+              <TextField
+                id="date"
+                label="Date"
+                type="date"
+                defaultValue={selectedDate.toISOString().split("T")[0]}
+                onChange={handleDateChange}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+            </FormControl>
+          </Box>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={navigateToAddInventory}
+          >
+            Add Inventory
+          </Button>
+          <TableContainer component={Paper} sx={{ height: 500 }}>
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell></TableCell> {/* Added this line */}
+                  <TableCell>Appointment</TableCell>
+                  <TableCell align="center">ScheduledStartDate</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {appointmentIds.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} style={{ textAlign: 'center' }}>
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                ) : appointmentIds
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((product) => (
+                    <TableRow key={product}>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{ padding: "10px", paddingRight: "0" }}
+                      >
+                        <div
+                          style={{
+                            width: "15px",
+                            height: "30px",
+                            backgroundColor: isProductAvailable(
+                              product.name,
+                              selectedDate
+                            )
+                              ? "green"
+                              : "red",
+                            marginRight: "10px",
+                          }}
+                        ></div>
+                      </TableCell>
+                      <TableCell>
+                        {appointmentList.find(appointment => appointment._id === product).patientName}
+                      </TableCell>
+                      <TableCell align="center">{appointmentList.find(appointment => appointment._id === product).scheduledStartTime}</TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+            <Box sx={{ display: "flex", justifyContent: "center", padding: 2 }}>
+              <TablePagination
+                rowsPerPageOptions={[10]}
+                component="div"
+                count={inventoryHeadList.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Box>
+          </TableContainer>
+        </Box>
+      )
 
     case 'equipmentViewing':
       return (
@@ -147,8 +255,9 @@ function Inventory() {
                           }}
                         ></div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell><Typography onClick={(e) => { e.preventDefault(); viewSpecificAppointments(equipmentDB.find(equipment => equipment._id === product)); }} style={{ cursor: 'pointer', textDecoration: 'none' }} onMouseEnter={(e) => { e.target.style.textDecoration = 'underline'; }} onMouseLeave={(e) => { e.target.style.textDecoration = 'none'; }} >
                         {equipmentDB.find(equipment => equipment._id === product).name}
+                      </Typography>
                       </TableCell>
                       <TableCell align="center">{roomList.find(room => room._id === (equipmentDB.find(equipment => equipment._id === product).location)).name}</TableCell>
                       <TableCell align="center">{equipmentDB.find(equipment => equipment._id === product).status}</TableCell>

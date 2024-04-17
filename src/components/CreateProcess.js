@@ -24,15 +24,7 @@ function CreateProcess() {
     },
   ]);
   const [isFormValid, setIsFormValid] = useState(false); // State to track form validity
-  const [equipmentList, setEquipment] = useState([]);
   const navigate = useNavigate();
-
-  useEffect(() => {
-
-    axios.get('https://mediflow-cse416.onrender.com/equipment').then(res => { setEquipment(res.data) });
-
-
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
