@@ -69,7 +69,7 @@ export default function RequestAppointment() {
         })
       ),
       ...Array.from(uniqueEquipmentIds).map(equipmentId =>
-        axios.put("http://localhost:8000/changeEquipmentAppointment", {
+        axios.put("https://mediflow-cse416.onrender.com/changeEquipmentAppointment", {
           equipment: equipmentId,
           appointment: newAppointment.data
         })
