@@ -31,7 +31,7 @@ function Inventory() {
 
     axios.get('https://mediflow-cse416.onrender.com/equipment').then(res => { setEquipmentDB(res.data) });
 
-    axios.get('http://localhost:8000/appointments').then(res => { setAppointmentList(res.data) });
+    axios.get('https://mediflow-cse416.onrender.com/appointments').then(res => { setAppointmentList(res.data) });
 
   }, []);
 
