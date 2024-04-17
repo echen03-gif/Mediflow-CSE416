@@ -113,6 +113,14 @@ app.get('/processes', async (req, res) => {
 
 });
 
+app.get('/appointments', async (req, res) => {
+
+    let appointments = await Appointment.find();
+
+    res.send(appointments);
+
+});
+
 
 app.get('/check-session', (req, res) => {
     if (req.session.userId) {
@@ -304,6 +312,18 @@ app.put('/changeRoomAppointment', async (req,res) =>{
     await roomUpdate.save();
 
     res.send("Users's Appointment Updated");
+});
+
+app.put('/changeEquipmentAppointment', async (req, res) => {
+
+    let equipmentUpdate = await Equipment.findOne({_id: req.body.equipment._id});
+
+    equipmentUpdate.appointments.push(req.body.appointment);
+
+    await equipmentUpdate.save();
+
+    res.send("Equipment Updated");
+
 });
 
 module.exports = {app, server};
