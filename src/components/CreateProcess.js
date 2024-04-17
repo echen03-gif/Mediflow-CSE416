@@ -20,7 +20,6 @@ function CreateProcess() {
       roomType: "",
       staffType: "",
       timeDuration: "",
-      requiredEquipment: []
 
     },
   ]);
@@ -47,8 +46,7 @@ function CreateProcess() {
         requiredRoomType: section.roomType,
         description: section.description,
         staffType: section.staffType,
-        timeDuration: section.timeDuration,
-        requiredEquipment: section.requiredEquipment
+        timeDuration: section.timeDuration
       })
     ));
 
@@ -86,19 +84,14 @@ function CreateProcess() {
 
   const handleSectionChange = (index, field, value) => {
     const updatedSections = [...sections];
-
-    if (field === "equipmentType") {
-
-      updatedSections[index].requiredEquipment = value;
-    } else {
       updatedSections[index][field] = value;
-    }
+    
 
     setSections(updatedSections);
 
 
     const allFieldsFilled = updatedSections.every((section) =>
-      section.name && section.roomType && section.staffType && section.timeDuration && section.requiredEquipment.length > 0
+      section.name && section.roomType && section.staffType && section.timeDuration
     );
     setIsFormValid(allFieldsFilled);
   };
@@ -226,26 +219,6 @@ function CreateProcess() {
                   <MenuItem value={"Doctor"}>Doctor</MenuItem>
                   <MenuItem value={"Surgeon"}>Surgeon</MenuItem>
                   <MenuItem value={"Nurse"}>Nurse</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl fullWidth margin="normal" sx={{ mt: 1 }}>
-                <InputLabel id={`equipment-type-label-${index}`}>
-                  Equipment
-                </InputLabel>
-                <Select
-                  labelId={`equipment-type-label-${index}`}
-                  id={`equipmentType${index}`}
-                  multiple
-                  value={section.requiredEquipment}
-                  onChange={(e) => handleSectionChange(index, "equipmentType", e.target.value)}
-                  variant="outlined"
-                  renderValue={(selected) => selected.map(item => item.name).join(', ')}
-                >
-                  {equipmentList.map(equipment => (
-                    <MenuItem key={equipment.id} value={equipment}>
-                      {equipment.name}
-                    </MenuItem>
-                  ))}
                 </Select>
               </FormControl>
 

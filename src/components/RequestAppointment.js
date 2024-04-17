@@ -14,6 +14,7 @@ export default function RequestAppointment() {
   const [usersList, setUsersList] = useState([]);
   const [roomsList, setRooms] = useState([]);
   const [processList, setProcessList] = useState([]);
+  const [equipmentList, setEquipmentList] = useState([]);
   const [procedureList, setProcedureList] = useState([]);
 
   const [staffSelections, setStaffSelections] = useState({});
@@ -25,24 +26,22 @@ export default function RequestAppointment() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const staffAssigned = Object.entries(staffSelections).map(([procedureId, staffIds]) => {
-      return staffIds.map(staffId => ({
-        staff: staffId,
-        procedure: procedureId
-      }));
-    }).flat();
+    const staffAssigned = Object.entries(staffSelections).map(([procedureId, { staff, equipment }]) => ({
+      staff: staff,
+      procedure: procedureId,
+      equipment: equipment
+    }));
 
-    const roomAssigned = Object.entries(roomSelections).map(([procedureId, roomIds]) => {
-      return roomIds.map(roomId => ({
-        room: roomId,
-        procedure: procedureId
-      }));
-    }).flat();
+    const roomAssigned = Object.entries(roomSelections).map(([procedureId, roomId]) => ({
+      room: roomId,
+      procedure: procedureId
+    }));
+
 
     let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/createAppointment", {
 
       name: patientName,
-      staff: staffAssigned,
+      procedures: staffAssigned,
       start: new Date(startTime),
       end: new Date(endTime),
       process: process,
@@ -50,19 +49,29 @@ export default function RequestAppointment() {
 
     }).then(console.log("Added Appointment"));
 
-    await Promise.all(staffAssigned.map(({ staff }) => {
-      return axios.put("https://mediflow-cse416.onrender.com/changeStaffAppointment", {
-        staffName: staff, 
-        appointment: newAppointment.data 
+    const uniqueStaffIds = new Set();
+    staffAssigned.forEach(({ staff }) => {
+      staff.forEach(staffId => {
+        uniqueStaffIds.add(staffId);
       });
-    }))
+    });
+
+    await Promise.all(Array.from(uniqueStaffIds).map(staffId =>
+      axios.put("https://mediflow-cse416.onrender.com/changeStaffAppointment", {
+        staffName: staffId,
+        appointment: newAppointment.data
+      })
+    ));
+
 
     await Promise.all(roomAssigned.map(({ room }) => {
       return axios.put("https://mediflow-cse416.onrender.com/changeRoomAppointment", {
-        roomName: room, 
-        appointment: newAppointment.data 
+        roomName: room,
+        appointment: newAppointment.data
       });
     }))
+
+    // for each equipment, add appointments
 
     navigate("/main/schedule");
   };
@@ -82,6 +91,8 @@ export default function RequestAppointment() {
 
     axios.get('https://mediflow-cse416.onrender.com/procedures').then(res => { setProcedureList(res.data) });
 
+    axios.get('https://mediflow-cse416.onrender.com/equipment').then(res => { setEquipmentList(res.data) });
+
   }, []);
 
   useEffect(() => {
@@ -89,7 +100,7 @@ export default function RequestAppointment() {
       const initStaff = {};
       const initRooms = {};
       process.components.forEach(proc => {
-        initStaff[proc] = [];
+        initStaff[proc] = { staff: [], equipment: [] };
         initRooms[proc] = [];
       });
       setStaffSelections(initStaff);
@@ -99,8 +110,23 @@ export default function RequestAppointment() {
 
 
   const handleStaffChange = (procedureId) => (event, newValue) => {
-    console.log("New staff values for procedure", procedureId, newValue);
-    setStaffSelections(prev => ({ ...prev, [procedureId]: newValue }));
+    setStaffSelections(prev => ({
+      ...prev,
+      [procedureId]: {
+        ...prev[procedureId],
+        staff: newValue.map(item => item)
+      }
+    }));
+  };
+
+  const handleEquipmentChange = (procedureId) => (event, newValue) => {
+    setStaffSelections(prev => ({
+      ...prev,
+      [procedureId]: {
+        ...prev[procedureId],
+        equipment: newValue.map(item => item)
+      }
+    }));
   };
 
   const handleRoomChange = (procedureId) => (event, newValue) => {
@@ -214,7 +240,6 @@ export default function RequestAppointment() {
                   )}
                 />
                 <Autocomplete
-                  multiple
                   options={roomsList}
                   getOptionLabel={(option) => option.name}
                   value={roomSelections[procedure]}
@@ -223,6 +248,22 @@ export default function RequestAppointment() {
                     <TextField
                       {...params}
                       label="Room"
+                      variant="outlined"
+                      fullWidth
+
+                    />
+                  )}
+                />
+                <Autocomplete
+                  multiple
+                  options={equipmentList}
+                  getOptionLabel={(option) => option.name}
+                  value={staffSelections[procedure]}
+                  onChange={(event, newValue) => handleEquipmentChange(procedure)(event, newValue)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Equipment"
                       variant="outlined"
                       fullWidth
 

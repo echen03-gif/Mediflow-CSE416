@@ -153,6 +153,8 @@ app.post('/createUser', async (req, res) => {
 
 app.post('/createProcedure', async (req, res) => {
     
+    // need a way to decide procedure ids?
+
     const newProcedure = new Procedures({
 
         created: new Date(),
@@ -160,7 +162,6 @@ app.post('/createProcedure', async (req, res) => {
         estimatedDuration: req.body.timeDuration,
         name: req.body.name,
         procedureID: 0,
-        requiredEquipment: req.body.requiredEquipment,
         requiredRoomType: req.body.requiredRoomType,
         staffType: req.body.staffType
 
@@ -251,7 +252,7 @@ app.post('/createAppointment' , async (req, res) => {
 
         created: new Date(),
         patientName: req.body.name,
-        staff: req.body.staff,
+        procedures: req.body.procedures,
         scheduledStartTime: req.body.start,
         scheduledEndTime: req.body.end,
         process: req.body.process,
@@ -283,7 +284,8 @@ app.put('/changeEquipmentHead', async (req, res) => {
 
 app.put('/changeStaffAppointment', async (req,res) =>{
 
-    let staffUpdate = await Users.findOne({name: req.body.staffName.name});
+    
+    let staffUpdate = await Users.findOne({_id: req.body.staffName._id});
 
     staffUpdate.appointments.push(req.body.appointment);
 
@@ -294,7 +296,6 @@ app.put('/changeStaffAppointment', async (req,res) =>{
 
 app.put('/changeRoomAppointment', async (req,res) =>{
 
-    console.log(req.body.roomName);
 
     let roomUpdate = await Rooms.findOne({_id: req.body.roomName._id});
 
