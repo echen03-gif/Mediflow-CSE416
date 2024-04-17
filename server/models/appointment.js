@@ -4,9 +4,10 @@ const appointmentSchema = new mongoose.Schema({
 
     created: { type: Date },
     patientName: { type: String },
-    staff: [{
-        staff: { type: mongoose.Schema.Types.ObjectId, ref: 'Users' },
-        procedure: { type: mongoose.Schema.Types.ObjectId, ref: 'Procedure' }
+    procedures: [{
+        staff: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Users' }],
+        procedure: { type: mongoose.Schema.Types.ObjectId, ref: 'Procedure' },
+        equipment: [{type: mongoose.Schema.Types.ObjectId, ref:'Equipment'}]
     }],
     scheduledEndTime: { type: Date },
     scheduledStartTime: { type: Date },
@@ -15,7 +16,7 @@ const appointmentSchema = new mongoose.Schema({
         room: { type: mongoose.Schema.Types.ObjectId, ref: 'Room' },
         procedure: { type: mongoose.Schema.Types.ObjectId, ref: 'Procedure' }
     }]
-
+        
 });
 
 appointmentSchema.virtual('url').get(function () {
