@@ -239,6 +239,8 @@ function Rooms() {
           </TableContainer>
         </Box>
       );
+    default:
+      return;
   }
 
 }
