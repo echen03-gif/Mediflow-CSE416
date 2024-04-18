@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://mediflow-568ba.web.app',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
