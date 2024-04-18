@@ -15,6 +15,10 @@ app.use(cors({
 
 app.use(cookieParser());
 
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Credentials', true);
+    next();
+});
 
 const port = 8000;
 // The below URL is for npm start and local host
@@ -252,7 +256,6 @@ app.post('/login', async (req, res) => {
 
         // Send JWT in a cookie with expiration date
         res.cookie('token', token, { httpOnly: true, expires: expirationDate });
-        console.log(token)
         res.send({ success: true});
     } else {
         console.log("Failed to Login")
@@ -264,7 +267,6 @@ app.post('/login', async (req, res) => {
     console.log("Trying to logout...")
     // Extract the JWT token from the cookie
     const token = req.cookies.token;
-    console.log(token)
 
     res.clearCookie('token', {httpOnly: "true"});
     res.json({ success: true });
