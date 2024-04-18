@@ -255,12 +255,22 @@ app.post('/login', async (req, res) => {
         expirationDate.setTime(expirationDate.getTime() + (3 * 60 * 60 * 1000)); // 3 hours in milliseconds
 
         // Send JWT in a cookie with expiration date
-        res.cookie('token', token, { httpOnly: true, expires: expirationDate });
+        res.cookie('token', token, { httpOnly: true, expires: expirationDate, sameSite:"None", secure: true});
         res.send({ success: true});
     } else {
         console.log("Failed to Login")
         res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
     }
+  });
+
+  app.post('/logout', async (req, res) => {
+    console.log("Trying to logout...")
+    // Extract the JWT token from the cookie
+    const token = req.cookies.token;
+
+    res.clearCookie('token', { httpOnly: true, SameSite:'None', secure: true});
+    res.json({ success: true });
+    
   });
 
 app.post('/createAppointment' , async (req, res) => {
