@@ -242,8 +242,11 @@ app.post('/login', async (req, res) => {
 
         const token = jwt.sign({ id: user._id }, 'mediflow-jwt-secret-key', { expiresIn: '3h' });
 
-        // Send JWT in a cookie
-        res.cookie('token', token, { httpOnly: true });
+        const expirationDate = new Date();
+        expirationDate.setTime(expirationDate.getTime() + (3 * 60 * 60 * 1000)); // 3 hours in milliseconds
+
+        // Send JWT in a cookie with expiration date
+        res.cookie('token', token, { httpOnly: true, expires: expirationDate });
         console.log(token)
         res.send({ success: true});
     } else {
