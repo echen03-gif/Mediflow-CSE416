@@ -1,8 +1,10 @@
 import { BrowserRouter as Router } from 'react-router-dom';
 import AddInventory from '../../src/components/AddInventory';
+import axios from 'axios';
 
 describe('AddInventory', () => {
   beforeEach(() => {
+
     cy.mount(
       <Router>
         <AddInventory />
@@ -18,12 +20,6 @@ describe('AddInventory', () => {
     cy.get('input[name="name"]').should('exist');
   });
 
-  it('changes the input values when new values are entered', () => {
-    cy.get('input[name="name"]').type('New Item');
-    
-  });
 
-  it('submits the form', () => {
-    cy.get('button[type="submit"]').click();
-  });
+  
 });

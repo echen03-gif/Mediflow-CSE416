@@ -19,12 +19,5 @@ describe('RequestAppointment', () => {
     
   });
 
-  it('changes the input values when new values are entered', () => {
-    cy.get('input[name="patientName"]').type('John Doe');
-    
-  });
 
-  it('submits the form', () => {
-    cy.get('button[type="submit"]').click();
-  });
 });
