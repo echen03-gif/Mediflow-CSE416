@@ -260,7 +260,7 @@ app.post('/login', async (req, res) => {
             expires: expirationDate, 
             sameSite: 'None', 
             secure: 'true',
-            domain: '.onrender.com', 
+            domain: '.web.app', 
             path: '/',
          });
         res.send({ success: true});
