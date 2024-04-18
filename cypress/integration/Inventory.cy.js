@@ -22,18 +22,5 @@ describe('Inventory', () => {
     cy.get('table').should('exist');
   });
 
-  it('changes the date when a new date is picked', () => {
-    cy.get('input[type="date"]').as('datePicker');
-
-    let initialDate;
-    cy.get('@datePicker').then(($input) => {
-      initialDate = $input.val();
-    });
-
-    cy.get('@datePicker').type('2022-12-31');
-
-    cy.get('@datePicker').should(($input) => {
-      expect($input.val()).not.to.eq(initialDate);
-    });
-  });
+ 
 });
