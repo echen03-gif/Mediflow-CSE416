@@ -255,7 +255,14 @@ app.post('/login', async (req, res) => {
         expirationDate.setTime(expirationDate.getTime() + (3 * 60 * 60 * 1000)); // 3 hours in milliseconds
 
         // Send JWT in a cookie with expiration date
-        res.cookie('token', token, { httpOnly: true, expires: expirationDate, sameSite: 'None', secure: 'true' });
+        res.cookie('token', token, { 
+            httpOnly: true, 
+            expires: expirationDate, 
+            sameSite: 'None', 
+            secure: 'true',
+            domain: '.onrender.com', 
+            path: '/',
+         });
         res.send({ success: true});
     } else {
         console.log("Failed to Login")
