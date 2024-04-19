@@ -19,7 +19,7 @@ describe('Inventory', () => {
   });
 
   it('renders the table', () => {
-    cy.get('table').should('exist');
+    cy.get('simple table').should('exist');
   });
 
  
