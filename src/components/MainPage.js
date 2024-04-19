@@ -1,4 +1,4 @@
-import React from "react";
+import {React, useEffect} from "react";
 import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -61,7 +61,7 @@ export default function MainPage() {
 
   const handleLogout = () => {
     // Remove user cookie
-    removeCookie('user');
+    removeCookies('user');
     // Navigate to login page
     navigate('/login');
   };
