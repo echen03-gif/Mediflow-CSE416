@@ -5,13 +5,13 @@ import { Container, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
-//import { jwtDecode }from 'jwt-decode';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [cookies, setCookies] = useCookies(['user']);
   const navigate = useNavigate();
+  console.log(cookies);
 
   const handleLogin = (event) => {
     console.log("Handling Login")
@@ -26,8 +26,6 @@ export default function LoginPage() {
             if (res.data.success) {
               navigate('/main/schedule');
               setCookies('user', res.data.token, { path: "/" });
-
-
             } else {
               console.log("Error")
               document.getElementById('loginError').innerHTML = res.data.message;
