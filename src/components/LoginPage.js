@@ -25,7 +25,13 @@ export default function LoginPage() {
             console.log(res.data)
             if (res.data.success) {
               navigate('/main/schedule');
-              setCookies('user', res.data.token, { path: "/", sameSite: "none", secure: true, expires: "1h", httpOnly: true });
+              setCookies('user', res.data.token, { 
+                path: "/", 
+                sameSite: "none", 
+                secure: true, 
+                expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour from now
+                httpOnly: true 
+            });
             } else {
               console.log("Error")
               document.getElementById('loginError').innerHTML = res.data.message;
