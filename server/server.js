@@ -3,7 +3,6 @@ const app = express();
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
 
 
 app.use(express.json());
@@ -13,12 +12,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
 
-app.use(cookieParser());
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Credentials', true);
-    next();
-});
 
 const port = 8000;
 // The below URL is for npm start and local host
@@ -252,10 +246,9 @@ app.post('/login', async (req, res) => {
         const token = jwt.sign({ id: user._id }, 'mediflow-jwt-secret-key', { expiresIn: '3h' });
 
         const expirationDate = new Date();
-        expirationDate.setTime(expirationDate.getTime() + (3 * 60 * 60 * 1000)); // 3 hours in milliseconds
+        expirationDate.setTime(expirationDate.getTime() +  (3 * 60 * 60 * 1000)); // 3 hours in milliseconds
 
-        // Send JWT in a cookie with expiration date
-        //res.cookie('token', token, { httpOnly: true, expires: expirationDate, sameSite:"None", secure: true, partitioned: true});
+    
         res.send({ success: true, user: username});
     } else {
         console.log("Failed to Login")
@@ -263,15 +256,6 @@ app.post('/login', async (req, res) => {
     }
   });
 
-  app.post('/logout', async (req, res) => {
-    console.log("Trying to logout...")
-    // Extract the JWT token from the cookie
-    const token = req.cookies.token;
-
-    //res.clearCookie('token', { httpOnly: true, SameSite:'None', secure: true});
-    res.json({ success: true });
-    
-  });
 
 app.post('/createAppointment' , async (req, res) => {
 
