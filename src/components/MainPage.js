@@ -44,7 +44,7 @@ export default function MainPage() {
 
   const checkToken = () => {
 
-    axios.post("https://mediflow-cse416.onrender.com/decode", { }, { withCredentials: true }).then(res =>{
+    axios.get("https://mediflow-cse416.onrender.com/decode", { }, { withCredentials: true }).then(res =>{
 
       console.log(res.data)
     })
