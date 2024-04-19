@@ -38,7 +38,7 @@ const upcomingPatients = [
 
 export default function MainPage() {
   const drawerWidth = 200; 
-  const [cookies, setCookies, removeCookies] = useCookies(['user']);
+  const [cookies, setCookies, removeCookies] = useCookies();
   const navigate = useNavigate();
 
 
