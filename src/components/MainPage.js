@@ -25,7 +25,7 @@ import AddStaff from "./AddStaff";
 import AddInventory from "./AddInventory";
 import AddRoom from "./AddRoom";
 import CreateProcess from "./CreateProcess";
-//import axios from 'axios';
+import axios from 'axios';
 import {useCookies} from 'react-cookie';
 
 
@@ -42,8 +42,20 @@ export default function MainPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const checkToken = () => {
+
+    axios.post("https://mediflow-cse416.onrender.com/decode", { }, { withCredentials: true }).then(res =>{
+
+      console.log(res.data)
+    })
+
+  }
+
+
   useEffect(() => {
     // Check if user cookie exists on component mount
+
+    checkToken()
     if (!cookies.user) {
       // If user cookie doesn't exist, navigate to login page
       navigate('/login');

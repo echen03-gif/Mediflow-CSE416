@@ -5,7 +5,7 @@ import { Container, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
-import { jwtDecode }from 'jwt-decode';
+//import { jwtDecode }from 'jwt-decode';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -21,21 +21,13 @@ export default function LoginPage() {
       if (username === '' || password === '') {
         document.getElementById('loginError').innerHTML = 'Invalid Input';
       } else {
-        axios.post("http://localhost:8000/login", { username, password }, { withCredentials: true })
+        axios.post("https://mediflow-cse416.onrender.com/login", { username, password }, { withCredentials: true })
           .then(res => {
             console.log(res.data)
             if (res.data.success) {
               navigate('/main/schedule');
               setCookies('user', res.data.token, { path: "/" });
-              const jwtToken = document.cookie
-              .split('; ')
-              .find(row => row.startsWith('user='))
-              .split('=')[1];
-  
-              console.log(jwtToken);
 
-              const decodedToken = jwtDecode(jwtToken);
-              console.log(decodedToken)
 
             } else {
               console.log("Error")
