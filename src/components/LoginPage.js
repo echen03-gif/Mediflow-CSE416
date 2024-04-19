@@ -26,18 +26,14 @@ export default function LoginPage() {
             if (res.data.success) {
               navigate('/main/schedule');
               setCookies('user', res.data.token, { 
-                path: "/", 
-                sameSite: "none", 
-                secure: true, 
-                expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour from now
-                httpOnly: true 
+                path: "/"
             });
             } else {
               console.log("Error")
               document.getElementById('loginError').innerHTML = res.data.message;
             }
           })
-          .catch(error => {
+          .catch(error => { 
             document.getElementById('loginError').innerHTML = "Error, please try again!";
             console.log(error);
           });
