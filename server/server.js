@@ -111,7 +111,7 @@ app.get('/procedures', async (req, res) => {
 
 });
 
-app.get('/equipment', authenticateToken , async (req, res) => {
+app.get('/equipment', async (req, res) => {
 
     let equipment = await Equipment.find();
 

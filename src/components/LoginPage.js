@@ -12,7 +12,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [cookies, setCookies] = useCookies(['user']);
   const navigate = useNavigate();
-  console.log(cookies);
 
   const handleLogin = (event) => {
     console.log("Handling Login")
