@@ -39,7 +39,6 @@ const upcomingPatients = [
 export default function MainPage() {
   const drawerWidth = 200;
   const [cookies, , removeCookies] = useCookies(['user']);
-  const [usersList, setUsers] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -47,7 +46,8 @@ export default function MainPage() {
 
     axios.get("https://mediflow-cse416.onrender.com/decode", { withCredentials: true }).then(res => {
 
-      console.log(res.data)
+      console.log(res.data);
+
     })
 
   }
@@ -63,12 +63,6 @@ export default function MainPage() {
       checkToken()
     }
   }, [cookies.user, navigate]);
-
-  useEffect(() => {
-
-    axios.get('https://mediflow-cse416.onrender.com/users').then(res => { setUsers(res.data) })
-
-  }, []);
 
 
   const handleRefreshClick = (targetPath) => (event) => {
@@ -87,14 +81,6 @@ export default function MainPage() {
     navigate('/login');
   };
 
-
-  useEffect(() => {
-
-  }, [usersList]);
-
-
-  console.log(usersList);
-
   return (
     <Box
       sx={{
@@ -104,7 +90,7 @@ export default function MainPage() {
         overflow: "hidden",
       }}
     >
-      {/* Sidebar */}
+  
       <Drawer
         variant="permanent"
         sx={{
@@ -216,7 +202,7 @@ export default function MainPage() {
           component="div"
           sx={{ display: { xs: "none", md: "flex" } }}
         >
-          Test User
+         Test User
         </Typography>
 
         <Avatar
