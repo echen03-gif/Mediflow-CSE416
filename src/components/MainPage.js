@@ -1,4 +1,4 @@
-import React from "react";
+import {React, useEffect} from "react";
 import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -38,11 +38,19 @@ const upcomingPatients = [
 
 export default function MainPage() {
   const drawerWidth = 200; 
-  const [cookies, removeCookies] = useCookies(['user']);
+  const [cookies, , removeCookies] = useCookies(['user']);
   const navigate = useNavigate();
-
-
   const location = useLocation();
+
+
+  useEffect(() => {
+    // Check if user cookie exists on component mount
+
+    if (!cookies.user) {
+      // If user cookie doesn't exist, navigate to login page
+      navigate('/login');
+    }
+  }, [cookies.user, navigate]);
 
   const handleRefreshClick = (targetPath) => (event) => {
     console.log("hello");
@@ -54,29 +62,12 @@ export default function MainPage() {
   };
 
   const handleLogout = () => {
-
-    console.log("Goodbye " + cookies.user)
-    
-    try {
-        // axios.post("http://localhost:8000/logout",{ }, { withCredentials: true })
-        //   .then(res => {
-        //     console.log(res.data)
-        //     if (res.data.success) {
-        //       console.log("Logged Out")
-        //       navigate('/login');
-        //     } else {
-        //       console.log("Error")
-        //     }
-        //   })
-        removeCookies('user');
-        navigate('/login');
-
-      } catch (error) {
-     
-      console.log("Error" + error);
-    }
-
+    // Remove user cookie
+    removeCookies('user', { path: '/'});
+    // Navigate to login page
+    navigate('/login');
   };
+
 
   return (
     <Box
@@ -145,8 +136,6 @@ export default function MainPage() {
           </ListItem>
         </List>
       </Drawer>
-
-      {/* Main content */}
       <Box
         component="main"
         sx={{
