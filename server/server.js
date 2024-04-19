@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 
 app.use(express.json());
 app.use(cors({
-    origin: "https://mediflow-568ba.web.app",
+    origin: "https://mediflow-568ba.web.app/",
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
@@ -50,7 +50,50 @@ const equipmentHead = require('./models/equipmentHead.js');
 
 // Define Backend Functions
 
+
+const authenticateToken = (req, res, next) => {
+    // Check if the 'user' cookie is present
+    const token = req.cookies['user'];
+  
+    if (!token) {
+      return res.status(401).json({ message: 'Unauthorized. Token not provided.' });
+    }
+  
+    jwt.verify(token, 'mediflow-jwt-secret-key', (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: 'Forbidden. Token invalid.' });
+      }
+
+      next();
+    });
+  };
+
 // GET FUNCTIONS
+
+app.get('/decode', async (req, res)=>{
+
+    const cookieHeader = req.cookies['user']
+
+    if (!cookieHeader) {
+        return res.status(400).send('No cookies found in the request.');
+      }
+    
+      const cookies = cookieHeader.split('; ');
+      const jwtCookie = cookies.find(cookie => cookie.startsWith('user='));
+    
+      if (!jwtCookie) {
+        return res.status(400).send('JWT cookie not found.');
+      }
+    
+      const jwtToken = jwtCookie.split('=')[1];
+    
+      // Decode the JWT token
+      const decodedToken = jwtDecode(jwtToken);
+      console.log('Decoded Token:', decodedToken);
+    
+      res.status(200).json({ decodedToken });
+
+});
 
 app.get('/users', async (req, res) => {
 
@@ -68,7 +111,7 @@ app.get('/procedures', async (req, res) => {
 
 });
 
-app.get('/equipment', async (req, res) => {
+app.get('/equipment', authenticateToken , async (req, res) => {
 
     let equipment = await Equipment.find();
 
