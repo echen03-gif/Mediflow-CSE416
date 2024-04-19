@@ -1,9 +1,10 @@
-import React, { useState} from 'react';
+// LoginPage.js
+
+import React, { useState } from 'react';
 import { Container, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {useCookies} from 'react-cookie';
-
+import { useCookies } from 'react-cookie';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -13,7 +14,6 @@ export default function LoginPage() {
   console.log(cookies);
 
   const handleLogin = (event) => {
-
     console.log("Handling Login")
     event.preventDefault();
     try {
@@ -40,7 +40,6 @@ export default function LoginPage() {
       document.getElementById('loginError').innerHTML = "Error, please try again!";
       console.log(error);
     }
-
   };
 
   return (
@@ -55,45 +54,45 @@ export default function LoginPage() {
         margin: 'auto',
       }}
     >
-        <Typography variant="h5" sx={{ marginBottom: 4 }}>
-            Welcome Back, Login.
-        </Typography>
-        <form onSubmit={handleLogin}>
-            <TextField
-                label="Username"
-                variant="outlined"
-                fullWidth
-                sx={{ marginBottom: 2 }}
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-            />
-            <TextField
-                label="Password"
-                type="password"
-                variant="outlined"
-                fullWidth
-                sx={{ marginBottom: 2 }}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <Button
-                type="submit"
-                variant="contained"
-                fullWidth
-                sx={{
-                marginTop: 2,
-                marginBottom: 1,
-                background: '#FF8241',
-                '&:hover': {
-                    background: '#FF5034',
-                },
-                }}
-            >
-                Login
-            </Button>
-        </form>
-        <Button color="secondary">Forgot Password</Button>
-        <p id="loginError"></p>
+      <Typography variant="h5" sx={{ marginBottom: 4 }}>
+        Welcome Back, Login.
+      </Typography>
+      <form onSubmit={handleLogin}>
+        <TextField
+          label="Username"
+          variant="outlined"
+          fullWidth
+          sx={{ marginBottom: 2 }}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <TextField
+          label="Password"
+          type="password"
+          variant="outlined"
+          fullWidth
+          sx={{ marginBottom: 2 }}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          sx={{
+            marginTop: 2,
+            marginBottom: 1,
+            background: '#FF8241',
+            '&:hover': {
+              background: '#FF5034',
+            },
+          }}
+        >
+          Login
+        </Button>
+      </form>
+      <Button color="secondary">Forgot Password</Button>
+      <p id="loginError"></p>
     </Container>
   );
 }
