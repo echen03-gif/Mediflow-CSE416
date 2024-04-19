@@ -23,11 +23,11 @@ describe('MainPage', () => {
   });
 
   it('navigates to the  page when the  link is clicked', () => {
+    
     cy.get('div').contains('Schedule').click();
     cy.get('div').contains('Rooms').click();
     cy.get('div').contains('Inventory').click();
     cy.get('div').contains('Staff').click();
-
    
   });
 

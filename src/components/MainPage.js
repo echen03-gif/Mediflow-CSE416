@@ -40,16 +40,12 @@ export default function MainPage() {
   const drawerWidth = 200;
   const [cookies, , removeCookies] = useCookies(['user']);
   const [usersList, setUsers] = useState([]);
-  const [cookieTempData, setCookieData] = useState('');
-  const [currentUser, setCurrentUser] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
   const checkToken = () => {
 
     axios.get("https://mediflow-cse416.onrender.com/decode", { withCredentials: true }).then(res => {
-
-      setCookieData(res.data.user);
 
       console.log(res.data)
     })
@@ -94,36 +90,10 @@ export default function MainPage() {
 
   useEffect(() => {
 
-    const extractValue = (key) => {
-      if (!cookieTempData) return ''; 
-    
-      const start = cookieTempData.indexOf(`${key}=`) + key.length + 1;
-      if (start === key.length) { 
-        return ''; 
-      }
-    
-      let end = cookieTempData.indexOf(';', start);
-      end = end === -1 ? cookieTempData.length : end;
-      return cookieTempData.substring(start, end);
-    };
-
-    if (cookieTempData) {
-        const userName = extractValue('username');
-
-        if (usersList.length > 0 && userName) {
-          const foundUser = usersList.find(user => user.email === userName);
-          if (foundUser) {
-            console.log(foundUser);
-            setCurrentUser(foundUser);
-          } else {
-            console.log('No user found with the email:', userName);
-          }
-        }
-    }
-}, [cookieTempData, usersList]);
+  }, [usersList]);
 
 
-  console.log(currentUser);
+  console.log(usersList);
 
   return (
     <Box
@@ -246,7 +216,7 @@ export default function MainPage() {
           component="div"
           sx={{ display: { xs: "none", md: "flex" } }}
         >
-          {currentUser.name}
+          Test User
         </Typography>
 
         <Avatar
