@@ -14,8 +14,6 @@ app.use(cors({
 }));
 
 
-app.options('*', cors());
-
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Credentials', true);
@@ -138,7 +136,7 @@ app.get('/check-session', (req, res) => {
 
 app.get('/decode', async (req, res)=>{
 
-    const cookieHeader = req.cookies['user']
+    // const cookieHeader = req.cookies['user']
 
     // if (!cookieHeader) {
     //     return res.status(400).send('No cookies found in the request.');
