@@ -1,25 +1,25 @@
-const express = require('express');
-const app = express();
-const cors = require('cors');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
+    const express = require('express');
+    const app = express();
+    const cors = require('cors');
+    const bcrypt = require('bcrypt');
+    const jwt = require('jsonwebtoken');
+    const cookieParser = require('cookie-parser');
 
 
-app.use(express.json());
+    app.use(express.json());
 
-app.use(cors({
-    origin: "https://mediflow-568ba.web.app",
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-}));
+    app.use(cors({
+        origin: "https://mediflow-568ba.web.app",
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    }));
 
 
-app.use(cookieParser);
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Credentials', true);
-    next();
-});
+    app.use(cookieParser());
+    app.use((req, res, next) => {
+        res.header('Access-Control-Allow-Credentials', true);
+        next();
+    });
 
 
 const port = 8000;
