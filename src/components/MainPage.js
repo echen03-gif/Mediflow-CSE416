@@ -42,6 +42,7 @@ export default function MainPage() {
   const [usersList, setUsers] = useState([]);
   const [cookieTempData, setCookieData] = useState('');
   const [currentUser, setCurrentUser] = useState('');
+  const [username, setUserName] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -68,17 +69,19 @@ export default function MainPage() {
     }
   }, [cookies.user, navigate]);
 
-  console.log(cookieTempData);
-
   const extractValue = (key) => {
+    if (!cookieTempData) return ''; 
+  
     const start = cookieTempData.indexOf(`${key}=`) + key.length + 1;
+    if (start === key.length) { 
+      return ''; 
+    }
+  
     let end = cookieTempData.indexOf(';', start);
     end = end === -1 ? cookieTempData.length : end;
     return cookieTempData.substring(start, end);
   };
-
-  const username = extractValue('username');
-  console.log(username);
+  
 
   useEffect(() => {
 
@@ -105,16 +108,22 @@ export default function MainPage() {
 
 
   useEffect(() => {
-    if (usersList.length > 0 && username) {
-      const foundUser = usersList.find(user => user.email === username);
-      if (foundUser) {
-        console.log(foundUser);
-        setCurrentUser(foundUser);
-      } else {
-        console.log('No user found with the email:', username);
-      }
+    if (cookieTempData) {
+        const userName = extractValue('username');
+        setUserName(userName);
+
+        if (usersList.length > 0 && userName) {
+          const foundUser = usersList.find(user => user.email === userName);
+          if (foundUser) {
+            console.log(foundUser);
+            setCurrentUser(foundUser);
+          } else {
+            console.log('No user found with the email:', userName);
+          }
+        }
     }
-  }, [usersList, username]);
+}, [cookieTempData, usersList]);
+
 
   console.log(currentUser);
 
