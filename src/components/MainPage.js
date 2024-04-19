@@ -26,6 +26,7 @@ import AddInventory from "./AddInventory";
 import AddRoom from "./AddRoom";
 import CreateProcess from "./CreateProcess";
 import axios from 'axios';
+import {CookiesProvider, useCookies} from 'react-cookie';
 
 
 // Mock array of upcoming patients
@@ -37,6 +38,7 @@ const upcomingPatients = [
 
 export default function MainPage() {
   const drawerWidth = 200; 
+  const [cookies, setCookies, removeCookies] = useCookies(['user']);
   const navigate = useNavigate();
 
 
@@ -53,19 +55,21 @@ export default function MainPage() {
 
   const handleLogout = () => {
 
-    console.log("Handling Login")
+    console.log("Goodbye " + cookies.user)
     
     try {
-        axios.post("https://mediflow-cse416.onrender.com/logout",{ }, { withCredentials: true })
-          .then(res => {
-            console.log(res.data)
-            if (res.data.success) {
-              console.log("Logged Out")
-              navigate('/login');
-            } else {
-              console.log("Error")
-            }
-          })
+        // axios.post("http://localhost:8000/logout",{ }, { withCredentials: true })
+        //   .then(res => {
+        //     console.log(res.data)
+        //     if (res.data.success) {
+        //       console.log("Logged Out")
+        //       navigate('/login');
+        //     } else {
+        //       console.log("Error")
+        //     }
+        //   })
+        removeCookies('user');
+        navigate('/login');
 
       } catch (error) {
      

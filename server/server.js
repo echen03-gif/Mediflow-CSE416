@@ -248,15 +248,15 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await Users.findOne({ email: username });
     if (user && bcrypt.compareSync(password, user.password)) {
-
+        console.log('Logged in');
         const token = jwt.sign({ id: user._id }, 'mediflow-jwt-secret-key', { expiresIn: '3h' });
 
         const expirationDate = new Date();
         expirationDate.setTime(expirationDate.getTime() + (3 * 60 * 60 * 1000)); // 3 hours in milliseconds
 
         // Send JWT in a cookie with expiration date
-        res.cookie('token', token, { httpOnly: true, expires: expirationDate, sameSite:"None", secure: true, partitioned: true});
-        res.send({ success: true});
+        //res.cookie('token', token, { httpOnly: true, expires: expirationDate, sameSite:"None", secure: true, partitioned: true});
+        res.send({ success: true, user: username});
     } else {
         console.log("Failed to Login")
         res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
@@ -268,7 +268,7 @@ app.post('/login', async (req, res) => {
     // Extract the JWT token from the cookie
     const token = req.cookies.token;
 
-    res.clearCookie('token', { httpOnly: true, SameSite:'None', secure: true});
+    //res.clearCookie('token', { httpOnly: true, SameSite:'None', secure: true});
     res.json({ success: true });
     
   });

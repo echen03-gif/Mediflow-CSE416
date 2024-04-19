@@ -2,11 +2,13 @@ import React, { useState} from 'react';
 import { Container, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {CookiesProvider, useCookies} from 'react-cookie';
 
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [cookies, setCookies, removeCookies] = useCookies(['user']);
   const navigate = useNavigate();
 
   const handleLogin = (event) => {
@@ -22,6 +24,7 @@ export default function LoginPage() {
             console.log(res.data)
             if (res.data.success) {
               navigate('/main/schedule');
+              setCookies('user', res.data.user, { path: "/" });
             } else {
               console.log("Error")
               document.getElementById('loginError').innerHTML = res.data.message;
