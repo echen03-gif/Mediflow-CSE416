@@ -8,8 +8,9 @@ import {useCookies} from 'react-cookie';
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [setCookies] = useCookies(['user']);
+  const [cookies, setCookies] = useCookies(['user']);
   const navigate = useNavigate();
+  console.log(cookies);
 
   const handleLogin = (event) => {
 

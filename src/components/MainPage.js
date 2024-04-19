@@ -38,7 +38,7 @@ const upcomingPatients = [
 
 export default function MainPage() {
   const drawerWidth = 200; 
-  const [cookies, removeCookies] = useCookies(['user']);
+  const [cookies, setCookies, removeCookies] = useCookies(['user']);
   const navigate = useNavigate();
 
 
@@ -68,6 +68,9 @@ export default function MainPage() {
         //       console.log("Error")
         //     }
         //   })
+        if(location.pathname == "afsdlj;k"){
+          setCookies('user', 'please work please work please work please work please work')
+        }
         removeCookies('user');
         navigate('/login');
 
