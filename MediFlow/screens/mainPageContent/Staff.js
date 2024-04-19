@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
-import { Avatar } from 'react-native-paper';
+import { View, Text, TextInput, StyleSheet, ScrollView } from 'react-native';
+import { Avatar, Title, IconButton, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native'; 
 import { theme } from "../../core/theme";
 import MainPageHeader from "../../components/MainPageHeader";
+import { MainPageContext } from "../MainPageContext";
 
 export default function Staff() {
   const navigation = useNavigation();
 
   const [search, setSearch] = useState("");
+  const { setActiveComponent } = useContext(MainPageContext);
 
   const staffData = [
     { name: "Dr. Jane Doe", status: "ON DUTY", imageUri: "https://images.unsplash.com/photo-1500649708-c959990f5b44?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFybyx8fHx8ZW1wbG95ZWVkJTIwdXNlciUyMHByb2ZpbGVy&auto=format&fit=crop&w=600&q=60" },
@@ -25,32 +27,34 @@ export default function Staff() {
     setSearch(event.target.value);
   };
 
+  const handleDateChange = (event) => {
+    // Implementation to update selectedDate
+  };
+
   const navigateToAddStaff = () => {
-    navigation.navigate("AddStaff"); 
+    setActiveComponent("AddStaff");
   };
 
   const getStatus = (schedule) => {
-    // ... Your status calculation logic
+    
   };
 
   return (
     <ScrollView style={styles.container}> 
       <View style={styles.header}>
         <MainPageHeader>Staff</MainPageHeader>
-        <Button 
-          title="Add Staff" 
-          style={{
-            backgroundColor: theme.colors.primary,
-
-          }}
-          onPress={navigateToAddStaff} 
-        />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search Staff"
-          value={search}
-          onChange={handleSearch}
-        />
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search Staff"
+            value={search}
+            onChangeText={handleSearch}
+          />
+          <IconButton icon="calendar-today" onPress={handleDateChange} />
+        </View>
+        <Button mode="contained" onPress={navigateToAddStaff}>
+          Add Staff
+        </Button>
       </View>
       <View style={styles.staffContent}>
       {["ON DUTY", "ON CALL", "NOT AVAILABLE"].map((status) => (
@@ -79,38 +83,43 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    width: '100%',
-    maxWidth: 340,
   },
   header: {
-    flexDirection: 'column', // Arrange header elements horizontally
-    justifyContent: 'space-between', // Align left and right sides
-    alignItems: 'center', // Center elements vertically
-    marginBottom: 20, // Add bottom margin for spacing
+    marginBottom: '20px',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold', // Emphasize title text
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
   },
   searchInput: {
-    borderCurve: 'circular',
-    borderColor: 'black',
+    flex: 1,
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
+    padding: 5,
+    marginRight: 10,
+  },
+  staffContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   statusSection: {
     marginBottom: 20,
-    alignSelf: 'center',
+    alignItems: 'center',
   },
   statusTitle: {
     fontSize: 16,
-    fontWeight: 'bold', // Emphasize status titles
+    fontWeight: 'bold',
   },
   staffGrid: {
-    flexDirection: 'row', // Arrange staff items horizontally
-    flexWrap: 'wrap', // Allow items to wrap to new lines if needed
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   staffItem: {
-    width: '50%', // Set width for each staff item (adjust as needed)
-    padding: 10, // Add padding for spacing
-    alignItems: 'center', // Center staff information vertically
+    width: '15%', 
+    padding: 10,
+    alignItems: 'center',
   },
 });

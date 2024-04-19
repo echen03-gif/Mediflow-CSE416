@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView } from 'react-native';
-import { DataTable, Avatar, List, Caption, Title } from 'react-native-paper';
+import { DataTable, Avatar, List, Caption, Title, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import MainPageHeader from '../../components/MainPageHeader';
 
 const peopleData = [
   {
@@ -57,7 +58,7 @@ export default function Inbox() {
 
   return (
     <ScrollView style={styles.container}>
-      <Title style={styles.title}>Chat Inbox</Title>
+      <MainPageHeader>Inbox</MainPageHeader>
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -66,7 +67,12 @@ export default function Inbox() {
           onChangeText={handleSearch}  
         />
       </View>
-
+      <Button 
+          mode="contained"
+          onPress={() => navigation.navigate('Request')}
+      >
+          New Chat
+      </Button>
       <DataTable style={styles.dataTable}>
         <DataTable.Header>
           <DataTable.Title>Profile</DataTable.Title>
@@ -108,6 +114,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    textAlign: 'center',
   },
   searchContainer: {
     flexDirection: 'row',

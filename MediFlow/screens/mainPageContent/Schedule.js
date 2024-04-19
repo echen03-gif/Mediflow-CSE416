@@ -39,10 +39,6 @@ export default function Schedule() {
     //calendarApi.changeView('timeGridDay', arg.date);
   };
 
-  const handleRequest = () => {
-    navigation.navigate('Request');
-  }
-
   const handleEventClick = (info) => {
     setSelectedEvent(info.event);
   };
@@ -51,15 +47,16 @@ export default function Schedule() {
     setSelectedEvent(null);
   };
 
+  const navigateToAddAppointment = () => {
+    // Implement navigation logic here
+  };
+
   return (
      <Surface style={styles.container}>
        <View style={styles.leftSection}>
           <MainPageHeader>SCHEDULE</MainPageHeader> 
-          <Button 
-              mode="contained"
-              onPress={() => navigation.navigate('Request')}
-          >
-              + Request
+          <Button mode="contained" onPress={navigateToAddAppointment}>
+            Add Appointment
           </Button>
           <CalendarProvider
             date={selectedDate}
@@ -105,7 +102,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     width: '100%',
-    maxWidth: 340,
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',

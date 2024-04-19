@@ -11,6 +11,8 @@
   "dependencies": {
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.15",
+    "@react-native-community/datetimepicker": "^7.6.4",
+    "@react-native-picker/picker": "^2.7.5",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.9.26",
     "@react-navigation/stack": "^6.3.29",

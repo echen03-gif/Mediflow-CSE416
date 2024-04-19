@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import { DataTable, TextInput } from 'react-native-paper';
+import { View, StyleSheet, TextInput } from 'react-native';
+import { DataTable, Button, Title, IconButton } from 'react-native-paper';
 import { theme } from '../../core/theme';
-import Button from '../../components/Button';
 import MainPageHeader from '../../components/MainPageHeader'
 
 export default function Inventory() {
   const [page, setPage] = React.useState(0);
   const [numberOfItemsPerPageList] = React.useState([2, 3, 4]);
+  const [search, setSearch] = React.useState("");
   const [itemsPerPage, onItemsPerPageChange] = React.useState(
     numberOfItemsPerPageList[0]
   );
@@ -27,19 +27,36 @@ export default function Inventory() {
   React.useEffect(() => {
     setPage(0);
   }, [itemsPerPage]);
+  
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
+  };
+
+  const handleDateChange = (event) => {
+    // Implementation to update selectedDate
+  };
+
+  const navigateToAddInventory = () => {
+    // Implement navigation logic here
+  };
 
   return (
     <View style={styles.container}>
-      <MainPageHeader>Inventory</MainPageHeader>
-      <View style={styles.searchContainer}>
-        <TextInput label="Search" variant="outlined" />
-        <Button mode="contained" style={styles.dateButton}>
-          Date
+      <View style={styles.header}>
+        <MainPageHeader>Inventory</MainPageHeader>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search Inventory"
+            value={search}
+            onChangeText={handleSearch}
+          />
+          <IconButton icon="calendar-today" onPress={handleDateChange} />
+        </View>
+        <Button mode="contained" onPress={navigateToAddInventory}>
+          Add Inventory
         </Button>
       </View>
-      <Button mode="contained" style={styles.addButton}>
-        Add Inventory
-      </Button>
       <DataTable>
         <DataTable.Header>
           <DataTable.Title>Product</DataTable.Title>
@@ -75,25 +92,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    width: '100%',
-    maxWidth: 340,
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 10,
     textAlign: 'center',
-    marginBottom: 20,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
   },
+  searchInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
+    padding: 5,
+    marginRight: 10,
+  },
   dateButton: {
-    marginLeft: 10,
+    size: '20%',
+    marginVertical: 10,
+    paddingVertical: 2,
+  },
+  dateButtonLabel: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    lineHeight: 26,
   },
   addButton: {
     marginTop: 10,

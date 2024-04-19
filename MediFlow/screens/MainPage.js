@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 //import { useNavigation } from '@react-navigation/native'; 
 //import { createStackNavigator } from '@react-navigation/native-stack';
 import { View, SafeAreaView, Text, StyleSheet, Dimensions } from 'react-native';
@@ -9,12 +9,13 @@ import Inventory from "./mainPageContent/Inventory";
 import Staff from "./mainPageContent/Staff";
 import Rooms from "./mainPageContent/Rooms";
 import Inbox from "./mainPageContent/Inbox";
+import AddStaff from "./mainPageContent/AddStaff";
 import { theme } from "../core/theme";
+import { MainPageContext } from "./MainPageContext";
 /*import AddItem from "./AddItem";
 import Request from "./RequestAppointment"
 import Inbox from "./Inbox";
 import ChatScreen from './ChatScreen';
-import AddStaff from "./AddStaff";
 import AddInventory from "./AddInventory";
 import AddRoom from "./AddRoom";
 import CreateProcess from "./CreateProcess";*/
@@ -23,7 +24,9 @@ import CreateProcess from "./CreateProcess";*/
 
 // Mock array of upcoming patients
 const upcomingPatients = [
-  // ... your data 
+  { name: "Patient 1", timeUntilTurn: "15 mins", stage: "Waiting" },
+  { name: "Patient 2", timeUntilTurn: "30 mins", stage: "Check-in" },
+  { name: "Patient 3", timeUntilTurn: "45 mins", stage: "Screening" },
 ];
 
 // Define a mapping from route names to components
@@ -33,13 +36,14 @@ const COMPONENT_MAP = {
   Staff: Staff,
   Rooms: Rooms,
   Inbox: Inbox,
+  AddStaff: AddStaff,
   // Add other components here as needed
 };
 
 const windowWidth = Dimensions.get('window').width;
 
 export default function MainPage() {
-    const [activeComponent, setActiveComponent] = useState('Schedule');
+    const { activeComponent, setActiveComponent } = useContext(MainPageContext);
     //const navigation = useNavigation();
 
     const handleContentChange = (routeName) => () => {
@@ -72,8 +76,10 @@ export default function MainPage() {
                     <Text>Dr. Jane Doe</Text>
                     <Text>Upcoming Patients</Text>
                     {upcomingPatients.map((patient, index) => (
-                    <View key={index} /* ...styles */>
-                        {/* ...Patient info */}
+                    <View key={index}>
+                      <Text>{patient.name}</Text>
+                      <Text>{`Time until turn: ${patient.timeUntilTurn}`}</Text>
+                      <Text>{`Stage: ${patient.stage}`}</Text>
                     </View>
                     ))}
                 </View>

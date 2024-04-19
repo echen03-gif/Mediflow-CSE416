@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView } from 'react-native';
 import { DataTable, Avatar, Title, IconButton, Button } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import MainPageHeader from '../../components/MainPageHeader';
 
 // ... (roomsData and isRoomAvailable remain the same)
 
@@ -22,7 +22,6 @@ export default function Rooms() {
     { id: 5, name: '125', type: 'ICU', status: 'Patient 3' },
     { id: 6, name: '126', type: 'Cardiology', status: 'N/A' },
   ];
-
 
   const handleSearch = (event) => {
     setSearch(event.target.value);
@@ -56,19 +55,21 @@ export default function Rooms() {
 
   return (
     <ScrollView style={styles.container}>
-      <Title style={styles.title}>Room Availability</Title>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search Staff"
-          value={search}
-          onChangeText={handleSearch}
-        />
-        <IconButton icon="calendar-today" onPress={handleDateChange} />
+      <View>
+        <MainPageHeader>Room Availability</MainPageHeader>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search Rooms"
+            value={search}
+            onChangeText={handleSearch}
+          />
+          <IconButton icon="calendar-today" onPress={handleDateChange} />
+        </View>
+        <Button mode="contained" onPress={navigateToAddRoom}>
+          Add Room
+        </Button>
       </View>
-      <Button mode="contained" onPress={navigateToAddRoom}>
-        Add Room
-      </Button>
       <DataTable style={styles.dataTable}>
         <DataTable.Header>
           <DataTable.Title>Room #</DataTable.Title>
@@ -117,6 +118,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    textAlign: 'center',
   },
   searchContainer: {
     flexDirection: 'row',
