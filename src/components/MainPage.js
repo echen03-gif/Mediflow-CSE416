@@ -61,7 +61,7 @@ export default function MainPage() {
 
   const handleLogout = () => {
     // Remove user cookie
-    removeCookies('user');
+    removeCookies('user', { path: '/'});
     // Navigate to login page
     navigate('/login');
   };
