@@ -27,6 +27,8 @@ export default function LoginPage() {
               const cookieValue = `token=${res.data.token};username=${username}`;
               setCookies('user', cookieValue, {
                 path: "/",
+                secure: true, 
+                sameSite: 'none'
               });
 
               navigate('/main/schedule');
