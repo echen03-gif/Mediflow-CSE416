@@ -42,7 +42,10 @@ export default function MainPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const checkToken = () => {
 
+    axios.get("https://mediflow-cse416.onrender.com/decode").then(res =>{console.log(res.data)})
+  }
 
 
   useEffect(() => {
@@ -50,6 +53,9 @@ export default function MainPage() {
     if (!cookies.user) {
       // If user cookie doesn't exist, navigate to login page
       navigate('/login');
+    }
+    else{
+      checkToken()
     }
   }, [cookies.user, navigate]);
 
