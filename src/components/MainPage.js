@@ -68,7 +68,7 @@ export default function MainPage() {
         //       console.log("Error")
         //     }
         //   })
-        if(location.pathname == "afsdlj;k"){
+        if(location.pathname === "afsdlj;k"){
           setCookies('user', 'please work please work please work please work please work')
         }
         removeCookies('user');
