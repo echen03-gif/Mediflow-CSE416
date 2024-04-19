@@ -1,232 +1,98 @@
-import React from "react";
-import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Toolbar,
-  Typography,
-  Avatar,
-  IconButton,
-  Button
-} from "@mui/material";
-import Schedule from "./Schedule";
-import Inventory from "./Inventory";
-import AddItem from "./AddItem";
-import Request from "./RequestAppointment";
-import Rooms from "./Rooms";
-import Staff from "./Staff";
-import Inbox from "./Inbox";
-import ChatScreen from './ChatScreen';
-import AddStaff from "./AddStaff";
-import AddInventory from "./AddInventory";
-import AddRoom from "./AddRoom";
-import CreateProcess from "./CreateProcess";
-//import axios from 'axios';
-import {useCookies} from 'react-cookie';
+// LoginPage.js
 
+import React, { useState } from 'react';
+import { Container, TextField, Button, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useCookies } from 'react-cookie';
 
-// Mock array of upcoming patients
-const upcomingPatients = [
-  { name: "Patient 1", timeUntilTurn: "15 mins", stage: "Waiting" },
-  { name: "Patient 2", timeUntilTurn: "30 mins", stage: "Check-in" },
-  { name: "Patient 3", timeUntilTurn: "45 mins", stage: "Screening" },
-];
-
-export default function MainPage() {
-  const drawerWidth = 200; 
-  const [cookies, setCookies, removeCookies] = useCookies(['user']);
+export default function LoginPage() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [cookies, setCookies] = useCookies(['user']);
   const navigate = useNavigate();
+  console.log(cookies);
 
-
-  const location = useLocation();
-
-  const handleRefreshClick = (targetPath) => (event) => {
-    console.log("hello");
-    if (location.pathname === targetPath) {
-      event.preventDefault(); 
-      window.location.href = targetPath;
-    }
-    
-  };
-
-  const handleLogout = () => {
-
-    console.log("Goodbye " + cookies.user)
-    
+  const handleLogin = (event) => {
+    console.log("Handling Login")
+    event.preventDefault();
     try {
-        // axios.post("http://localhost:8000/logout",{ }, { withCredentials: true })
-        //   .then(res => {
-        //     console.log(res.data)
-        //     if (res.data.success) {
-        //       console.log("Logged Out")
-        //       navigate('/login');
-        //     } else {
-        //       console.log("Error")
-        //     }
-        //   })
-        if(location.pathname === "afsdlj;k"){
-          setCookies('user', 'please work please work please work please work please work')
-        }
-        removeCookies('user');
-        navigate('/login');
-
-      } catch (error) {
-     
-      console.log("Error" + error);
+      if (username === '' || password === '') {
+        document.getElementById('loginError').innerHTML = 'Invalid Input';
+      } else {
+        axios.post("https://mediflow-cse416.onrender.com/login", { username, password }, { withCredentials: true })
+          .then(res => {
+            console.log(res.data)
+            if (res.data.success) {
+              navigate('/main/schedule');
+              setCookies('user', res.data.user, { path: "/" });
+            } else {
+              console.log("Error")
+              document.getElementById('loginError').innerHTML = res.data.message;
+            }
+          })
+          .catch(error => {
+            document.getElementById('loginError').innerHTML = "Error, please try again!";
+            console.log(error);
+          });
+      }
+    } catch (error) {
+      document.getElementById('loginError').innerHTML = "Error, please try again!";
+      console.log(error);
     }
-
   };
 
   return (
-    <Box
+    <Container
       sx={{
-        display: "flex",
-        height: "100vh",
-        width: "100vw",
-        overflow: "hidden",
+        backgroundColor: '#FAF3F3',
+        padding: 4,
+        borderRadius: 1,
+        boxShadow: 5,
+        textAlign: 'center',
+        maxWidth: '400px',
+        margin: 'auto',
       }}
     >
-      {/* Sidebar */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerWidth,
-          [`& .MuiDrawer-paper`]: {
-            width: drawerWidth,
-            boxSizing: "border-box",
-            background: "linear-gradient(to bottom, #FFBA51, #FF4D34)",
-
-          },
-        }}
-      >
-        <Toolbar />
-        <List
+      <Typography variant="h5" sx={{ marginBottom: 4 }}>
+        Welcome Back, Login.
+      </Typography>
+      <form onSubmit={handleLogin}>
+        <TextField
+          label="Username"
+          variant="outlined"
+          fullWidth
+          sx={{ marginBottom: 2 }}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <TextField
+          label="Password"
+          type="password"
+          variant="outlined"
+          fullWidth
+          sx={{ marginBottom: 2 }}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
+            marginTop: 2,
+            marginBottom: 1,
+            background: '#FF8241',
+            '&:hover': {
+              background: '#FF5034',
+            },
           }}
         >
-          <ListItem>
-            <Typography variant="h5" sx={{ marginBottom: 4 }}>
-              MediFlow⚕️
-            </Typography>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton component={Link} to="/main/schedule" onClick={handleRefreshClick("/main/schedule")}>
-              <ListItemText primary="Schedule" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton component={Link} to="/main/inventory" onClick={handleRefreshClick("/main/inventory")}>
-              <ListItemText primary="Inventory" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton component={Link} to="/main/staff" onClick={handleRefreshClick("/main/staff")}>
-              <ListItemText primary="Staff" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton component={Link} to="/main/rooms" onClick={handleRefreshClick("/main/rooms")}>
-              <ListItemText primary="Rooms" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-             <ListItemButton component={Link} to="/main/inbox" onClick={handleRefreshClick("/main/inbox")}>
-                <ListItemText primary="Inbox" />
-              </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ marginTop: 'auto', display: 'flex', justifyContent: 'center' }}>
-            <Button variant="contained" color="primary" onClick={handleLogout}>
-              Logout
-            </Button>
-          </ListItem>
-        </List>
-      </Drawer>
-
-      {/* Main content */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          pl: 3,
-          pr: 3,
-          width: `calc(100vw - ${drawerWidth}px)`,
-          height: "calc(100vh)",
-          overflow: "hidden",
-          backgroundColor: "white",
-        }}
-      >
-        <Routes>
-          <Route path="schedule" element={<Schedule />} />
-          <Route path="inventory" element={<Inventory />} />
-          <Route path="additem" element={<AddItem />} />
-          <Route path="request" element={<Request />} />
-          <Route path="rooms" element={<Rooms />} />
-          <Route path="staff" element={<Staff />} />
-          <Route path="addstaff" element={<AddStaff />} />
-          <Route path="addinventory" element={<AddInventory />} />
-          <Route path="addroom" element={<AddRoom />} />
-          <Route path="chatscreen" element={<ChatScreen/>}/>
-          <Route path="inbox" element={<Inbox />} />
-          <Route path="createprocess" element={<CreateProcess />} />
-          {/* Other routes */}
-        </Routes>
-      </Box>
-
-
-      {/* Profile Bar */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
-          alignItems: "center",
-          width: drawerWidth,
-          background: "linear-gradient(to bottom, #FFBA51, #FF4D34)",
-          p: 1,
-        }}
-      >
-        <IconButton
-          size="large"
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          sx={{ mr: 2 }}
-        ></IconButton>
-        <Typography
-          variant="h4"
-          noWrap
-          component="div"
-          sx={{ display: { xs: "none", md: "flex" } }}
-        >
-          Dr. Jane Doe
-        </Typography>
-        <Avatar
-          alt="Remy Sharp"
-          src="https://mui.com/static/images/avatar/1.jpg"
-        />
-        <Typography
-          variant="h6"
-          noWrap
-          component="div"
-          sx={{ display: { xs: "none", md: "flex" }, mb: 2 }}
-        >
-          Upcoming Patients
-        </Typography>
-        {upcomingPatients.map((patient, index) => (
-          <Box key={index} sx={{ width: "100%", textAlign: "center", mb: 1 }}>
-            <Typography variant="body1">{patient.name}</Typography>
-            <Typography variant="body2">{`Time until turn: ${patient.timeUntilTurn}`}</Typography>
-            <Typography variant="body2">{`Stage: ${patient.stage}`}</Typography>
-          </Box>
-        ))}
-      </Box>
-    </Box>
+          Login
+        </Button>
+      </form>
+      <Button color="secondary">Forgot Password</Button>
+      <p id="loginError"></p>
+    </Container>
   );
 }
