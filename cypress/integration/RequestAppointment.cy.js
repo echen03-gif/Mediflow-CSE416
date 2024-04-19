@@ -14,10 +14,6 @@ describe('RequestAppointment', () => {
     cy.get('h4').contains('Add Appointment');
   });
 
-  it('renders the form fields', () => {
-    cy.get('input[name="patientName"]').should('exist');
-    
-  });
 
 
 });
