@@ -33,7 +33,6 @@ function Inventory() {
 
     axios.get('https://mediflow-cse416.onrender.com/appointments').then(res => { setAppointmentList(res.data) });
 
-    axios.get("https://mediflow-cse416.onrender.com/decode").then(res =>{console.log(res.data)})
 
   }, []);
 
