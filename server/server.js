@@ -129,26 +129,26 @@ app.get('/check-session', (req, res) => {
 
 app.get('/decode', async (req, res)=>{
 
-    const cookieHeader = req.cookies['user']
+    // const cookieHeader = req.cookies['user']
 
-    if (!cookieHeader) {
-        return res.status(400).send('No cookies found in the request.');
-      }
+    // if (!cookieHeader) {
+    //     return res.status(400).send('No cookies found in the request.');
+    //   }
 
-      const cookies = cookieHeader.split('; ');
-      const jwtCookie = cookies.find(cookie => cookie.startsWith('user='));
+    //   const cookies = cookieHeader.split('; ');
+    //   const jwtCookie = cookies.find(cookie => cookie.startsWith('user='));
 
-      if (!jwtCookie) {
-        return res.status(400).send('JWT cookie not found.');
-      }
+    //   if (!jwtCookie) {
+    //     return res.status(400).send('JWT cookie not found.');
+    //   }
 
-      const jwtToken = jwtCookie.split('=')[1];
+    //   const jwtToken = jwtCookie.split('=')[1];
 
-      // Decode the JWT token
-      const decodedToken = jwtDecode(jwtToken);
-      console.log('Decoded Token:', decodedToken);
+    //   // Decode the JWT token
+    //   const decodedToken = jwtDecode(jwtToken);
+    //   console.log('Decoded Token:', decodedToken);
 
-      res.status(200).json({ decodedToken });
+      res.status(200);
 
 });
 
