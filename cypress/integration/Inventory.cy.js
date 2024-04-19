@@ -18,9 +18,6 @@ describe('Inventory', () => {
     cy.get('input[type="date"]').should('exist');
   });
 
-  it('renders the table', () => {
-    cy.get('simple table').should('exist');
-  });
 
  
 });

@@ -43,9 +43,20 @@ export default function MainPage() {
   const location = useLocation();
 
 
+
+  const checkToken = () => {
+
+    axios.post("https://mediflow-cse416.onrender.com/decode", { }, { withCredentials: true }).then(res =>{
+
+      console.log(res.data)
+    })
+
+  }
+
+
   useEffect(() => {
     // Check if user cookie exists on component mount
-
+    checkToken()
     if (!cookies.user) {
       // If user cookie doesn't exist, navigate to login page
       navigate('/login');
