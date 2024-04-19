@@ -152,7 +152,7 @@ app.get('/decode', async (req, res)=>{
     //   const decodedToken = jwtDecode(jwtToken);
     //   console.log('Decoded Token:', decodedToken);
 
-      res.status(200);
+      res.send({hello: true});
 
 });
 
