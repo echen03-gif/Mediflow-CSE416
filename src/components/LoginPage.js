@@ -28,7 +28,9 @@ export default function LoginPage() {
               setCookies('user', cookieValue, {
                 path: "/",
                 secure: true, 
-                sameSite: 'none'
+                sameSite: 'none',
+                domain: '.mediflow-cse416.onrender.com' // Set the domain attribute
+
               });
 
               navigate('/main/schedule');
