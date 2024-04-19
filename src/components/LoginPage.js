@@ -29,7 +29,6 @@ export default function LoginPage() {
                 path: "/",
                 secure: true, 
                 sameSite: 'none',
-                domain: '.mediflow-cse416.onrender.com' // Set the domain attribute
 
               });
 
