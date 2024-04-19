@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 
 app.use(express.json());
 app.use(cors({
-    origin: "https://mediflow-568ba.web.app/",
+    origin: "https://mediflow-568ba.web.app",
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
