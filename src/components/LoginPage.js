@@ -28,7 +28,7 @@ export default function LoginPage() {
               setCookies('user', cookieValue, {
                 path: "/",
               });
-              
+
               navigate('/main/schedule');
             } else {
               console.log("Error")

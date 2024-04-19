@@ -1,4 +1,4 @@
-import {React, useEffect} from "react";
+import { React, useEffect, useState } from "react";
 import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -26,7 +26,7 @@ import AddInventory from "./AddInventory";
 import AddRoom from "./AddRoom";
 import CreateProcess from "./CreateProcess";
 import axios from 'axios';
-import {useCookies} from 'react-cookie';
+import { useCookies } from 'react-cookie';
 
 
 // Mock array of upcoming patients
@@ -37,14 +37,23 @@ const upcomingPatients = [
 ];
 
 export default function MainPage() {
-  const drawerWidth = 200; 
+  const drawerWidth = 200;
   const [cookies, , removeCookies] = useCookies(['user']);
+  const [usersList, setUsers] = useState([]);
+  const [cookieTempData, setCookieData] = useState('');
+  const [currentUser, setCurrentUser] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
   const checkToken = () => {
 
-    axios.get("https://mediflow-cse416.onrender.com/decode", { withCredentials: true }).then(res =>{console.log(res.data)})
+    axios.get("https://mediflow-cse416.onrender.com/decode", { withCredentials: true }).then(res => {
+
+      setCookieData(res.data.user);
+
+      console.log(res.data)
+    })
+
   }
 
 
@@ -54,39 +63,60 @@ export default function MainPage() {
       // If user cookie doesn't exist, navigate to login page
       navigate('/login');
     }
-    else{
+    else {
       checkToken()
     }
   }, [cookies.user, navigate]);
 
-  const getCookieValue = (name) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(";").shift();
+  console.log(cookieTempData);
+
+  const extractValue = (key) => {
+    const start = cookieTempData.indexOf(`${key}=`) + key.length + 1;
+    let end = cookieTempData.indexOf(';', start);
+    end = end === -1 ? cookieTempData.length : end;
+    return cookieTempData.substring(start, end);
   };
-  
-  const cookieValue = getCookieValue('user'); 
-  const username = cookieValue.split(';').find(part => part.trim().startsWith('username=')).split('=')[1];
-  
-  console.log(cookieValue);
+
+  const username = extractValue('username');
   console.log(username);
+
+  useEffect(() => {
+
+    axios.get('https://mediflow-cse416.onrender.com/users').then(res => { setUsers(res.data) })
+
+  }, []);
+
 
   const handleRefreshClick = (targetPath) => (event) => {
     console.log("hello");
     if (location.pathname === targetPath) {
-      event.preventDefault(); 
+      event.preventDefault();
       window.location.href = targetPath;
     }
-    
+
   };
 
   const handleLogout = () => {
     // Remove user cookie
-    removeCookies('user', { path: '/'});
+    removeCookies('user', { path: '/' });
     // Navigate to login page
     navigate('/login');
   };
 
+
+  useEffect(() => {
+    if (usersList.length > 0 && username) {
+      const foundUser = usersList.find(user => user.email === username);
+      if (foundUser) {
+        console.log(foundUser);
+        setCurrentUser(foundUser);
+      } else {
+        console.log('No user found with the email:', username);
+      }
+    }
+  }, [usersList, username]);
+
+  console.log(currentUser);
 
   return (
     <Box
@@ -144,9 +174,9 @@ export default function MainPage() {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-             <ListItemButton component={Link} to="/main/inbox" onClick={handleRefreshClick("/main/inbox")}>
-                <ListItemText primary="Inbox" />
-              </ListItemButton>
+            <ListItemButton component={Link} to="/main/inbox" onClick={handleRefreshClick("/main/inbox")}>
+              <ListItemText primary="Inbox" />
+            </ListItemButton>
           </ListItem>
           <ListItem disablePadding sx={{ marginTop: 'auto', display: 'flex', justifyContent: 'center' }}>
             <Button variant="contained" color="primary" onClick={handleLogout}>
@@ -177,15 +207,15 @@ export default function MainPage() {
           <Route path="addstaff" element={<AddStaff />} />
           <Route path="addinventory" element={<AddInventory />} />
           <Route path="addroom" element={<AddRoom />} />
-          <Route path="chatscreen" element={<ChatScreen/>}/>
+          <Route path="chatscreen" element={<ChatScreen />} />
           <Route path="inbox" element={<Inbox />} />
           <Route path="createprocess" element={<CreateProcess />} />
-          {/* Other routes */}
+          
         </Routes>
       </Box>
 
 
-      {/* Profile Bar */}
+      
       <Box
         sx={{
           display: "flex",
@@ -206,12 +236,12 @@ export default function MainPage() {
         ></IconButton>
         <Typography
           variant="h4"
-          noWrap
           component="div"
           sx={{ display: { xs: "none", md: "flex" } }}
         >
-          Dr. Jane Doe
+          {currentUser.name}
         </Typography>
+
         <Avatar
           alt="Remy Sharp"
           src="https://mui.com/static/images/avatar/1.jpg"
