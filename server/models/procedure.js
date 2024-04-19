@@ -7,8 +7,8 @@ const procedureSchema = new mongoose.Schema({
     estimatedDuration: {type: Number},
     name: {type: String},
     procedureID: {type: Number},
-    requiredEquipment: [{type: mongoose.Schema.Types.ObjectId, ref:'Equipment'}],
     requiredRoomType: {type: String},
+    staffType: {type: String}
 
 });
 

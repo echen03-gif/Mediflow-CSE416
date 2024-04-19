@@ -2,11 +2,13 @@ import React, { useState} from 'react';
 import { Container, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {useCookies} from 'react-cookie';
 
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [cookies, setCookies] = useCookies(['user']);
   const navigate = useNavigate();
 
   const handleLogin = (event) => {
@@ -17,11 +19,13 @@ export default function LoginPage() {
       if (username === '' || password === '') {
         document.getElementById('loginError').innerHTML = 'Invalid Input';
       } else {
-        axios.post("https://mediflow-cse416.onrender.com/login", { username, password })
+        axios.post("https://mediflow-cse416.onrender.com/login", { username, password }, { withCredentials: true })
           .then(res => {
             console.log(res.data)
             if (res.data.success) {
               navigate('/main/schedule');
+              setCookies('user', res.data.user, { path: "/" });
+              console.log("Hello " + cookies.user);
             } else {
               console.log("Error")
               document.getElementById('loginError').innerHTML = res.data.message;

@@ -2,12 +2,23 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: "https://mediflow-568ba.web.app",
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+}));
+
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Credentials', true);
+    next();
+});
 
 const port = 8000;
 // The below URL is for npm start and local host
@@ -17,13 +28,6 @@ const uri = process.env.MEDIFLOWKEY;
 let mongoose = require('mongoose');
 
 mongoose.connect(uri);
-
-app.use(session({
-    secret: 'medi-flow-cse-416',
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: uri }),
-  }));
 
 let db = mongoose.connection;
 
@@ -111,6 +115,24 @@ app.get('/processes', async (req, res) => {
 
 });
 
+app.get('/appointments', async (req, res) => {
+
+    let appointments = await Appointment.find();
+
+    res.send(appointments);
+
+});
+
+
+app.get('/check-session', (req, res) => {
+    if (req.session.userId) {
+        res.send({ loggedIn: true });
+    } else {
+        res.send({ loggedIn: false });
+    }
+});
+
+
 
 // POST FUNCTIONS
 
@@ -141,17 +163,17 @@ app.post('/createUser', async (req, res) => {
 
 app.post('/createProcedure', async (req, res) => {
     
+    // need a way to decide procedure ids?
+
     const newProcedure = new Procedures({
 
         created: new Date(),
         description: req.body.description,
-        estimatedDuration: req.body.estimatedDuration,
+        estimatedDuration: req.body.timeDuration,
         name: req.body.name,
-        procedureID: req.body.procedureID,
-        requiredRoomEquipment: req.body.requiredRoomEquipment,
+        procedureID: 0,
         requiredRoomType: req.body.requiredRoomType,
-        scheduledEndTime: req.body.scheduledEndTime,
-        scheduledStartTime: req.body.scheduledStartTime
+        staffType: req.body.staffType
 
     })
     
@@ -211,12 +233,9 @@ app.post('/createProcess', async (req, res) => {
     
     const newProcess = new Processes({
 
-        completed: req.body.completed,
+        name: req.body.name,
         components: req.body.components,
-        created: new Date(),
-        equipment: req.body.equipment,
-        staff: req.body.staff,
-        status: req.body.status
+        created: new Date()
         
     })
     
@@ -229,12 +248,29 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await Users.findOne({ email: username });
     if (user && bcrypt.compareSync(password, user.password)) {
-        req.session.userId = user._id;
-        res.send({ success: true });
+        console.log('Logged in');
+        const token = jwt.sign({ id: user._id }, 'mediflow-jwt-secret-key', { expiresIn: '3h' });
+
+        const expirationDate = new Date();
+        expirationDate.setTime(expirationDate.getTime() + (3 * 60 * 60 * 1000)); // 3 hours in milliseconds
+
+        // Send JWT in a cookie with expiration date
+        //res.cookie('token', token, { httpOnly: true, expires: expirationDate, sameSite:"None", secure: true, partitioned: true});
+        res.send({ success: true, user: username});
     } else {
         console.log("Failed to Login")
         res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
     }
+  });
+
+  app.post('/logout', async (req, res) => {
+    console.log("Trying to logout...")
+    // Extract the JWT token from the cookie
+    const token = req.cookies.token;
+
+    //res.clearCookie('token', { httpOnly: true, SameSite:'None', secure: true});
+    res.json({ success: true });
+    
   });
 
 app.post('/createAppointment' , async (req, res) => {
@@ -243,7 +279,7 @@ app.post('/createAppointment' , async (req, res) => {
 
         created: new Date(),
         patientName: req.body.name,
-        staff: req.body.staff,
+        procedures: req.body.procedures,
         scheduledStartTime: req.body.start,
         scheduledEndTime: req.body.end,
         process: req.body.process,
@@ -275,7 +311,8 @@ app.put('/changeEquipmentHead', async (req, res) => {
 
 app.put('/changeStaffAppointment', async (req,res) =>{
 
-    let staffUpdate = await Users.findOne({name: req.body.staffName.name});
+    
+    let staffUpdate = await Users.findOne({_id: req.body.staffName._id});
 
     staffUpdate.appointments.push(req.body.appointment);
 
@@ -284,5 +321,28 @@ app.put('/changeStaffAppointment', async (req,res) =>{
     res.send("Users's Appointment Updated");
 });
 
+app.put('/changeRoomAppointment', async (req,res) =>{
+
+
+    let roomUpdate = await Rooms.findOne({_id: req.body.roomName._id});
+
+    roomUpdate.appointments.push(req.body.appointment);
+
+    await roomUpdate.save();
+
+    res.send("Users's Appointment Updated");
+});
+
+app.put('/changeEquipmentAppointment', async (req, res) => {
+
+    let equipmentUpdate = await Equipment.findOne({_id: req.body.equipment._id});
+
+    equipmentUpdate.appointments.push(req.body.appointment);
+
+    await equipmentUpdate.save();
+
+    res.send("Equipment Updated");
+
+});
 
 module.exports = {app, server};

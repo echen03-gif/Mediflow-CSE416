@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Box,
   Drawer,
@@ -11,6 +11,7 @@ import {
   Typography,
   Avatar,
   IconButton,
+  Button
 } from "@mui/material";
 import Schedule from "./Schedule";
 import Inventory from "./Inventory";
@@ -24,6 +25,8 @@ import AddStaff from "./AddStaff";
 import AddInventory from "./AddInventory";
 import AddRoom from "./AddRoom";
 import CreateProcess from "./CreateProcess";
+//import axios from 'axios';
+import {useCookies} from 'react-cookie';
 
 
 // Mock array of upcoming patients
@@ -34,7 +37,10 @@ const upcomingPatients = [
 ];
 
 export default function MainPage() {
-  const drawerWidth = 200; // Adjust as needed
+  const drawerWidth = 200; 
+  const [cookies, removeCookies] = useCookies(['user']);
+  const navigate = useNavigate();
+
 
   const location = useLocation();
 
@@ -45,6 +51,31 @@ export default function MainPage() {
       window.location.href = targetPath;
     }
     
+  };
+
+  const handleLogout = () => {
+
+    console.log("Goodbye " + cookies.user)
+    
+    try {
+        // axios.post("http://localhost:8000/logout",{ }, { withCredentials: true })
+        //   .then(res => {
+        //     console.log(res.data)
+        //     if (res.data.success) {
+        //       console.log("Logged Out")
+        //       navigate('/login');
+        //     } else {
+        //       console.log("Error")
+        //     }
+        //   })
+        removeCookies('user');
+        navigate('/login');
+
+      } catch (error) {
+     
+      console.log("Error" + error);
+    }
+
   };
 
   return (
@@ -70,14 +101,20 @@ export default function MainPage() {
         }}
       >
         <Toolbar />
-        <List>
+        <List
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+          }}
+        >
           <ListItem>
             <Typography variant="h5" sx={{ marginBottom: 4 }}>
               MediFlow⚕️
             </Typography>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/main/schedule">
+            <ListItemButton component={Link} to="/main/schedule" onClick={handleRefreshClick("/main/schedule")}>
               <ListItemText primary="Schedule" />
             </ListItemButton>
           </ListItem>
@@ -87,19 +124,24 @@ export default function MainPage() {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/main/staff">
+            <ListItemButton component={Link} to="/main/staff" onClick={handleRefreshClick("/main/staff")}>
               <ListItemText primary="Staff" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} to="/main/rooms">
+            <ListItemButton component={Link} to="/main/rooms" onClick={handleRefreshClick("/main/rooms")}>
               <ListItemText primary="Rooms" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-             <ListItemButton component={Link} to="/main/inbox">
+             <ListItemButton component={Link} to="/main/inbox" onClick={handleRefreshClick("/main/inbox")}>
                 <ListItemText primary="Inbox" />
               </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding sx={{ marginTop: 'auto', display: 'flex', justifyContent: 'center' }}>
+            <Button variant="contained" color="primary" onClick={handleLogout}>
+              Logout
+            </Button>
           </ListItem>
         </List>
       </Drawer>

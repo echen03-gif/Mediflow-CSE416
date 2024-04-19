@@ -4,6 +4,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
+import axios from 'axios';
 
 export default function Schedule() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -16,8 +17,25 @@ export default function Schedule() {
     { title: 'Appointment 3', date: '2024-04-12T16:00:00' },
     // Add more appointments as needed
   ];
-
+  const checkSession = () => {
+    axios.get("https://mediflow-cse416.onrender.com/check-session")
+      .then(res => {
+        if (res.data.loggedIn) {
+          console.log("User is logged in");
+          
+        } else {
+          console.log("User is not logged in");
+          
+        }
+      })
+      .catch(error => {
+        console.log("Error checking session", error);
+      });
+  }
+  
+  
   const handleRequest = () => {
+    checkSession()
     navigate('/main/request');
   }
 
