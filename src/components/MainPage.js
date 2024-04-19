@@ -42,7 +42,6 @@ export default function MainPage() {
   const [usersList, setUsers] = useState([]);
   const [cookieTempData, setCookieData] = useState('');
   const [currentUser, setCurrentUser] = useState('');
-  const [username, setUserName] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -69,20 +68,6 @@ export default function MainPage() {
     }
   }, [cookies.user, navigate]);
 
-  const extractValue = (key) => {
-    if (!cookieTempData) return ''; 
-  
-    const start = cookieTempData.indexOf(`${key}=`) + key.length + 1;
-    if (start === key.length) { 
-      return ''; 
-    }
-  
-    let end = cookieTempData.indexOf(';', start);
-    end = end === -1 ? cookieTempData.length : end;
-    return cookieTempData.substring(start, end);
-  };
-  
-
   useEffect(() => {
 
     axios.get('https://mediflow-cse416.onrender.com/users').then(res => { setUsers(res.data) })
@@ -108,9 +93,22 @@ export default function MainPage() {
 
 
   useEffect(() => {
+
+    const extractValue = (key) => {
+      if (!cookieTempData) return ''; 
+    
+      const start = cookieTempData.indexOf(`${key}=`) + key.length + 1;
+      if (start === key.length) { 
+        return ''; 
+      }
+    
+      let end = cookieTempData.indexOf(';', start);
+      end = end === -1 ? cookieTempData.length : end;
+      return cookieTempData.substring(start, end);
+    };
+
     if (cookieTempData) {
         const userName = extractValue('username');
-        setUserName(userName);
 
         if (usersList.length > 0 && userName) {
           const foundUser = usersList.find(user => user.email === userName);
