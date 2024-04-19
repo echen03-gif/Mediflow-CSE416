@@ -3,11 +3,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginPage from "./LoginPage";
 import ResetPasswordScreen from './ResetPasswordScreen';
 import MainPage from "./MainPage";
+import { MainPageContextProvider } from './MainPageContext';
 
 const Stack = createNativeStackNavigator();
 
 export default function MediFlow() {
   return (
+        <MainPageContextProvider>
     <NavigationContainer>
       <Stack.Navigator>
         {/*<Stack.Screen name="Login" component={LoginPage} />*/}
@@ -16,11 +18,11 @@ export default function MediFlow() {
           component={LoginPage} 
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="MainScreen" 
-          component={MainPage} 
-          options={{ headerShown: false }}
-        />
+          <Stack.Screen 
+            name="MainScreen" 
+            component={MainPage} 
+            options={{ headerShown: false }}
+          />
         <Stack.Screen
           name="ResetPasswordScreen"
           component={ResetPasswordScreen}
@@ -28,6 +30,7 @@ export default function MediFlow() {
         />
       </Stack.Navigator>
     </NavigationContainer>
+    </MainPageContextProvider>
   );
 }
 
