@@ -59,6 +59,18 @@ export default function MainPage() {
     }
   }, [cookies.user, navigate]);
 
+  const getCookieValue = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+  };
+  
+  const cookieValue = getCookieValue('user'); 
+  const username = cookieValue.split(';').find(part => part.trim().startsWith('username=')).split('=')[1];
+  
+  console.log(cookieValue);
+  console.log(username);
+
   const handleRefreshClick = (targetPath) => (event) => {
     console.log("hello");
     if (location.pathname === targetPath) {

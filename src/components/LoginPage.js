@@ -24,16 +24,18 @@ export default function LoginPage() {
           .then(res => {
             console.log(res.data)
             if (res.data.success) {
+              const cookieValue = `token=${res.data.token};username=${username}`;
+              setCookies('user', cookieValue, {
+                path: "/",
+              });
+              
               navigate('/main/schedule');
-              setCookies('user', res.data.token, { 
-                path: "/"
-            });
             } else {
               console.log("Error")
               document.getElementById('loginError').innerHTML = res.data.message;
             }
           })
-          .catch(error => { 
+          .catch(error => {
             document.getElementById('loginError').innerHTML = "Error, please try again!";
             console.log(error);
           });
