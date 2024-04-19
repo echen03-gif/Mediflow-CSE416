@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView } from 'react-native';
-import { DataTable, Avatar, Title, IconButton, Button } from 'react-native-paper';
+import React, { useState, useContext } from 'react';
+import { View, TextInput, StyleSheet, ScrollView } from 'react-native';
+import { DataTable, Avatar, IconButton, Button } from 'react-native-paper';
 import MainPageHeader from '../../components/MainPageHeader';
-
-// ... (roomsData and isRoomAvailable remain the same)
+import { MainPageContext } from "../MainPageContext";
 
 export default function Rooms() {
   const [page, setPage] = useState(0); 
@@ -14,6 +13,7 @@ export default function Rooms() {
   const [itemsPerPage, onItemsPerPageChange] = React.useState(
     numberOfItemsPerPageList[0]
   );
+  const { setActiveComponent } = useContext(MainPageContext);
   const roomsData = [
     { id: 1, name: '121', type: 'Cardiology', status: 'Patient 15' },
     { id: 2, name: '122', type: 'Neurology', status: 'Patient 7' },
@@ -32,7 +32,7 @@ export default function Rooms() {
   };
 
   const navigateToAddRoom = () => {
-    // Implement navigation logic here
+    setActiveComponent("AddRoom");
   };
 
   const handleChangePage = (event, newPage) => {

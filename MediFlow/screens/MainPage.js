@@ -1,8 +1,15 @@
 import React, { useState, useContext } from "react";
-//import { useNavigation } from '@react-navigation/native'; 
-//import { createStackNavigator } from '@react-navigation/native-stack';
-import { View, SafeAreaView, Text, StyleSheet, Dimensions } from 'react-native';
-import { Drawer, List, Avatar, Title, Caption  } from 'react-native-paper';
+import { View, SafeAreaView, Text, StyleSheet } from "react-native";
+import {
+	Drawer,
+	List,
+	Avatar,
+	Title,
+	Caption,
+	IconButton,
+	PaperProvider,
+	Appbar,
+} from "react-native-paper";
 import Logo from "../components/Logo";
 import Schedule from "./mainPageContent/Schedule";
 import Inventory from "./mainPageContent/Inventory";
@@ -10,108 +17,189 @@ import Staff from "./mainPageContent/Staff";
 import Rooms from "./mainPageContent/Rooms";
 import Inbox from "./mainPageContent/Inbox";
 import AddStaff from "./mainPageContent/AddStaff";
+import Chat from "./mainPageContent/Chat";
+import AddRoom from "./mainPageContent/AddRoom";
+import AddInventory from "./mainPageContent/AddInventory";
 import { theme } from "../core/theme";
 import { MainPageContext } from "./MainPageContext";
-/*import AddItem from "./AddItem";
-import Request from "./RequestAppointment"
-import Inbox from "./Inbox";
-import ChatScreen from './ChatScreen';
-import AddInventory from "./AddInventory";
-import AddRoom from "./AddRoom";
-import CreateProcess from "./CreateProcess";*/
+import RequestAppointment from "./mainPageContent/RequestAppointment";
 
-//const ContentStack = createStackNavigator(); 
-
-// Mock array of upcoming patients
 const upcomingPatients = [
-  { name: "Patient 1", timeUntilTurn: "15 mins", stage: "Waiting" },
-  { name: "Patient 2", timeUntilTurn: "30 mins", stage: "Check-in" },
-  { name: "Patient 3", timeUntilTurn: "45 mins", stage: "Screening" },
+	{ name: "Patient 1", timeUntilTurn: "15 mins", stage: "Waiting" },
+	{ name: "Patient 2", timeUntilTurn: "30 mins", stage: "Check-in" },
+	{ name: "Patient 3", timeUntilTurn: "45 mins", stage: "Screening" },
 ];
 
-// Define a mapping from route names to components
 const COMPONENT_MAP = {
-  Schedule: Schedule,
-  Inventory: Inventory,
-  Staff: Staff,
-  Rooms: Rooms,
-  Inbox: Inbox,
-  AddStaff: AddStaff,
-  // Add other components here as needed
+	Schedule: Schedule,
+	Inventory: Inventory,
+	Staff: Staff,
+	Rooms: Rooms,
+	Inbox: Inbox,
+	AddStaff: AddStaff,
+	Chat: Chat,
+	AddRoom: AddRoom,
+	AddInventory: AddInventory,
+	RequestAppointment: RequestAppointment,
 };
-
-const windowWidth = Dimensions.get('window').width;
 
 export default function MainPage() {
-    const { activeComponent, setActiveComponent } = useContext(MainPageContext);
-    //const navigation = useNavigation();
+	const { activeComponent, setActiveComponent } = useContext(MainPageContext);
+	const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
-    const handleContentChange = (routeName) => () => {
-        //navigation.navigate(routeName);
-        setActiveComponent(routeName); 
-    };
+	const toggleSidebar = () => {
+		setIsSidebarExpanded(!isSidebarExpanded);
+	};
 
-    // Dynamically select the component based on the activeComponent state
-    const ActiveComponent = COMPONENT_MAP[activeComponent];
+	const handleContentChange = (routeName) => () => {
+		setActiveComponent(routeName);
+	};
 
-    return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <View style={styles.container}>
-                <Drawer.Section style={styles.sidebar}>
-                    <Text style={styles.logo}>MediFlow 🏥</Text>
-                    <List.Item title="Schedule" onPress={handleContentChange("Schedule")} />
-                    <List.Item title="Inventory" onPress={handleContentChange("Inventory")} />
-                    <List.Item title="Staff" onPress={handleContentChange("Staff")} />
-                    <List.Item title="Rooms" onPress={handleContentChange("Rooms")} />
-                    <List.Item title="Inbox" onPress={handleContentChange("Inbox")} />
-                    {/* ... Other List Items */}
-                </Drawer.Section>
+	const ActiveComponent = COMPONENT_MAP[activeComponent];
 
-                <View style={{ flex: 1, backgroundColor: 'white', width: '100%' }}>
-                    {ActiveComponent && <ActiveComponent />}
-                </View>
+	return (
+		<PaperProvider theme={theme}>
+			<SafeAreaView style={{ flex: 1 }}>
+				<View style={styles.container}>
+					<Drawer.Section
+						style={[
+							styles.sidebar,
+							isSidebarExpanded
+								? styles.expandedSidebar
+								: styles.collapsedSidebar,
+						]}
+					>
+						{isSidebarExpanded ? (
+							<Text style={styles.logo}>MediFlow 🏥</Text>
+						) : (
+							<Text style={styles.logo}>🏥</Text>
+						)}
+						<List.Item
+							title={isSidebarExpanded ? "Schedule" : ""}
+							onPress={handleContentChange("Schedule")}
+							left={(props) => (
+								<List.Icon {...props} icon="calendar" />
+							)}
+							style={
+								activeComponent === "Schedule"
+									? styles.activeItem
+									: null
+							}
+						/>
+						<List.Item
+							title={isSidebarExpanded ? "Inventory" : ""}
+							onPress={handleContentChange("Inventory")}
+							left={(props) => (
+								<List.Icon {...props} icon="package-variant" />
+							)}
+							style={
+								activeComponent === "Inventory"
+									? styles.activeItem
+									: null
+							}
+						/>
+						<List.Item
+							title={isSidebarExpanded ? "Staff" : ""}
+							onPress={handleContentChange("Staff")}
+							left={(props) => (
+								<List.Icon {...props} icon="account-group" />
+							)}
+							style={
+								activeComponent === "Staff"
+									? styles.activeItem
+									: null
+							}
+						/>
+						<List.Item
+							title={isSidebarExpanded ? "Rooms" : ""}
+							onPress={handleContentChange("Rooms")}
+							left={(props) => (
+								<List.Icon {...props} icon="home" />
+							)}
+							style={
+								activeComponent === "Rooms"
+									? styles.activeItem
+									: null
+							}
+						/>
+						<List.Item
+							title={isSidebarExpanded ? "Inbox" : ""}
+							onPress={handleContentChange("Inbox")}
+							left={(props) => (
+								<List.Icon {...props} icon="email" />
+							)}
+							style={
+								activeComponent === "Inbox"
+									? styles.activeItem
+									: null
+							}
+						/>
+						<IconButton
+							icon={
+								isSidebarExpanded
+									? "chevron-left"
+									: "chevron-right"
+							}
+							onPress={toggleSidebar}
+							style={styles.toggleButton}
+						/>
+					</Drawer.Section>
 
-                <View style={styles.sidebar}>
-                    <Avatar.Image style={styles.avatar} source={require('../assets/profilePic.jpeg')} />
-                    <Text>Dr. Jane Doe</Text>
-                    <Text>Upcoming Patients</Text>
-                    {upcomingPatients.map((patient, index) => (
-                    <View key={index}>
-                      <Text>{patient.name}</Text>
-                      <Text>{`Time until turn: ${patient.timeUntilTurn}`}</Text>
-                      <Text>{`Stage: ${patient.stage}`}</Text>
-                    </View>
-                    ))}
-                </View>
-            </View>
-        </SafeAreaView>
-    );
-};
+					<View
+						style={{
+							flex: 1,
+							backgroundColor: "white",
+							width: "100%",
+						}}
+					>
+						<Appbar.Header style={{ backgroundColor: "#d3d3d3" }}>
+							<Avatar.Image
+								style={styles.avatar}
+								source={require("../assets/profilePic.jpeg")}
+							/>
+							<Appbar.Content title="Dr. Jane Doe" />
+							{upcomingPatients.map((patient, index) => (
+								<View key={index}>
+									<Text>{patient.name}</Text>
+									<Text>{`Time until turn: ${patient.timeUntilTurn}`}</Text>
+									<Text>{`Stage: ${patient.stage}`}</Text>
+								</View>
+							))}
+						</Appbar.Header>
+						{ActiveComponent && <ActiveComponent />}
+					</View>
+				</View>
+			</SafeAreaView>
+		</PaperProvider>
+	);
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  sidebar: {
-    width: '18%',
-    backgroundColor: theme.colors.secondary,
-    alignItems: 'center',
-    verticalAlign: 'middle',
-    paddingTop: '10%',
-  },
-  center: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  avatar: {
-    width: windowWidth * 0.1,
-    aspectRatio: 1,
-  },
-  logo: {
-    fontSize: 36,
-    color: 'black',
-    fontWeight: 'bold',
-    paddingVertical: 12,
-  }
+	container: {
+		flex: 1,
+		flexDirection: "row",
+	},
+	sidebar: {
+		backgroundColor: theme.colors.secondary,
+		alignItems: "center",
+		width: "16%",
+	},
+	expandedSidebar: {
+		width: "16%",
+	},
+	collapsedSidebar: {
+		width: "5%",
+	},
+	toggleButton: {
+		marginBottom: 15,
+	},
+	logo: {
+		fontSize: 36,
+		color: "black",
+		fontWeight: "bold",
+		paddingVertical: 12,
+	},
+	activeItem: {
+		backgroundColor: "orange",
+	},
 });
