@@ -8,7 +8,7 @@ import {useCookies} from 'react-cookie';
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [cookies, setCookies] = useCookies(['user']);
+  const [setCookies] = useCookies(['user']);
   const navigate = useNavigate();
 
   const handleLogin = (event) => {
@@ -25,7 +25,6 @@ export default function LoginPage() {
             if (res.data.success) {
               navigate('/main/schedule');
               setCookies('user', res.data.user, { path: "/" });
-              console.log("Hello " + cookies.user);
             } else {
               console.log("Error")
               document.getElementById('loginError').innerHTML = res.data.message;
