@@ -276,8 +276,9 @@ app.post('/login', async (req, res) => {
 
         res.cookie('token', token, {
             path: "/",
-            secure: true, 
             sameSite: 'none',
+            secure: true, 
+            expires: expirationDate
         });
 
     
