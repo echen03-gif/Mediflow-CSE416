@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import EventNoteIcon from "@mui/icons-material/EventNote"; // for Schedule
-import Inventory2Icon from "@mui/icons-material/Inventory2"; // for Inventory
+import Inventory2Icon from "@mui/icons-material/Inventory"; // for Inventory
 import PeopleIcon from "@mui/icons-material/People"; // for Staff
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom"; // for Rooms
 import MailOutlineIcon from "@mui/icons-material/MailOutline"; // for Inbox
@@ -67,8 +67,9 @@ export default function MainPage() {
   const checkToken = useCallback(() => {
     axios
       .post("https://mediflow-cse416.onrender.com/decode", {
-        cookies: "testing"
-      })
+
+        cookies: cookies.user
+      }, {withCredentials: true})
       .then((res) => {
         console.log(res.data);
       });
