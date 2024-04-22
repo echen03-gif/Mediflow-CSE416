@@ -274,6 +274,15 @@ app.post('/login', async (req, res) => {
         const expirationDate = new Date();
         expirationDate.setTime(expirationDate.getTime() +  (2 * 60 * 60 * 1000)); 
 
+        res.cookie('token', token, {
+            expires: expirationDate, // expires in 2 hours
+            httpOnly: true, // cookie accessible only by the server
+            secure: true, // set to true in production
+            sameSite: 'None',
+            domain: '.onrender.com', // replace 'yourdomain.com' with your actual domain
+            path: "/",
+        });
+
     
         res.send({ success: true, user: username, token: token});
     } else {
