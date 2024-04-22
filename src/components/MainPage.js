@@ -95,7 +95,8 @@ export default function MainPage() {
     // Remove user cookie
     //removeCookies("user", { path: "/" });
     // Navigate to login page
-    navigate("/main/inventory");
+    console.log("NEW DEPLOYMENT WORKS WOOOO");
+    navigate("/login");
   };
 
   const toggleDrawer = () => {
