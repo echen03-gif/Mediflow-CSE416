@@ -1,4 +1,4 @@
-import { React, useCallback, useEffect, useState } from "react";
+import { React, useEffect, useState } from "react";
 import {
   Routes,
   Route,
@@ -39,7 +39,7 @@ import AddStaff from "./mainPage/AddStaff";
 import AddInventory from "./mainPage/AddInventory";
 import AddRoom from "./mainPage/AddRoom";
 import CreateProcess from "./mainPage/CreateProcess";
-import axios from "axios";
+//import axios from "axios";
 import { useCookies } from "react-cookie";
 
 // Mock array of upcoming patients
@@ -52,7 +52,7 @@ const upcomingPatients = [
 export default function MainPage() {
   const [drawerWidth, setDrawerWidth] = useState(200);
   const [isDrawerOpen, setIsDrawerOpen] = useState(true); // initially true if you want it open by default
-  const [cookies, , removeCookies] = useCookies(["user"]);
+  const [cookies] = useCookies(["user"]);
   const navigate = useNavigate();
   const location = useLocation();
 
