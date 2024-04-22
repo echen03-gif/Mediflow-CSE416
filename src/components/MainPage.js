@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from "react";
+import { React, useCallback, useEffect, useState } from "react";
 import {
   Routes,
   Route,
@@ -64,25 +64,24 @@ export default function MainPage() {
   };
 
 
-  const checkToken = () => {
+  const checkToken = useCallback(() => {
     axios
-      .get("https://mediflow-cse416.onrender.com/decode", {
-        withCredentials: true,
+      .post("https://mediflow-cse416.onrender.com/decode", {
+        cookies: cookies.user
       })
       .then((res) => {
         console.log(res.data);
       });
-  };
+  }, [cookies.user]);
 
   useEffect(() => {
-    // Check if user cookie exists on component mount
     if (!cookies.user) {
       // If user cookie doesn't exist, navigate to login page
       navigate("/login");
     } else {
       checkToken();
     }
-  }, [cookies.user, navigate]);
+  }, [cookies.user, navigate, checkToken]);
 
   const handleRefreshClick = (targetPath) => (event) => {
     console.log("hello");
@@ -217,6 +216,7 @@ export default function MainPage() {
               startIcon={<LogoutIcon />}
               variant="contained"
               color="primary"
+              onClick={handleLogout}
             >
               {isDrawerOpen && "Logout"}
             </Button>
