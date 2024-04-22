@@ -93,7 +93,7 @@ export default function MainPage() {
 
   const handleLogout = () => {
     // Remove user cookie
-    removeCookies("user", { path: "/" });
+    //removeCookies("user", { path: "/" });
     // Navigate to login page
     navigate("/main/inventory");
   };
