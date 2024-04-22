@@ -290,6 +290,11 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.post('/logout', async(req, res) => {
+
+    res.clearCookie('token').sendStatus(200)
+
+});
 
 app.post('/createAppointment' , async (req, res) => {
 
