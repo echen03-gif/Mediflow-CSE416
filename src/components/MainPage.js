@@ -72,7 +72,7 @@ export default function MainPage() {
       .then((res) => {
         console.log(res.data);
       });
-  });
+  }, [cookies.user]);
 
   useEffect(() => {
     if (!cookies.user) {
