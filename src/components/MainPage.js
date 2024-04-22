@@ -64,24 +64,24 @@ export default function MainPage() {
   };
 
 
-  const checkToken = useCallback(() => {
-    axios
-      .post("https://mediflow-cse416.onrender.com/decode", {
-        cookies: "testing"
-      })
-      .then((res) => {
-        console.log(res.data);
-      });
-  }, [cookies.user]);
+  // const checkToken = useCallback(() => {
+  //   axios
+  //     .post("https://mediflow-cse416.onrender.com/decode", {
+  //       cookies: "testing"
+  //     })
+  //     .then((res) => {
+  //       console.log(res.data);
+  //     });
+  // }, [cookies.user]);
 
   useEffect(() => {
     if (!cookies.user) {
       // If user cookie doesn't exist, navigate to login page
       navigate("/login");
     } else {
-      checkToken();
+      //checkToken();
     }
-  }, [cookies.user, navigate, checkToken]);
+  }, [navigate, cookies.user]);
 
   const handleRefreshClick = (targetPath) => (event) => {
     console.log("hello");
@@ -93,7 +93,6 @@ export default function MainPage() {
 
   const handleLogout = () => {
     // Remove user cookie
-    removeCookies("user", { path: "/" });
     // Navigate to login page
     console.log("NEW DEPLOYMENT WORKS WOOOO");
     navigate("/login");
