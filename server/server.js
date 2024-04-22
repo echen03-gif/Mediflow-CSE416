@@ -1,19 +1,19 @@
-    const express = require('express');
-    const app = express();
-    const cors = require('cors');
-    const bcrypt = require('bcrypt');
-    const jwt = require('jsonwebtoken');
-    const cookieParser = require('cookie-parser');
+const express = require('express');
+const app = express();
+const cors = require('cors');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 
-    app.use(express.json());
-    app.use(cookieParser());
-    app.use(cors({
-        origin: ["https://mediflow-lnmh.onrender.com", "http://localhost:3000"],
-        credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    }));
-  
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+    origin: ["https://mediflow-lnmh.onrender.com", "http://localhost:3000"],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+}));
+
 
 
 const port = 8000;
@@ -150,7 +150,7 @@ app.post('/decode', async (req, res)=>{
     //   const decodedToken = jwtDecode(jwtToken);
     //   console.log('Decoded Token:', decodedToken);
 
-      res.send(cookieHeader);
+    res.send(cookieHeader);
 
 });
 
@@ -159,7 +159,7 @@ app.post('/decode', async (req, res)=>{
 
 app.post('/createUser', async (req, res) => {
     const { admin, name, email, password, role, schedule } = req.body;
-    
+
     // Extract schedule data for each day
     const processedSchedule = {};
     for (const day in schedule) {
@@ -177,12 +177,12 @@ app.post('/createUser', async (req, res) => {
         staffID: req.body.staffID,
         schedule: processedSchedule, // Use the processed schedule data
     });
-    
+
     res.send(await newUser.save());
 });
 
 app.post('/createProcedure', async (req, res) => {
-    
+
     // need a way to decide procedure ids?
 
     const newProcedure = new Procedures({
@@ -196,13 +196,13 @@ app.post('/createProcedure', async (req, res) => {
         staffType: req.body.staffType
 
     })
-    
+
     res.send(await newProcedure.save());
-    
+
 });
 
 app.post('/createEquipmentHead', async (req, res) => {
-    
+
     const newEquipmentHead = new EquipmentHeads({
 
         name: req.body.name,
@@ -211,13 +211,13 @@ app.post('/createEquipmentHead', async (req, res) => {
         type: req.body.type
 
     })
-    
+
     res.send(await newEquipmentHead.save());
-    
+
 });
 
 app.post('/createEquipment', async (req, res) => {
-    
+
     const newEquipment = new Equipment({
         
         created: new Date(),
@@ -227,13 +227,13 @@ app.post('/createEquipment', async (req, res) => {
         type: req.body.type,
         updatedAt: new Date()
     })
-    
+
     res.send(await newEquipment.save());
-    
+
 });
 
 app.post('/createRoom', async (req, res) => {
-    
+
     const newRoom = new Rooms({
         
         created: new Date(),
@@ -244,13 +244,13 @@ app.post('/createRoom', async (req, res) => {
         updatedAt: new Date(),
         roomID: req.body.roomID
     })
-    
+
     res.send(await newRoom.save());
-    
+
 });
 
 app.post('/createProcess', async (req, res) => {
-    
+
     const newProcess = new Processes({
 
         name: req.body.name,
@@ -258,9 +258,9 @@ app.post('/createProcess', async (req, res) => {
         created: new Date()
         
     })
-    
+
     res.send(await newProcess.save());
-    
+
 });
 
 app.post('/login', async (req, res) => {
@@ -279,7 +279,7 @@ app.post('/login', async (req, res) => {
             httpOnly: true, // cookie accessible only by the server
             secure: true, // set to true in production
             sameSite: 'None',
-            domain: 'https://mediflow-lnmh.onrender.com', // replace 'yourdomain.com' with your actual domain
+            domain: '.onrender.com', // replace 'yourdomain.com' with your actual domain
             path: "/",
         });
 
@@ -289,16 +289,8 @@ app.post('/login', async (req, res) => {
         console.log("Failed to Login")
         res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
     }
-  });
+});
 
-//   app.post('/logout', (req, res) => {
-    
-
-//     res.clearCookie('token');
-    
-//     res.send({ message: 'Logout successful' });
-//   });
-  
 
 app.post('/createAppointment' , async (req, res) => {
 
@@ -317,7 +309,7 @@ app.post('/createAppointment' , async (req, res) => {
 
 
 });
-  
+
 
 // PUT FUNCTIONS
 
@@ -338,7 +330,7 @@ app.put('/changeEquipmentHead', async (req, res) => {
 
 app.put('/changeStaffAppointment', async (req,res) =>{
 
-    
+
     let staffUpdate = await Users.findOne({_id: req.body.staffName._id});
 
     staffUpdate.appointments.push(req.body.appointment);

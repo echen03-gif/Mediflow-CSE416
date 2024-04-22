@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React, useEffect, useState } from "react";
 import {
   Routes,
   Route,
@@ -40,6 +40,7 @@ import AddInventory from "./mainPage/AddInventory";
 import AddRoom from "./mainPage/AddRoom";
 import CreateProcess from "./mainPage/CreateProcess";
 //import axios from "axios";
+import { useCookies } from "react-cookie";
 
 // Mock array of upcoming patients
 const upcomingPatients = [
@@ -51,6 +52,7 @@ const upcomingPatients = [
 export default function MainPage() {
   const [drawerWidth, setDrawerWidth] = useState(200);
   const [isDrawerOpen, setIsDrawerOpen] = useState(true); // initially true if you want it open by default
+  const [cookies] = useCookies(["user"]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -62,6 +64,24 @@ export default function MainPage() {
   };
 
 
+  // const checkToken = useCallback(() => {
+  //   axios
+  //     .post("https://mediflow-cse416.onrender.com/decode", {
+  //       cookies: "testing"
+  //     })
+  //     .then((res) => {
+  //       console.log(res.data);
+  //     });
+  // }, [cookies.user]);
+
+  useEffect(() => {
+    if (!cookies.user) {
+      // If user cookie doesn't exist, navigate to login page
+      navigate("/login");
+    } else {
+      //checkToken();
+    }
+  }, [navigate, cookies.user]);
 
   const handleRefreshClick = (targetPath) => (event) => {
     console.log("hello");
@@ -72,15 +92,11 @@ export default function MainPage() {
   };
 
   const handleLogout = () => {
+    // Remove user cookie
 
-    // axios.post("https://mediflow-cse416.onrender.com/logout", { }, {withCredentials: true}) 
-    //   .then(response => {
-    //     navigate("/login");
-    //   })
-    //   .catch(error => {
-    //     console.error('Logout failed:', error);
-    //   });
-    navigate("/login")
+    // Navigate to login page
+    console.log("NEW DEPLOYMENT WORKS WOOOO");
+    navigate("/login");
   };
 
   const toggleDrawer = () => {
