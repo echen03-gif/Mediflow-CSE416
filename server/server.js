@@ -268,19 +268,19 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await Users.findOne({ email: username });
     if (user && bcrypt.compareSync(password, user.password)) {
-      console.log('Logged in');
-      const token = jwt.sign({ id: user._id, admin: user.role }, 'mediflow-jwt-secret-key', { expiresIn: '3h' });
-  
-      const cookieValue = `token=${token};username=${username}; Path=/; Secure; SameSite=None`;
-      res.setHeader('Set-Cookie', cookieValue); // Set the Set-Cookie header directly
-  
-      res.send({ success: true, user: username, token: token});
+        console.log('Logged in');
+        const token = jwt.sign({ id: user._id, admin: user.role }, 'mediflow-jwt-secret-key', { expiresIn: '3h' });
+
+        const expirationDate = new Date();
+        expirationDate.setTime(expirationDate.getTime() +  (2 * 60 * 60 * 1000)); 
+
+    
+        res.send({ success: true, user: username, token: token});
     } else {
-      console.log("Failed to Login")
-      res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
+        console.log("Failed to Login")
+        res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
     }
   });
-  
 
 
 app.post('/createAppointment' , async (req, res) => {
