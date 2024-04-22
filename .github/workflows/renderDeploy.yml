@@ -19,7 +19,7 @@ jobs:
         node-version: '14'  
 
     - name: Build
-      run: npm ci && npm run build  
+      run: npm install @fullcalendar/core && npm ci && npm run build  
 
     - name: Render Deployment
       run: curl -X POST ${{ secrets.RENDER_DEPLOYAPI }}
