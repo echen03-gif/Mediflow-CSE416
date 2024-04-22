@@ -218,6 +218,7 @@ export default function MainPage() {
               startIcon={<LogoutIcon />}
               variant="contained"
               color="primary"
+              onClick={handleLogout}
             >
               {isDrawerOpen && "Logout"}
             </Button>
