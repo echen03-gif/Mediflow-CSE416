@@ -25,6 +25,7 @@ export default function LoginPage() {
             console.log(res.data)
             if (res.data.success) {
               const cookieValue = `token=${res.data.token};username=${username}`;
+              
               setCookies('user', cookieValue, {
                 path: "/",
                 secure: true, 
