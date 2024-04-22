@@ -17,9 +17,12 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '14'  
+    
+    - name: Install NPM
+      run: npm install
 
     - name: Build
-      run: npm install @fullcalendar/core && npm ci && npm run build  
+      run: npm ci && npm run build  
 
     - name: Render Deployment
       run: curl -X POST ${{ secrets.RENDER_DEPLOYAPI }}
