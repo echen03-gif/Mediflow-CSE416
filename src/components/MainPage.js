@@ -57,7 +57,7 @@ export default function MainPage() {
   const location = useLocation();
 
   const activeRouteStyle = {
-    backgroundColor: "#FF8C00", // Example background color for active route
+    backgroundColor: "#00000", // Example background color for active route
     "&:hover": {
       backgroundColor: "#ff7900", // Darker on hover for active route
     },
