@@ -24,14 +24,6 @@ export default function LoginPage() {
           .then(res => {
             console.log(res.data)
             if (res.data.success) {
-              const cookieValue = `token=${res.data.token};username=${username}`;
-              setCookies('user', cookieValue, {
-                path: "/",
-                secure: true, 
-                sameSite: 'none',
-
-              });
-
               navigate('/main/schedule');
             } else {
               console.log("Error")
@@ -48,6 +40,7 @@ export default function LoginPage() {
       console.log(error);
     }
   };
+  
 
   return (
     <Container
