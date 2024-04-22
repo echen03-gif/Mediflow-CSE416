@@ -39,7 +39,7 @@ import AddStaff from "./mainPage/AddStaff";
 import AddInventory from "./mainPage/AddInventory";
 import AddRoom from "./mainPage/AddRoom";
 import CreateProcess from "./mainPage/CreateProcess";
-import axios from "axios";
+//import axios from "axios";
 
 // Mock array of upcoming patients
 const upcomingPatients = [
