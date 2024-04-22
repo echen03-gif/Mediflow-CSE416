@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from "react";
+import { React, useCallback, useEffect, useState } from "react";
 import {
   Routes,
   Route,
@@ -64,7 +64,7 @@ export default function MainPage() {
   };
 
 
-  const checkToken = () => {
+  const checkToken = useCallback(() => {
     axios
       .post("https://mediflow-cse416.onrender.com/decode", {
         cookies: cookies.user
@@ -72,7 +72,7 @@ export default function MainPage() {
       .then((res) => {
         console.log(res.data);
       });
-  };
+  });
 
   useEffect(() => {
     if (!cookies.user) {
