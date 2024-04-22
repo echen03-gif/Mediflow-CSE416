@@ -93,6 +93,7 @@ export default function MainPage() {
 
   const handleLogout = () => {
     // Remove user cookie
+
     // Navigate to login page
     console.log("NEW DEPLOYMENT WORKS WOOOO");
     navigate("/login");
