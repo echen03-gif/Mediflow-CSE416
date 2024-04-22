@@ -291,6 +291,14 @@ app.post('/login', async (req, res) => {
     }
   });
 
+  app.post('/logout', (req, res) => {
+    
+    res.clearCookie('user');
+  
+    
+    res.send({ message: 'Logout successful' });
+  });
+  
 
 app.post('/createAppointment' , async (req, res) => {
 

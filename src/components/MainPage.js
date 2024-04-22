@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from "react";
+import { React, useState } from "react";
 import {
   Routes,
   Route,
@@ -39,7 +39,7 @@ import AddStaff from "./mainPage/AddStaff";
 import AddInventory from "./mainPage/AddInventory";
 import AddRoom from "./mainPage/AddRoom";
 import CreateProcess from "./mainPage/CreateProcess";
-//import axios from "axios";
+import axios from "axios";
 
 // Mock array of upcoming patients
 const upcomingPatients = [
@@ -62,14 +62,6 @@ export default function MainPage() {
   };
 
 
-  useEffect(() => {
-    if (!cookies.user) {
-      // If user cookie doesn't exist, navigate to login page
-      navigate("/login");
-    } else {
-      //checkToken();
-    }
-  }, [navigate, cookies.user]);
 
   const handleRefreshClick = (targetPath) => (event) => {
     console.log("hello");
@@ -80,11 +72,14 @@ export default function MainPage() {
   };
 
   const handleLogout = () => {
-    // Remove user cookie
 
-    // Navigate to login page
-    console.log("NEW DEPLOYMENT WORKS WOOOO");
-    navigate("/login");
+    axios.post("https://mediflow-cse416.onrender.com/login", { }, {withCredentials: true}) 
+      .then(response => {
+        navigate("/login");
+      })
+      .catch(error => {
+        console.error('Logout failed:', error);
+      });
   };
 
   const toggleDrawer = () => {
