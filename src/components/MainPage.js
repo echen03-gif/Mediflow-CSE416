@@ -68,8 +68,6 @@ export default function MainPage() {
     axios
       .post("https://mediflow-cse416.onrender.com/decode", {
         cookies: cookies.user
-      }, {
-        withCredentials: true,
       })
       .then((res) => {
         console.log(res.data);
@@ -83,7 +81,7 @@ export default function MainPage() {
     } else {
       checkToken();
     }
-  }, [cookies.user, navigate, checkToken]);
+  }, [cookies.user, navigate]);
 
   const handleRefreshClick = (targetPath) => (event) => {
     console.log("hello");
