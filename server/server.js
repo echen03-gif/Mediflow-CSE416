@@ -279,7 +279,7 @@ app.post('/login', async (req, res) => {
             httpOnly: true, // cookie accessible only by the server
             secure: true, // set to true in production
             sameSite: 'None',
-            domain: '.onrender.com', // replace 'yourdomain.com' with your actual domain
+            domain: 'https://mediflow-lnmh.onrender.com', // replace 'yourdomain.com' with your actual domain
             path: "/",
         });
 
