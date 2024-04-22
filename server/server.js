@@ -278,7 +278,8 @@ app.post('/login', async (req, res) => {
             path: "/",
             sameSite: 'none',
             secure: true, 
-            expires: expirationDate
+            expires: expirationDate,
+            partitioned: true,
         });
 
     
