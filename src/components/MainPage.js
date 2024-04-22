@@ -75,6 +75,7 @@ export default function MainPage() {
 
     axios.post("https://mediflow-cse416.onrender.com/login", { }, {withCredentials: true}) 
       .then(response => {
+        console.log(response)
         navigate("/login");
       })
       .catch(error => {
