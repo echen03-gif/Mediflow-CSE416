@@ -150,7 +150,7 @@ app.post('/decode', async (req, res)=>{
     //   const decodedToken = jwtDecode(jwtToken);
     //   console.log('Decoded Token:', decodedToken);
 
-      res.status(200).send(cookieHeader);
+      res.send(cookieHeader);
 
 });
 
