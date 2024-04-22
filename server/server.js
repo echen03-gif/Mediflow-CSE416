@@ -291,13 +291,13 @@ app.post('/login', async (req, res) => {
     }
   });
 
-  app.post('/logout', (req, res) => {
+//   app.post('/logout', (req, res) => {
     
 
-    res.clearCookie('token');
+//     res.clearCookie('token');
     
-    res.send({ message: 'Logout successful' });
-  });
+//     res.send({ message: 'Logout successful' });
+//   });
   
 
 app.post('/createAppointment' , async (req, res) => {

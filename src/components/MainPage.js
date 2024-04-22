@@ -73,13 +73,14 @@ export default function MainPage() {
 
   const handleLogout = () => {
 
-    axios.post("https://mediflow-cse416.onrender.com/logout", { }, {withCredentials: true}) 
-      .then(response => {
-        navigate("/login");
-      })
-      .catch(error => {
-        console.error('Logout failed:', error);
-      });
+    // axios.post("https://mediflow-cse416.onrender.com/logout", { }, {withCredentials: true}) 
+    //   .then(response => {
+    //     navigate("/login");
+    //   })
+    //   .catch(error => {
+    //     console.error('Logout failed:', error);
+    //   });
+    navigate("/login")
   };
 
   const toggleDrawer = () => {
