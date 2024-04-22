@@ -67,6 +67,7 @@ export default function MainPage() {
   const checkToken = useCallback(() => {
     axios
       .post("https://mediflow-cse416.onrender.com/decode", {
+
         cookies: cookies.user
       }, {withCredentials: true})
       .then((res) => {
