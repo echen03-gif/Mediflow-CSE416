@@ -293,9 +293,8 @@ app.post('/login', async (req, res) => {
 
   app.post('/logout', (req, res) => {
     
-    const token = req.cookies.token;
 
-    res.clearCookie('token', {httpOnly: "true"});
+    res.clearCookie('token');
     
     res.send({ message: 'Logout successful' });
   });

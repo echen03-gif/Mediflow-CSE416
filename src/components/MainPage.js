@@ -73,9 +73,8 @@ export default function MainPage() {
 
   const handleLogout = () => {
 
-    axios.post("https://mediflow-cse416.onrender.com/login", { }, {withCredentials: true}) 
+    axios.post("https://mediflow-cse416.onrender.com/logout", { }, {withCredentials: true}) 
       .then(response => {
-        console.log(response)
         navigate("/login");
       })
       .catch(error => {
