@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { Container, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useCookies } from 'react-cookie';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
