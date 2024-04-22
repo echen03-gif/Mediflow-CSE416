@@ -129,7 +129,7 @@ app.get('/check-session', (req, res) => {
 });
 
 
-app.get('/decode', async (req, res)=>{
+app.post('/decode', async (req, res)=>{
 
     const cookieHeader = req.cookies;
 
