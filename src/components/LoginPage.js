@@ -4,14 +4,14 @@ import React, { useState } from 'react';
 import { Container, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useCookies } from 'react-cookie';
+//import { useCookies } from 'react-cookie';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [cookies, setCookies] = useCookies(['user']);
+  //const [cookies, setCookies] = useCookies(['user']);
   const navigate = useNavigate();
-  console.log(cookies);
+  //console.log(cookies);
 
   const handleLogin = (event) => {
     console.log("Handling Login")
@@ -24,14 +24,6 @@ export default function LoginPage() {
           .then(res => {
             console.log(res.data)
             if (res.data.success) {
-              const cookieValue = `token=${res.data.token};username=${username}`;
-              
-              setCookies('user', cookieValue, {
-                path: "/",
-                secure: true, 
-                sameSite: 'none',
-
-              });
 
               navigate('/main/schedule');
             } else {
