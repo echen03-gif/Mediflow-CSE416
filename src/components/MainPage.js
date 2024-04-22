@@ -83,7 +83,7 @@ export default function MainPage() {
     } else {
       checkToken();
     }
-  }, [cookies.user, navigate]);
+  }, [cookies.user, navigate, checkToken]);
 
   const handleRefreshClick = (targetPath) => (event) => {
     console.log("hello");
