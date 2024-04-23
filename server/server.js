@@ -275,7 +275,7 @@ app.post('/login', async (req, res) => {
             path: "/",
             sameSite: 'None',
             secure: true,
-            domain: "mediflow-lnmh.onrender.com",
+            domain: ".onrender.com",
             httpOnly: true
         });
 
@@ -289,7 +289,7 @@ app.post('/login', async (req, res) => {
 app.post('/logout', async (req, res) => {
     res.clearCookie('token', {
         path: "/",
-        domain: "mediflow-lnmh.onrender.com",
+        domain: ".onrender.com",
         sameSite: 'None',
         secure: true
     }).sendStatus(200);
