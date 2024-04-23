@@ -278,7 +278,7 @@ app.post('/login', async (req, res) => {
             path: '/',
             sameSite: 'none',
             secure: true,
-            domain: '.onrender.com',
+            domain: 'onrender.com',
         });
 
         res.send({ success: true, user: username, token: token });
