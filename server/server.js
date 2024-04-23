@@ -275,10 +275,10 @@ app.post('/login', async (req, res) => {
         expirationDate.setTime(expirationDate.getTime() + (2 * 60 * 60 * 1000)); // 2 hours expiration
 
         res.cookie('token', token, {
-            path: "/",
+            path: '/',
             sameSite: 'none',
             secure: true,
-            expires: expirationDate,
+            domain: '.onrender.com',
         });
 
         res.send({ success: true, user: username, token: token });
@@ -291,9 +291,10 @@ app.post('/login', async (req, res) => {
 app.post('/logout', async (req, res) => {
     res.clearCookie('token', {
         path: "/",
-        domain: "onrender.com",
+        domain: ".onrender.com",
         sameSite: 'None',
         secure: true,
+        partitioned: true
     }).sendStatus(200);
 });
 
