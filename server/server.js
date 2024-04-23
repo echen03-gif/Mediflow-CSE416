@@ -34,7 +34,14 @@ const verifyToken = (req, res, next) => {
     });
   };
 
-app.use(verifyToken);
+
+app.use((req, res, next) => {
+    if (req.path === '/login') {
+        next(); // Skip the middleware for the '/login' route
+    } else {
+        verifyToken(req, res, next); // Apply the middleware to other routes
+    }
+});
 
 
 
