@@ -291,7 +291,8 @@ app.post('/login', async (req, res) => {
 app.post('/logout', async (req, res) => {
     res.clearCookie('token', {
         path: "/",
-        sameSite: 'none',
+        domain: "onrender.com",
+        sameSite: 'None',
         secure: true,
     }).sendStatus(200);
 });
