@@ -289,7 +289,7 @@ app.post('/login', async (req, res) => {
 app.post('/logout', async (req, res) => {
     res.clearCookie('token', {
         path: "/",
-        domain: "https://mediflow-lnmh.onrender.com",
+        domain: "mediflow-lnmh.onrender.com",
         sameSite: 'None',
         secure: true
     }).sendStatus(200);
