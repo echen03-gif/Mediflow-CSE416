@@ -1,4 +1,4 @@
-import { React, useState, useCallback, useEffect } from "react";
+import { React, useState, useEffect } from "react";
 import {
   Routes,
   Route,
@@ -39,8 +39,8 @@ import AddStaff from "./mainPage/AddStaff";
 import AddInventory from "./mainPage/AddInventory";
 import AddRoom from "./mainPage/AddRoom";
 import CreateProcess from "./mainPage/CreateProcess";
-import axios from "axios";
-import { useCookies } from 'react-cookie';
+//import axios from "axios";
+//import { useCookies } from 'react-cookie';
 
 // Mock array of upcoming patients
 const upcomingPatients = [
@@ -54,7 +54,7 @@ export default function MainPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true); // initially true if you want it open by default
   const navigate = useNavigate();
   const location = useLocation();
-  const [cookies, , removeCookies] = useCookies(['user']);
+ // const [cookies, , removeCookies] = useCookies(['user']);
 
   const activeRouteStyle = {
     backgroundColor: "#FF8C00", // Example background color for active route
@@ -64,24 +64,36 @@ export default function MainPage() {
   };
 
 
-  const checkToken = useCallback(() => {
-    axios
-      .post("https://mediflow-cse416.onrender.com/decode", {
-        cookies: cookies.user
-      }, {withCredentials: true})
-      .then((res) => {
-        console.log(res.data);
-      });
-  }, [cookies.user]);
+  // const checkToken = useCallback(() => {
+  //   axios
+  //     .post("https://mediflow-cse416.onrender.com/decode", {
+  // //      cookies: cookies.user
+  //     }, {withCredentials: true})
+  //     .then((res) => {
+  //       console.log(res.data);
+  //     });
+  // });
 
   useEffect(() => {
-    if (!cookies.user) {
-      // If user cookie doesn't exist, navigate to login page
-      navigate("/login");
-    } else {
-      checkToken();
-    }
-  }, [cookies.user, navigate, checkToken]);
+    const checkSession = () => {
+      const storedToken = sessionStorage.getItem('token');
+      const storedUser = sessionStorage.getItem('user');
+
+      if (!storedToken || !storedUser) {
+        // If token or username is not found in sessionStorage, redirect to the login page
+        navigate('/login');
+      }
+    };
+
+    checkSession(); // Check session when component mounts
+
+    // Optionally, you can also check the session periodically or on certain events
+    // For example, you can use setInterval to check session every X seconds
+    // const intervalId = setInterval(checkSession, 5000);
+
+    // Clean up interval to prevent memory leaks
+    // return () => clearInterval(intervalId);
+  }, [navigate]);
 
  
 
@@ -94,12 +106,8 @@ export default function MainPage() {
   };
 
   const handleLogout = () => {
-    // Remove user cookie
-    //axios.post("http://localhost:8000/logout");
-    // Navigate to login page
-    //console.log("NEW DEPLOYMENT WORKS WOOOO");
-    console.log(cookies);
-    removeCookies('user', { path: '/' });
+
+    sessionStorage.clear();
     navigate("/login");
   };
 

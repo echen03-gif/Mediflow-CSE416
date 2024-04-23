@@ -56,6 +56,9 @@ const AddStaff = () => {
       password: password,
       role: position,
       schedule: schedule,
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        }
     }).then(navigate("/main/staff"));
     
   };

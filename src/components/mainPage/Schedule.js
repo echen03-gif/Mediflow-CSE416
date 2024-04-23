@@ -18,7 +18,12 @@ export default function Schedule() {
     // Add more appointments as needed
   ];
   const checkSession = () => {
-    axios.get("https://mediflow-cse416.onrender.com/check-session")
+    axios.get("https://mediflow-cse416.onrender.com/check-session",
+    { 
+      headers: {
+      'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    })
       .then(res => {
         if (res.data.loggedIn) {
           console.log("User is logged in");

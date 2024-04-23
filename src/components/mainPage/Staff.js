@@ -18,7 +18,10 @@ const Staff = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("https://mediflow-cse416.onrender.com/users").then((res) => {
+    axios.get("https://mediflow-cse416.onrender.com/users",{ 
+      headers: {
+      'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }}).then((res) => {
       const usersWithStatus = res.data.map(user => {
         return {...user, status: getStatus(user.schedule)};
       });

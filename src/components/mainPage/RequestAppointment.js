@@ -45,7 +45,10 @@ export default function RequestAppointment() {
       start: new Date(startTime),
       end: new Date(endTime),
       process: process,
-      room: roomAssigned
+      room: roomAssigned,
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        }
 
     }).then(console.log("Added Appointment"));
 
