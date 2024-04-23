@@ -24,7 +24,7 @@ export default function LoginPage() {
           .then(res => {
             console.log(res.data)
             if (res.data.success) {
-              setCookies('user', res.data.user, { path: '/', domain: '.onrender.com' });
+              setCookies('user', res.data.user, { path: '/'});
               navigate('/main/schedule');
             } else {
               console.log("Error")

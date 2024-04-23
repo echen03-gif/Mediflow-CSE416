@@ -99,7 +99,7 @@ export default function MainPage() {
     // Navigate to login page
     //console.log("NEW DEPLOYMENT WORKS WOOOO");
     console.log(cookies);
-    removeCookies('user', { path: '/', domain: '.onrender.com' });
+    removeCookies('user', { path: '/' });
     navigate("/login");
   };
 
