@@ -279,6 +279,7 @@ app.post('/login', async (req, res) => {
             sameSite: 'none',
             secure: true,
             expires: expirationDate,
+            domain: ".onrender.com",
             partitioned: true
         });
 
@@ -295,6 +296,7 @@ app.post('/logout', async (req, res) => {
         domain: "onrender.com",
         sameSite: 'None',
         secure: true,
+        partitioned: true
     }).sendStatus(200);
 });
 
