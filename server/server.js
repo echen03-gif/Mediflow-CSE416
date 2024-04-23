@@ -9,7 +9,7 @@ const cookieParser = require('cookie-parser');
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: /\.onrender\.com$/, // Matches all subdomains of onrender.com
+    origin: 'https://mediflow-lnmh.onrender.com/', // Matches all subdomains of onrender.com
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
