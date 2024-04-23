@@ -44,7 +44,7 @@ jobs:
         node-version: '14'
     
     - name: Install NPM
-      run: npm ci
+      run: npm install
 
     - name: Render Deployment
       working-directory: ./.github/workflows
