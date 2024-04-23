@@ -275,7 +275,7 @@ app.post('/login', async (req, res) => {
             path: "/",
             sameSite: 'None',
             secure: true,
-            domain: "https://mediflow-lnmh.onrender.com",
+            domain: "mediflow-lnmh.onrender.com",
             httpOnly: true
         });
 
