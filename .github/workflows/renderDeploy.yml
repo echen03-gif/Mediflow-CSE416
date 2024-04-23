@@ -25,4 +25,8 @@ jobs:
       run: npm ci && npm run build  
 
     - name: Render Deployment
-      run: curl -X POST ${{ secrets.RENDER_DEPLOYAPI }}
+      run: node deployRender.js
+      env:
+        API_KEY: ${{ secrets.RENDER_APIKEY }}
+        SERVICE_ID: ${{ secrets.RENDER_SERVICEID }}
+    
