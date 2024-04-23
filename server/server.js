@@ -293,7 +293,7 @@ app.post('/login', async (req, res) => {
 app.post('/logout', async (req, res) => {
     res.clearCookie('token', {
         path: "/",
-        domain: "onrender.com",
+        domain: ".onrender.com",
         sameSite: 'None',
         secure: true,
         partitioned: true
