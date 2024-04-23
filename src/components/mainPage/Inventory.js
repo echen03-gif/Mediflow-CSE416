@@ -23,17 +23,29 @@ function Inventory() {
   const navigate = useNavigate();
 
 
+  const api = axios.create({
+    baseURL: 'https://mediflow-cse416.onrender.com',
+  });
+  
+  // Add an interceptor to add Authorization header to each request
+  api.interceptors.request.use(
+    config => {
+      const token = sessionStorage.getItem('token');
+      if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
+      return config;
+    },
+    error => {
+      return Promise.reject(error);
+  });
+  
+  // use api.get instead of axios.get
   useEffect(() => {
-
-    axios.get('https://mediflow-cse416.onrender.com/equipmentHead').then(res => { setInventoryHead(res.data) });
-
-    axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) });
-
-    axios.get('https://mediflow-cse416.onrender.com/equipment').then(res => { setEquipmentDB(res.data) });
-
-    axios.get('https://mediflow-cse416.onrender.com/appointments').then(res => { setAppointmentList(res.data) });
-
-
+    api.get('/equipmentHead').then(res => { setInventoryHead(res.data) });
+    api.get('/rooms').then(res => { setRooms(res.data) });
+    api.get('/equipment').then(res => { setEquipmentDB(res.data) });
+    api.get('/appointments').then(res => { setAppointmentList(res.data) });
   }, []);
 
 

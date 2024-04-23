@@ -13,7 +13,12 @@ function Inbox() {
 
   useEffect(() => {
     // Assuming you have an endpoint to fetch the list of people you are chatting with
-    axios.get('https://mediflow-cse416.onrender.com/users').then(res => { setPeople(res.data) });
+    axios.get('https://mediflow-cse416.onrender.com/users',
+    { 
+      headers: {
+      'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setPeople(res.data) });
   }, []);
 
   const handleChangePage = (event, newPage) => {

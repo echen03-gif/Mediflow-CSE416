@@ -9,23 +9,32 @@ const cookieParser = require('cookie-parser');
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: 'https://mediflow-lnmh.onrender.com', // Matches all subdomains of onrender.com
+    origin: ['https://mediflow-lnmh.onrender.com', "http://localhost:3000"], // Matches all subdomains of onrender.com
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
-app.use(function(req, res, next) {
+const verifyToken = (req, res, next) => {
+    // Get token from request headers
+    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+  
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Access token is missing' });
+    }
+  
+    // Verify token
+    jwt.verify(token, 'mediflow-jwt-secret-key', (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ success: false, message: 'Invalid access token' });
+      }
+      
+      // If token is valid, save decoded data to request object for later use
+      req.user = decoded;
+      next();
+    });
+  };
 
-    // Access-Control-Allow-Origin only accepts a string, so to provide multiple allowed origins for requests,
-    // check incoming request origin against accepted list and set Access-Control-Allow-Origin to that value if it's found.
-    // Setting this value to '*' will allow requests from any domain, which is insecure.
-
-    var allowedOrigins = ['https://mediflow-lnmh.onrender.com', 'https://mediflow-cse416.onrender.com'];
-
-    var acceptedOrigin = allowedOrigins.indexOf(req.headers.origin) >= 0 ? req.headers.origin : allowedOrigins[0];
-    res.header("Access-Control-Allow-Origin", acceptedOrigin);
-    next();
-});
+app.use(verifyToken);
 
 
 

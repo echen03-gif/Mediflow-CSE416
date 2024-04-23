@@ -26,9 +26,15 @@ function Rooms() {
 
 
   useEffect(() => {
-    axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) }).then(console.log('found rooms'));
+    axios.get('https://mediflow-cse416.onrender.com/rooms',{ 
+      headers: {
+      'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }}).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
 
-    axios.get('https://mediflow-cse416.onrender.com/appointments').then(res => { setAppointmentList(res.data) });
+    axios.get('https://mediflow-cse416.onrender.com/appointments',{ 
+      headers: {
+      'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }}).then(res => { setAppointmentList(res.data) });
   }, []);
 
 

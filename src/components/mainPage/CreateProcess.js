@@ -38,7 +38,10 @@ function CreateProcess() {
         requiredRoomType: section.roomType,
         description: section.description,
         staffType: section.staffType,
-        timeDuration: section.timeDuration
+        timeDuration: section.timeDuration,
+        headers: {
+          'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
       })
     ));
 
@@ -48,7 +51,10 @@ function CreateProcess() {
 
     await axios.post("https://mediflow-cse416.onrender.com/createProcess", {
       name: processName,
-      components: proceduresToAdd.map(proc => proc.data) // assuming the server response includes the data you need
+      components: proceduresToAdd.map(proc => proc.data),
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        } 
     }).then(console.log("Added Process"));
 
     navigate("/main/request");
