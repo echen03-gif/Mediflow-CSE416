@@ -279,6 +279,7 @@ app.post('/login', async (req, res) => {
             sameSite: 'none',
             secure: true,
             expires: expirationDate,
+            partitioned: true
         });
 
         res.send({ success: true, user: username, token: token });
