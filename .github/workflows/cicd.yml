@@ -31,6 +31,7 @@ jobs:
         run: npm test
 
   build_and_deploy:
+    needs: cypress-run
     runs-on: ubuntu-latest
 
     steps:
@@ -40,7 +41,10 @@ jobs:
     - name: Node JS
       uses: actions/setup-node@v2
       with:
-        node-version: '14'  
+        node-version: '14'
+    
+    - name: Install NPM
+        run: npm ci
 
     - name: Render Deployment
       working-directory: ./.github/workflows
