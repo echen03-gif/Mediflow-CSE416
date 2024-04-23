@@ -14,6 +14,19 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
+app.use(function(req, res, next) {
+
+    // Access-Control-Allow-Origin only accepts a string, so to provide multiple allowed origins for requests,
+    // check incoming request origin against accepted list and set Access-Control-Allow-Origin to that value if it's found.
+    // Setting this value to '*' will allow requests from any domain, which is insecure.
+
+    var allowedOrigins = ['https://mediflow-lnmh.onrender.com', 'https://mediflow-cse416.onrender.com'];
+
+    var acceptedOrigin = allowedOrigins.indexOf(req.headers.origin) >= 0 ? req.headers.origin : allowedOrigins[0];
+    res.header("Access-Control-Allow-Origin", acceptedOrigin);
+    next();
+});
+
 
 
 const port = 8000;
