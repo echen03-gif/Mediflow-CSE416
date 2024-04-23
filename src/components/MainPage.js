@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React, useState, useCallback, useEffect } from "react";
 import {
   Routes,
   Route,
@@ -40,6 +40,7 @@ import AddInventory from "./mainPage/AddInventory";
 import AddRoom from "./mainPage/AddRoom";
 import CreateProcess from "./mainPage/CreateProcess";
 import axios from "axios";
+import { useCookies } from 'react-cookie';
 
 // Mock array of upcoming patients
 const upcomingPatients = [
@@ -53,6 +54,7 @@ export default function MainPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true); // initially true if you want it open by default
   const navigate = useNavigate();
   const location = useLocation();
+  const [cookies, , removeCookies] = useCookies(['user']);
 
   const activeRouteStyle = {
     backgroundColor: "#FF8C00", // Example background color for active route
@@ -62,15 +64,24 @@ export default function MainPage() {
   };
 
 
-  // const checkToken = useCallback(() => {
-  //   axios
-  //     .post("https://mediflow-cse416.onrender.com/decode", {
-  //       cookies: "testing"
-  //     })
-  //     .then((res) => {
-  //       console.log(res.data);
-  //     });
-  // }, [cookies.user]);
+  const checkToken = useCallback(() => {
+    axios
+      .post("https://mediflow-cse416.onrender.com/decode", {
+        cookies: cookies.user
+      }, {withCredentials: true})
+      .then((res) => {
+        console.log(res.data);
+      });
+  }, [cookies.user]);
+
+  useEffect(() => {
+    if (!cookies.user) {
+      // If user cookie doesn't exist, navigate to login page
+      navigate("/login");
+    } else {
+      checkToken();
+    }
+  }, [cookies.user, navigate, checkToken]);
 
  
 
@@ -84,9 +95,11 @@ export default function MainPage() {
 
   const handleLogout = () => {
     // Remove user cookie
-    axios.post("https://mediflow-cse416.onrender.com/logout");
+    //axios.post("http://localhost:8000/logout");
     // Navigate to login page
     //console.log("NEW DEPLOYMENT WORKS WOOOO");
+    console.log(cookies);
+    removeCookies('user', { path: '/', domain: '.onrender.com' });
     navigate("/login");
   };
 

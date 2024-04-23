@@ -131,7 +131,9 @@ app.get('/check-session', (req, res) => {
 
 app.post('/decode', async (req, res)=>{
 
-    const cookieHeader = req.cookies;
+    const cookieHeader = req.body.cookies;
+    console.log("Hopefully there are cookies")
+    console.log(req.body.cookies);
 
     // if (!cookieHeader) {
     //     return res.status(400).send('No cookies found in the request.');
@@ -271,13 +273,13 @@ app.post('/login', async (req, res) => {
         console.log('Logged in');
         const token = jwt.sign({ id: user._id, admin: user.role }, 'mediflow-jwt-secret-key', { expiresIn: '3h' });
 
-        res.cookie('token', token, {
-            path: "/",
-            sameSite: 'None',
-            secure: true,
-            domain: ".onrender.com",
-            httpOnly: true
-        });
+        // res.cookie('token', token, {
+        //     path: "/",
+        //     //sameSite: 'None',
+        //     secure: false,
+        //     //domain: ".onrender.com",
+        //     httpOnly: true
+        // });
 
         res.send({ success: true, user: username, token: token });
     } else {
@@ -286,14 +288,15 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.post('/logout', async (req, res) => {
-    res.clearCookie('token', {
-        path: "/",
-        domain: ".onrender.com",
-        sameSite: 'None',
-        secure: true
-    }).sendStatus(200);
-});
+// app.post('/logout', async (req, res) => {
+//     console.log("logging out")
+//     res.clearCookie('token', {
+//         path: "/",
+//         //domain: ".onrender.com",
+//         //sameSite: 'None',
+//         //secure: true
+//     }).sendStatus(200);
+// });
 
 
 app.post('/createAppointment' , async (req, res) => {
