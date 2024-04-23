@@ -271,15 +271,12 @@ app.post('/login', async (req, res) => {
         console.log('Logged in');
         const token = jwt.sign({ id: user._id, admin: user.role }, 'mediflow-jwt-secret-key', { expiresIn: '3h' });
 
-        const expirationDate = new Date();
-        expirationDate.setTime(expirationDate.getTime() + (2 * 60 * 60 * 1000)); // 2 hours expiration
-
         res.cookie('token', token, {
             path: "/",
-            sameSite: 'none',
+            sameSite: 'None',
             secure: true,
             domain: ".onrender.com",
-            partitioned: true
+            httpOnly: true
         });
 
         res.send({ success: true, user: username, token: token });
@@ -294,8 +291,7 @@ app.post('/logout', async (req, res) => {
         path: "/",
         domain: ".onrender.com",
         sameSite: 'None',
-        secure: true,
-        partitioned: true
+        secure: true
     }).sendStatus(200);
 });
 
