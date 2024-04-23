@@ -25,6 +25,7 @@ jobs:
       run: npm ci && npm run build  
 
     - name: Render Deployment
+      working-directory: ./.github/workflows
       run: node deployRender.js
       env:
         API_KEY: ${{ secrets.RENDER_APIKEY }}
