@@ -34,6 +34,7 @@ import Request from "./mainPage/RequestAppointment";
 import Rooms from "./mainPage/Rooms";
 import Staff from "./mainPage/Staff";
 import Inbox from "./mainPage/Inbox";
+import Profile from "./mainPage/Profile";
 import ChatScreen from "./mainPage/ChatScreen";
 import AddStaff from "./mainPage/AddStaff";
 import AddInventory from "./mainPage/AddInventory";
@@ -42,11 +43,11 @@ import CreateProcess from "./mainPage/CreateProcess";
 
 
 // Mock array of upcoming patients
-const upcomingPatients = [
-  { name: "Patient 1", timeUntilTurn: "15 mins", stage: "Waiting" },
-  { name: "Patient 2", timeUntilTurn: "30 mins", stage: "Check-in" },
-  { name: "Patient 3", timeUntilTurn: "45 mins", stage: "Screening" },
-];
+// const upcomingPatients = [
+//   { name: "Patient 1", timeUntilTurn: "15 mins", stage: "Waiting" },
+//   { name: "Patient 2", timeUntilTurn: "30 mins", stage: "Check-in" },
+//   { name: "Patient 3", timeUntilTurn: "45 mins", stage: "Screening" },
+// ];
 
 export default function MainPage() {
   const [drawerWidth, setDrawerWidth] = useState(200);
@@ -96,10 +97,11 @@ export default function MainPage() {
  
 
   const handleRefreshClick = (targetPath) => (event) => {
-    console.log("hello");
+    console.log("redirecting" + targetPath + location.pathname)
+    
     if (location.pathname === targetPath) {
       event.preventDefault();
-      window.location.href = targetPath;
+      navigate(targetPath)
     }
   };
 
@@ -260,6 +262,8 @@ export default function MainPage() {
           <Route path="chatscreen" element={<ChatScreen />} />
           <Route path="inbox" element={<Inbox />} />
           <Route path="createprocess" element={<CreateProcess />} />
+          <Route path="profile" element={<Profile />} />
+
         </Routes>
       </Box>
 
@@ -268,7 +272,7 @@ export default function MainPage() {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          background: "linear-gradient(to bottom, #FFBA51, #FF4D34)",
+          background: "linear-gradient(to bottom, #FFbF5F, #FF8C42)", // Adjusted gradient to blend better with sidebar
         }}
       >
         <Toolbar>
@@ -282,30 +286,38 @@ export default function MainPage() {
           >
             <MenuIcon />
           </IconButton>
-          <Avatar
-            alt="Remy Sharp"
-            src="https://mui.com/static/images/avatar/1.jpg"
-            sx={{ mr: 2 }}
-          />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+
+          {/* User profile picture and name on the right */}
+          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+            {/* Content in the center */}
+            {/* <Typography variant="h6" component="div">
+              Content Here
+            </Typography> */}
+          </Box>
+
+
+            <Avatar
+              alt="Remy Sharp"
+              src="https://mui.com/static/images/avatar/1.jpg"
+              component={Link}
+              to="/main/profile"
+              onClick={handleRefreshClick("/main/profile")}
+              sx={location.pathname === "/main/profile" ? activeRouteStyle : {}}
+            />
+
+      
+
+          {/* User name */}
+          <Typography variant="h6" component="div">
             Test User
           </Typography>
-          <Box
-            sx={{ display: { xs: "none", md: "flex" }, alignItems: "center" }}
-          >
-            <Typography variant="body1" sx={{ marginRight: 2 }}>
-              Upcoming Patients
-            </Typography>
-            {upcomingPatients.map((patient, index) => (
-              <Box key={index} sx={{ textAlign: "center", mx: 1 }}>
-                <Typography variant="body2">{patient.name}</Typography>
-                <Typography variant="body2">{`Time until turn: ${patient.timeUntilTurn}`}</Typography>
-                <Typography variant="body2">{`Stage: ${patient.stage}`}</Typography>
-              </Box>
-            ))}
-          </Box>
         </Toolbar>
+
+        
       </AppBar>
+
+
+
     </Box>
   );
 }
