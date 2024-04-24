@@ -325,7 +325,7 @@ app.post('/login', async (req, res) => {
         //     httpOnly: true
         // });
 
-        res.send({ success: true, user: username, token: token });
+        res.send({ success: true, user: user._id, token: token });
     } else {
         console.log("Failed to Login");
         res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
