@@ -1,5 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
-import Inventory from '../../src/components/Inventory';
+import Inventory from '../../src/components/mainPage/Inventory';
 
 describe('Inventory', () => {
   beforeEach(() => {

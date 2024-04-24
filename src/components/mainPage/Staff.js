@@ -17,14 +17,22 @@ const Staff = () => {
 
   const navigate = useNavigate();
 
+  // DB API
+
   useEffect(() => {
-    axios.get("https://mediflow-cse416.onrender.com/users").then((res) => {
+    axios.get("https://mediflow-cse416.onrender.com/users", {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then((res) => {
       const usersWithStatus = res.data.map(user => {
-        return {...user, status: getStatus(user.schedule)};
+        return { ...user, status: getStatus(user.schedule) };
       });
       setUsers(usersWithStatus);
     });
   }, []);
+
+  // Functions
 
   const handleSearch = (event) => {
     setSearch(event.target.value);
@@ -35,35 +43,37 @@ const Staff = () => {
   };
 
   const getStatus = (schedule) => {
-    
-  
+
+
     const now = new Date();
     const currentDay = now.toLocaleString('default', { weekday: 'long' });
     const currentTime = now.getHours() * 60 + now.getMinutes();  // Current time in minutes since midnight
-  
+
     const todaysSchedule = schedule[currentDay];
     console.log(todaysSchedule, currentDay)
-  
+
     if (!todaysSchedule) {
       return "NOT AVAILABLE";
     }
-  
-    for(let i = 0; i < todaysSchedule.length; i++) {
+
+    for (let i = 0; i < todaysSchedule.length; i++) {
       const shiftStart = parseInt(todaysSchedule[i].start.split(':')[0]) * 60 + parseInt(todaysSchedule[i].start.split(':')[1]);  // Shift start time in minutes since midnight
       const shiftEnd = parseInt(todaysSchedule[i].end.split(':')[0]) * 60 + parseInt(todaysSchedule[i].end.split(':')[1]);  // Shift end time in minutes since midnight
       console.log(shiftEnd)
       console.log(shiftStart)
-      if(currentTime >= shiftStart && currentTime <= shiftEnd) {
+      if (currentTime >= shiftStart && currentTime <= shiftEnd) {
         return "ON DUTY";
       }
     }
-  
+
     return "NOT AVAILABLE";
   };
-  
+
   const handleFilterChange = (status) => {
     setFilter(status);
   };
+
+  // Display
 
   return (
     <Box pt={5} sx={{ flexGrow: 1, padding: 2 }}>
@@ -119,31 +129,31 @@ const Staff = () => {
             </Button>
           </Grid>
 
-          </Grid>
+        </Grid>
 
-          {usersList
-            .filter(
-              (staff) =>
-                (filter === "ALL" || staff.status === filter) &&
-                staff.name.toLowerCase().includes(search.toLowerCase())
-            )
-            .map((staff) => (
-              <Grid item xs={3} key={staff.name}>
-                <Grid container spacing={1} justifyContent="center">
-                  <Grid item key={staff.name} style={{ textAlign: "center" }}> 
-                    <Avatar
-                      alt={staff.name}
-                      src={""}
-                      style={{ width: "7vh", height: "7vh"}}
-                    />
-                    <Typography>{staff.name}</Typography>
-                  </Grid>
+        {usersList
+          .filter(
+            (staff) =>
+              (filter === "ALL" || staff.status === filter) &&
+              staff.name.toLowerCase().includes(search.toLowerCase())
+          )
+          .map((staff) => (
+            <Grid item xs={3} key={staff.name}>
+              <Grid container spacing={1} justifyContent="center">
+                <Grid item key={staff.name} style={{ textAlign: "center" }}>
+                  <Avatar
+                    alt={staff.name}
+                    src={""}
+                    style={{ width: "7vh", height: "7vh" }}
+                  />
+                  <Typography>{staff.name}</Typography>
                 </Grid>
               </Grid>
-            ))}
-          </Grid>
-</Box>
-);
+            </Grid>
+          ))}
+      </Grid>
+    </Box>
+  );
 };
 
 export default Staff;

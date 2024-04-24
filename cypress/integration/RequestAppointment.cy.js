@@ -1,5 +1,5 @@
 import { BrowserRouter as Router } from 'react-router-dom';
-import RequestAppointment from '../../src/components/RequestAppointment';
+import RequestAppointment from '../../src/components/mainPage/RequestAppointment';
 
 describe('RequestAppointment', () => {
   beforeEach(() => {

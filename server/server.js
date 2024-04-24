@@ -1,19 +1,48 @@
-    const express = require('express');
-    const app = express();
-    const cors = require('cors');
-    const bcrypt = require('bcrypt');
-    const jwt = require('jsonwebtoken');
-    const cookieParser = require('cookie-parser');
+const express = require('express');
+const app = express();
+const cors = require('cors');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 
-    app.use(express.json());
-    app.use(cookieParser());
-    app.use(cors({
-        origin: ["https://mediflow-568ba.web.app", "http://localhost:3000"],
-        credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    }));
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+    origin: ['https://mediflow-lnmh.onrender.com', "http://localhost:3000"], // Matches all subdomains of onrender.com
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
+
+const verifyToken = (req, res, next) => {
+    // Get token from request headers
+    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
   
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Access token is missing' });
+    }
+  
+    // Verify token
+    jwt.verify(token, 'mediflow-jwt-secret-key', (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ success: false, message: 'Invalid access token' });
+      }
+      
+      // If token is valid, save decoded data to request object for later use
+      req.user = decoded;
+      next();
+    });
+  };
+
+
+app.use((req, res, next) => {
+    if (req.path === '/login') {
+        next(); // Skip the middleware for the '/login' route
+    } else {
+        verifyToken(req, res, next); // Apply the middleware to other routes
+    }
+});
+
 
 
 const port = 8000;
@@ -61,6 +90,21 @@ app.get('/users', async (req, res) => {
     res.send(users);
 
 });
+
+app.get('/user/:email', async (req, res) => {
+
+    const { email } = req.params;
+
+    try {
+      const user = await Users.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      res.json(user);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
 
 app.get('/procedures', async (req, res) => {
 
@@ -129,9 +173,11 @@ app.get('/check-session', (req, res) => {
 });
 
 
-app.get('/decode', async (req, res)=>{
+app.post('/decode', async (req, res)=>{
 
-    const cookieHeader = req.cookies;
+    const cookieHeader = req.body.cookies;
+    console.log("Hopefully there are cookies")
+    console.log(req.body.cookies);
 
     // if (!cookieHeader) {
     //     return res.status(400).send('No cookies found in the request.');
@@ -150,7 +196,7 @@ app.get('/decode', async (req, res)=>{
     //   const decodedToken = jwtDecode(jwtToken);
     //   console.log('Decoded Token:', decodedToken);
 
-      res.status(200).send(cookieHeader);
+    res.send(cookieHeader);
 
 });
 
@@ -159,7 +205,7 @@ app.get('/decode', async (req, res)=>{
 
 app.post('/createUser', async (req, res) => {
     const { admin, name, email, password, role, schedule } = req.body;
-    
+
     // Extract schedule data for each day
     const processedSchedule = {};
     for (const day in schedule) {
@@ -177,12 +223,12 @@ app.post('/createUser', async (req, res) => {
         staffID: req.body.staffID,
         schedule: processedSchedule, // Use the processed schedule data
     });
-    
+
     res.send(await newUser.save());
 });
 
 app.post('/createProcedure', async (req, res) => {
-    
+
     // need a way to decide procedure ids?
 
     const newProcedure = new Procedures({
@@ -196,13 +242,13 @@ app.post('/createProcedure', async (req, res) => {
         staffType: req.body.staffType
 
     })
-    
+
     res.send(await newProcedure.save());
-    
+
 });
 
 app.post('/createEquipmentHead', async (req, res) => {
-    
+
     const newEquipmentHead = new EquipmentHeads({
 
         name: req.body.name,
@@ -211,13 +257,13 @@ app.post('/createEquipmentHead', async (req, res) => {
         type: req.body.type
 
     })
-    
+
     res.send(await newEquipmentHead.save());
-    
+
 });
 
 app.post('/createEquipment', async (req, res) => {
-    
+
     const newEquipment = new Equipment({
         
         created: new Date(),
@@ -227,13 +273,13 @@ app.post('/createEquipment', async (req, res) => {
         type: req.body.type,
         updatedAt: new Date()
     })
-    
+
     res.send(await newEquipment.save());
-    
+
 });
 
 app.post('/createRoom', async (req, res) => {
-    
+
     const newRoom = new Rooms({
         
         created: new Date(),
@@ -244,13 +290,13 @@ app.post('/createRoom', async (req, res) => {
         updatedAt: new Date(),
         roomID: req.body.roomID
     })
-    
+
     res.send(await newRoom.save());
-    
+
 });
 
 app.post('/createProcess', async (req, res) => {
-    
+
     const newProcess = new Processes({
 
         name: req.body.name,
@@ -258,29 +304,43 @@ app.post('/createProcess', async (req, res) => {
         created: new Date()
         
     })
-    
+
     res.send(await newProcess.save());
-    
+
 });
 
 app.post('/login', async (req, res) => {
-    console.log("Trying to login...")
+    console.log("Trying to login...");
     const { username, password } = req.body;
     const user = await Users.findOne({ email: username });
     if (user && bcrypt.compareSync(password, user.password)) {
         console.log('Logged in');
         const token = jwt.sign({ id: user._id, admin: user.role }, 'mediflow-jwt-secret-key', { expiresIn: '3h' });
 
-        const expirationDate = new Date();
-        expirationDate.setTime(expirationDate.getTime() +  (2 * 60 * 60 * 1000)); 
+        // res.cookie('token', token, {
+        //     path: "/",
+        //     //sameSite: 'None',
+        //     secure: false,
+        //     //domain: ".onrender.com",
+        //     httpOnly: true
+        // });
 
-    
-        res.send({ success: true, user: username, token: token});
+        res.send({ success: true, user: user._id, token: token });
     } else {
-        console.log("Failed to Login")
+        console.log("Failed to Login");
         res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
     }
-  });
+});
+
+// app.post('/logout', async (req, res) => {
+//     console.log("logging out")
+//     res.clearCookie('token', {
+//         path: "/",
+//         //domain: ".onrender.com",
+//         //sameSite: 'None',
+//         //secure: true
+//     }).sendStatus(200);
+// });
 
 
 app.post('/createAppointment' , async (req, res) => {
@@ -300,7 +360,7 @@ app.post('/createAppointment' , async (req, res) => {
 
 
 });
-  
+
 
 // PUT FUNCTIONS
 
@@ -321,7 +381,7 @@ app.put('/changeEquipmentHead', async (req, res) => {
 
 app.put('/changeStaffAppointment', async (req,res) =>{
 
-    
+
     let staffUpdate = await Users.findOne({_id: req.body.staffName._id});
 
     staffUpdate.appointments.push(req.body.appointment);

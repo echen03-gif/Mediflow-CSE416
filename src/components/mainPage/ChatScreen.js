@@ -6,6 +6,8 @@ function ChatScreen() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
 
+  // DB API
+
   useEffect(() => {
     const dummyMessages = [
       { id: 1, sender: 'TestAdmin', text: 'Hello, how can I help you?' },
@@ -15,12 +17,16 @@ function ChatScreen() {
     setMessages(dummyMessages);
   }, []);
 
+  // Functions
+
   const handleMessageSubmit = (e) => {
     e.preventDefault();
     const newMessageObj = { id: messages.length + 1, sender: 'You', text: newMessage };
     setMessages([...messages, newMessageObj]);
     setNewMessage(''); // Clear input field after sending message
   };
+
+  // Display
 
   return (
     <Box sx={{ padding: 2 }}>

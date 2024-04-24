@@ -14,21 +14,32 @@ import { useNavigate } from "react-router-dom";
 
 
 const AddInventory = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [equipmentLocation, setLocation] = useState("");
   const [equipmentCategory, setCategory] = useState("");
   const [equipmentHeadList, setEquipmentHead] = useState([]);
   const [rooms, setRooms] = useState([]);
-  const navigate = useNavigate();
+
+  // DB API
 
   useEffect(() => {
-    axios.get('https://mediflow-cse416.onrender.com/equipmentHead').then(res => { setEquipmentHead(res.data) }).then(console.log('found rooms'));
+
+    axios.get('https://mediflow-cse416.onrender.com/equipmentHead', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setEquipmentHead(res.data) }).then(console.log('found rooms'));
+
+    axios.get('https://mediflow-cse416.onrender.com/rooms', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
+
   }, []);
 
-  useEffect(() => {
-    axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) }).then(console.log('found rooms'));
-  }, []);
-
+  // Functions
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,14 +50,20 @@ const AddInventory = () => {
       let newItem = await axios.post("https://mediflow-cse416.onrender.com/createEquipment", {
         location: equipmentLocation,
         name: name,
-        type: equipmentCategory
+        type: equipmentCategory,
+        headers: {
+          'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        }
 
       }).then(console.log("Added Equipment"));
 
       await axios.put("https://mediflow-cse416.onrender.com/changeEquipmentHead", {
 
         name: name,
-        equipment: newItem.data
+        equipment: newItem.data,
+        headers: {
+          'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        }
 
       }).then(console.log("Updated Head"));
 
@@ -56,7 +73,10 @@ const AddInventory = () => {
       await axios.post("https://mediflow-cse416.onrender.com/createEquipmentHead", {
 
         name: name,
-        type: equipmentCategory
+        type: equipmentCategory,
+        headers: {
+          'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        }
 
       }).then(console.log("Added Equipment Head"));
 
@@ -64,14 +84,20 @@ const AddInventory = () => {
       let newItem = await axios.post("https://mediflow-cse416.onrender.com/createEquipment", {
         location: equipmentLocation,
         name: name,
-        type: equipmentCategory
+        type: equipmentCategory,
+        headers: {
+          'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        }
 
       }).then(console.log("Added Equipment"));
 
       await axios.put("https://mediflow-cse416.onrender.com/changeEquipmentHead", {
 
         name: name,
-        equipment: newItem.data
+        equipment: newItem.data,
+        headers: {
+          'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        }
 
       }).then(console.log("Updated Head"));
 
@@ -80,6 +106,8 @@ const AddInventory = () => {
 
     navigate("/main/inventory");
   };
+
+  // Display
 
   return (
     <Box sx={{ mt: 8, mx: 4 }}>

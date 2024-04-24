@@ -1,5 +1,5 @@
 import { BrowserRouter as Router } from 'react-router-dom';
-import AddInventory from '../../src/components/AddInventory';
+import AddInventory from '../../src/components/mainPage/AddInventory';
 import axios from 'axios';
 
 describe('AddInventory', () => {
