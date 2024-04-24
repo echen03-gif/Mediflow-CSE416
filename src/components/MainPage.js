@@ -101,7 +101,7 @@ export default function MainPage() {
     
     if (location.pathname === targetPath) {
       event.preventDefault();
-      navigate(targetPath)
+      window.location.href = targetPath;
     }
   };
 
