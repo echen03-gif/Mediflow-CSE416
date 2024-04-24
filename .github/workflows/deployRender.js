@@ -1,7 +1,7 @@
 const axios = require('axios');
 
-let apiKey = process.env.API_KEY;
-let serviceID = process.env.SERVICE_ID;
+let apiKey = "rnd_94DcewF0SlGmyJUoN8siOXOLgVna";
+let serviceID = "srv-coivlogl5elc73deiio0";
 
 const initiateDeploy = {
     method: 'POST',
@@ -17,7 +17,7 @@ const initiateDeploy = {
 async function deployAndRetrieve() {
     try {
        
-        const deployRes = await axios.request(initiateDeploy);
+        let deployRes = await axios.request(initiateDeploy);
         console.log("Success Recieved: " + deployRes.status);
         let deployID = deployRes.data.id;
 
@@ -30,12 +30,40 @@ async function deployAndRetrieve() {
             }
         };
 
-        const retrieveDeployRes = await axios.request(retrieveDeploy);
+        let retrieveDeployRes = await axios.request(retrieveDeploy);
         console.log("Success Recieved: " + retrieveDeployRes.status);
+
+        let liveDeployment = false;
+
+        while(!liveDeployment){
+
+            retrieveDeployRes = await axios.request(retrieveDeploy);
+
+            if(retrieveDeployRes.data.status === "live"){
+
+                console.log("Deployment Live");
+                
+                liveDeployment = true;
+            }
+            else if(retrieveDeployRes.data.status === "build_in_progress"){
+
+                console.log("Currently Building");
+
+                await new Promise(resolve => setTimeout(resolve, 60000));
+            }
+            else{
+
+                // Deployment Failed
+                console.error("Status: " + retrieveDeployRes.data.status);
+                process.exit(1);
+            }
+        }
 
     } catch (error) {
         console.error(error);
+        process.exit(1);
     }
 }
+
 
 deployAndRetrieve();
