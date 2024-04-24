@@ -39,8 +39,7 @@ import AddStaff from "./mainPage/AddStaff";
 import AddInventory from "./mainPage/AddInventory";
 import AddRoom from "./mainPage/AddRoom";
 import CreateProcess from "./mainPage/CreateProcess";
-//import axios from "axios";
-//import { useCookies } from 'react-cookie';
+
 
 // Mock array of upcoming patients
 const upcomingPatients = [
@@ -62,7 +61,6 @@ export default function MainPage() {
       backgroundColor: "#ff7900", // Darker on hover for active route
     },
   };
-
 
   // const checkToken = useCallback(() => {
   //   axios

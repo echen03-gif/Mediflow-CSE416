@@ -13,6 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 function CreateProcess() {
+  const navigate = useNavigate();
   const [processName, setProcessName] = useState("");
   const [sections, setSections] = useState([
     {
@@ -24,7 +25,8 @@ function CreateProcess() {
     },
   ]);
   const [isFormValid, setIsFormValid] = useState(false); // State to track form validity
-  const navigate = useNavigate();
+
+  // Functions
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +43,7 @@ function CreateProcess() {
         timeDuration: section.timeDuration,
         headers: {
           'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-          }
+        }
       })
     ));
 
@@ -54,7 +56,7 @@ function CreateProcess() {
       components: proceduresToAdd.map(proc => proc.data),
       headers: {
         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-        } 
+      }
     }).then(console.log("Added Process"));
 
     navigate("/main/request");
@@ -82,8 +84,8 @@ function CreateProcess() {
 
   const handleSectionChange = (index, field, value) => {
     const updatedSections = [...sections];
-      updatedSections[index][field] = value;
-    
+    updatedSections[index][field] = value;
+
 
     setSections(updatedSections);
 
@@ -94,6 +96,7 @@ function CreateProcess() {
     setIsFormValid(allFieldsFilled);
   };
 
+  // Display
 
   return (
     <Box sx={{ mt: 8, mx: 4 }}>
