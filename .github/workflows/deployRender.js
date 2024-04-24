@@ -52,8 +52,7 @@ async function deployAndRetrieve() {
                 await new Promise(resolve => setTimeout(resolve, 60000));
             }
             else{
-
-                // Deployment Failed
+                
                 console.error("Status: " + retrieveDeployRes.data.status);
                 process.exit(1);
             }
