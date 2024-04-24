@@ -46,7 +46,7 @@ function Inventory() {
     api.get('/rooms').then(res => { setRooms(res.data) });
     api.get('/equipment').then(res => { setEquipmentDB(res.data) });
     api.get('/appointments').then(res => { setAppointmentList(res.data) });
-  }, []);
+  });
 
 
 
