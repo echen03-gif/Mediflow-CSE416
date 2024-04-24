@@ -17,28 +17,32 @@ export default function Schedule() {
     { title: 'Appointment 3', date: '2024-04-12T16:00:00' },
     // Add more appointments as needed
   ];
+
+  // DB API
+
   const checkSession = () => {
     axios.get("https://mediflow-cse416.onrender.com/check-session",
-    { 
-      headers: {
-      'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-      }
-    })
+      {
+        headers: {
+          'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        }
+      })
       .then(res => {
         if (res.data.loggedIn) {
           console.log("User is logged in");
-          
+
         } else {
           console.log("User is not logged in");
-          
+
         }
       })
       .catch(error => {
         console.log("Error checking session", error);
       });
   }
-  
-  
+
+  // Functions
+
   const handleRequest = () => {
     checkSession()
     navigate('/main/request');
@@ -51,6 +55,8 @@ export default function Schedule() {
   const handleClose = () => {
     setSelectedEvent(null);
   };
+
+  // Display
 
   return (
     <div
@@ -68,19 +74,19 @@ export default function Schedule() {
       <div style={{ flex: 1, overflow: "hidden", paddingRight: "24px", paddingTop: "30px" }}>
         <h2>SCHEDULE</h2>
         <button
-            style={{
-              backgroundColor: "#1976D2",
-              color: "white",
-              padding: "8px 16px",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-            onClick={handleRequest}
-          >
-            + Request
-          </button>
-        
+          style={{
+            backgroundColor: "#1976D2",
+            color: "white",
+            padding: "8px 16px",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+          onClick={handleRequest}
+        >
+          + Request
+        </button>
+
         <FullCalendar
           key={selectedDate}
           plugins={[timeGridPlugin, interactionPlugin]}
