@@ -1,7 +1,7 @@
 const axios = require('axios');
 
-let apiKey = "rnd_94DcewF0SlGmyJUoN8siOXOLgVna";
-let serviceID = "srv-coivlogl5elc73deiio0";
+let apiKey = process.env.API_KEY;
+let serviceID = process.env.SERVICE_ID;
 
 const initiateDeploy = {
     method: 'POST',
