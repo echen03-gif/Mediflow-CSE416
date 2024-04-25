@@ -7,10 +7,11 @@ import { MainPageContext } from "../MainPageContext";
 
 export default function AddInventory() {
 	const [name, setName] = useState("");
+	const [room, setRoom] = useState("");
 	const [equipmentLocation, setLocation] = useState("");
 	const [equipmentCategory, setCategory] = useState("");
 	const [equipmentHeadList, setEquipmentHead] = useState([]);
-	const [rooms, setRooms] = useState([]);
+	const [rooms, setRooms] = useState("");
   const { setActiveComponent } = useState(MainPageContext);
 
 
@@ -108,33 +109,39 @@ export default function AddInventory() {
 				</Text>
 
 				<TextInput
-					style={{ marginBottom: 15 }}
+					style={{
+						marginBottom: 15,
+						height: 50,
+						fontSize: 18,
+					}}
 					placeholder="Item Name"
 					value={name}
 					onChangeText={(text) => setName(text)}
 				/>
 
-				<PickerIOS
-					selectedValue={equipmentLocation}
-					style={{ marginBottom: 15 }}
-					onValueChange={(itemValue) => setLocation(itemValue)}
-				>
-					{rooms.map((room) => (
-						<PickerIOS.Item
-							label={room.name}
-							value={room}
-							key={room.id /* or other unique room identifier */}
-						/>
-					))}
-				</PickerIOS>
+				<TextInput
+					style={{
+						marginBottom: 15,
+						height: 50,
+						fontSize: 18,
+					}}
+					placeholder="Room Number"
+					value={room}
+					onChangeText={(text) => setRoom(text)}
+				/>
 
 				<PickerIOS
 					selectedValue={equipmentCategory}
 					style={{ marginBottom: 15 }}
 					onValueChange={(itemValue) => setCategory(itemValue)}
 				>
-					<PickerIOS.Item label="Category 1" value="Category 1" />
-					<PickerIOS.Item label="Category 2" value="Category 2" />
+					<PickerIOS.Item label="Cardiology" value="Cardiology" />
+					<PickerIOS.Item label="Radiology" value="Radiology" />
+					<PickerIOS.Item label="Orthopedics" value="Orthopedics" />
+					<PickerIOS.Item label="Surgery" value="Surgery" />
+					<PickerIOS.Item label="Pharmacy" value="Pharmacy" />
+					<PickerIOS.Item label="Laboratory" value="Laboratory" />
+					<PickerIOS.Item label="Neurology" value="Neurology" />
 				</PickerIOS>
 
 				<Button title="Add Item" onPress={handleSubmit} />

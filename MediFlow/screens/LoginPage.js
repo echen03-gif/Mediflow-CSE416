@@ -7,26 +7,42 @@ import Button from '../components/Button'
 import TextInput from '../components/TextInput'
 import { theme } from '../core/theme'
 import Logo from '../components/Logo'
-//import { emailValidator } from '../helpers/emailValidator'
-//import { passwordValidator } from '../helpers/passwordValidator'
+import axios from 'axios'
 
 export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState({ value: '', error: '' })
-  const [password, setPassword] = useState({ value: '', error: '' })
+  const [email, setEmail] = useState({ value: "", error: "" });
+  const [password, setPassword] = useState({ value: "", error: "" });
+  const [loginError, setLoginError] = useState(""); // State to handle login error messages
 
-  const onLoginPressed = () => {
-    /*const emailError = emailValidator(email.value)
-    //const passwordError = passwordValidator(password.value)
-    if (emailError || passwordError) {
-      setEmail({ ...email, error: emailError })
-      setPassword({ ...password, error: passwordError })
-      return
-    }*/
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'MainScreen' }],
-    })
-  }
+  const onLoginPressed = async () => {
+		setLoginError("");
+		if (email.value === "" || password.value === "") {
+			setLoginError("Invalid Input");
+		} else {
+			try {
+				const res = await axios.post(
+					"https://mediflow-cse416.onrender.com/login",
+					{ username: email.value, password: password.value },
+					{ withCredentials: true }
+				);
+
+				console.log(res.data);
+				if (res.data.success) {
+					navigation.reset({
+						index: 0,
+						routes: [{ name: "MainScreen" }],
+					});
+				} else {
+					console.log("Error");
+					setLoginError(res.data.message);
+				}
+			} catch (error) {
+				setLoginError("Error, please try again!");
+				console.error(error);
+			}
+		}
+  };
+
   return (
     <Background>
       <Logo />

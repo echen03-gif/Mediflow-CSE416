@@ -43,7 +43,7 @@ const COMPONENT_MAP = {
 	RequestAppointment: RequestAppointment,
 };
 
-export default function MainPage() {
+export default function MainPage({ navigation }) {
 	const { activeComponent, setActiveComponent } = useContext(MainPageContext);
 	const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
@@ -54,6 +54,10 @@ export default function MainPage() {
 	const handleContentChange = (routeName) => () => {
 		setActiveComponent(routeName);
 	};
+
+	const handleLogout = () => {
+    navigation.navigate("LoginScreen");
+	}
 
 	const ActiveComponent = COMPONENT_MAP[activeComponent];
 
@@ -142,6 +146,19 @@ export default function MainPage() {
 							}
 							onPress={toggleSidebar}
 							style={styles.toggleButton}
+						/>
+						<List.Item
+							title={isSidebarExpanded ? "Logout" : ""}
+							onPress={handleLogout}
+							left={(props) => (
+								<List.Icon {...props} icon="logout" />
+							)}
+							style={
+								(activeComponent === "Inbox"
+									? styles.activeItem
+									: null,
+								{ alignSelf: "flex-end" })
+							}
 						/>
 					</Drawer.Section>
 

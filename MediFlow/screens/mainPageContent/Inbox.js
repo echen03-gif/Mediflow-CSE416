@@ -3,9 +3,6 @@ import { View, Text, TextInput, StyleSheet, ScrollView } from "react-native";
 import {
 	DataTable,
 	Avatar,
-	List,
-	Caption,
-	Title,
 	Button,
 } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";

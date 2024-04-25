@@ -54,58 +54,85 @@ export default function Rooms() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View>
-        <MainPageHeader>Room Availability</MainPageHeader>
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search Rooms"
-            value={search}
-            onChangeText={handleSearch}
-          />
-          <IconButton icon="calendar-today" onPress={handleDateChange} />
-        </View>
-        <Button mode="contained" onPress={navigateToAddRoom}>
-          Add Room
-        </Button>
-      </View>
-      <DataTable style={styles.dataTable}>
-        <DataTable.Header>
-          <DataTable.Title>Room #</DataTable.Title>
-          <DataTable.Title align="right">Room Type</DataTable.Title>
-          <DataTable.Title align="right">Assigned Appointment</DataTable.Title>
-        </DataTable.Header>
-        {/* Render the room list. Removed unnecessary nesting for readability*/}
-        {paginatedRooms.map((room) => (
-          <DataTable.Row key={room.id}>
-            <DataTable.Cell>
-              <Avatar.Icon
-                size={30}
-                icon={isRoomAvailable(room.name, selectedDate) ? 'check' : 'close'}
-                style={{
-                  backgroundColor: isRoomAvailable(room.name, selectedDate) ? 'green' : 'red',
-                }}
-              />
-            </DataTable.Cell>
-            <DataTable.Cell>{room.name}</DataTable.Cell>
-            <DataTable.Cell align="right">{room.type}</DataTable.Cell>
-            <DataTable.Cell align="right">{room.status}</DataTable.Cell>
-          </DataTable.Row>
-        ))}
+		<ScrollView style={styles.container}>
+			<View>
+				<MainPageHeader>Room Availability</MainPageHeader>
+				<View style={styles.searchContainer}>
+					<TextInput
+						style={styles.searchInput}
+						placeholder="Search Rooms"
+						value={search}
+						onChangeText={handleSearch}
+					/>
+					<IconButton
+						icon="calendar-today"
+						onPress={handleDateChange}
+					/>
+				</View>
+				<Button
+					mode="contained"
+					onPress={navigateToAddRoom}
+					style={{
+							width: "15%",
+							alignSelf: "flex-end",
+					}}
+				>
+					Add Room
+				</Button>
+			</View>
+			<DataTable style={styles.dataTable}>
+				<DataTable.Header>
+					<DataTable.Title>Room #</DataTable.Title>
+					<DataTable.Title align="right">Room Type</DataTable.Title>
+					<DataTable.Title align="right">
+						Assigned Appointment
+					</DataTable.Title>
+				</DataTable.Header>
+				{/* Render the room list. Removed unnecessary nesting for readability*/}
+				{paginatedRooms.map((room) => (
+					<DataTable.Row key={room.id}>
+						<DataTable.Cell>
+							<Avatar.Icon
+								size={30}
+								icon={
+									isRoomAvailable(room.name, selectedDate)
+										? "check"
+										: "close"
+								}
+								style={{
+									backgroundColor: isRoomAvailable(
+										room.name,
+										selectedDate
+									)
+										? "green"
+										: "red",
+								}}
+							/>
+						</DataTable.Cell>
+						<DataTable.Cell>{room.name}</DataTable.Cell>
+						<DataTable.Cell align="right">
+							{room.type}
+						</DataTable.Cell>
+						<DataTable.Cell align="right">
+							{room.status}
+						</DataTable.Cell>
+					</DataTable.Row>
+				))}
 
-        <DataTable.Pagination
-          page={page}
-          numberOfPages={Math.ceil(filteredRooms.length / rowsPerPage)}
-          onPageChange={handleChangePage}
-          label={`${page * rowsPerPage + 1}-${Math.min(
-            (page + 1) * rowsPerPage,
-            filteredRooms.length
-          )} of ${filteredRooms.length}`}
-          showFastPaginationControls
-        />
-      </DataTable>
-    </ScrollView>
+				<DataTable.Pagination
+					page={page}
+					numberOfPages={Math.ceil(
+						filteredRooms.length / rowsPerPage
+					)}
+					onPageChange={handleChangePage}
+					label={`${page * rowsPerPage + 1}-${Math.min(
+						(page + 1) * rowsPerPage,
+						filteredRooms.length
+					)} of ${filteredRooms.length}`}
+					showFastPaginationControls
+				/>
+			</DataTable>
+		</ScrollView>
   );
 };
 
