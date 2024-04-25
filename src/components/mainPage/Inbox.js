@@ -28,6 +28,8 @@ function Inbox() {
     };
   });
 
+  // DB API
+
   useEffect(() => {
     axios.get('https://mediflow-cse416.onrender.com/users',
     { 
@@ -36,6 +38,8 @@ function Inbox() {
       }
     }).then(res => {setPeople(res.data) });
   }, []);
+
+  // Functions
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -112,3 +116,4 @@ function Inbox() {
   
   
   export default Inbox;
+

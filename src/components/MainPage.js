@@ -43,14 +43,12 @@ import AddStaff from "./mainPage/AddStaff";
 import AddInventory from "./mainPage/AddInventory";
 import AddRoom from "./mainPage/AddRoom";
 import CreateProcess from "./mainPage/CreateProcess";
+
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { io } from 'socket.io-client';
 export const socket = io('https://mediflow-cse416.onrender.com');
 
-
-//import axios from "axios";
-//import { useCookies } from 'react-cookie';
 
 // Mock array of upcoming patients
 // const upcomingPatients = [
@@ -72,7 +70,6 @@ export default function MainPage() {
       backgroundColor: "#ff7900", // Darker on hover for active route
     },
   };
-
 
 
   useEffect(() => {
@@ -118,7 +115,7 @@ export default function MainPage() {
     
     if (location.pathname === targetPath) {
       event.preventDefault();
-      navigate(targetPath)
+      window.location.href = targetPath;
     }
   };
 

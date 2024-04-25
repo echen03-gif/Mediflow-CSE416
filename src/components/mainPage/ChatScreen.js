@@ -16,6 +16,8 @@ function ChatScreen() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }
 
+  // DB API
+
   useEffect(() => {
     
     scrollToBottom();
@@ -34,6 +36,8 @@ function ChatScreen() {
     };
   }, []);
 
+  // Functions
+
   const handleMessageSubmit = (e) => {
     e.preventDefault();
     if (newMessage.trim()) {
@@ -42,6 +46,8 @@ function ChatScreen() {
     }
   };
   
+
+  // Display
 
   return (
     <Box sx={{ padding: 2 }}>

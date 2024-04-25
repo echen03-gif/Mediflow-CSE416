@@ -20,26 +20,39 @@ function Rooms() {
   const [roomPage, setRoomPage] = useState('default');
   const navigate = useNavigate();
 
-  //commented out for now
-
-
-
+  // DB API
 
   useEffect(() => {
-    axios.get('https://mediflow-cse416.onrender.com/rooms',{ 
+    axios.get('https://mediflow-cse416.onrender.com/rooms', {
       headers: {
-      'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-      }}).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
 
-    axios.get('https://mediflow-cse416.onrender.com/appointments',{ 
+    axios.get('https://mediflow-cse416.onrender.com/appointments', {
       headers: {
-      'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-      }}).then(res => { setAppointmentList(res.data) });
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setAppointmentList(res.data) });
   }, []);
 
+  // Functions
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleDateChange = (event) => {
+    setSelectedDate(new Date(event.target.value));
+  };
+
+  const navigateToAddRoom = () => {
+    navigate("/main/addroom");
   };
 
   const viewSpecificAppointments = (room) => {
@@ -55,18 +68,7 @@ function Rooms() {
     }
   }
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleDateChange = (event) => {
-    setSelectedDate(new Date(event.target.value));
-  };
-
-  const navigateToAddRoom = () => {
-    navigate("/main/addroom");
-  };
+  // Display
 
   switch (roomPage) {
 
