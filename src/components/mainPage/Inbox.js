@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, ButtonBase } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { socket } from '../MainPage.js';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -9,16 +11,30 @@ function Inbox() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [peopleList, setPeople] = useState([]);
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
+
 
   useEffect(() => {
-    // Assuming you have an endpoint to fetch the list of people you are chatting with
+
+
+    socket.on('userOffline', ({ recipientId }) => {
+      console.log("user offline");
+      toast.error(`User ${recipientId} is currently offline.`);
+    });
+
+    return () => {
+      socket.off('userOffline');
+
+    };
+  });
+
+  useEffect(() => {
     axios.get('https://mediflow-cse416.onrender.com/users',
     { 
       headers: {
       'Authorization': 'Bearer ' + sessionStorage.getItem('token')
       }
-    }).then(res => { setPeople(res.data) });
+    }).then(res => {setPeople(res.data) });
   }, []);
 
   const handleChangePage = (event, newPage) => {
@@ -31,7 +47,8 @@ function Inbox() {
   };
 
   const handleRowClick = (personId) => {
-    navigate('/main/chatscreen');
+    socket.emit('chatStart', personId);
+  
   };
 
     return (
@@ -56,9 +73,9 @@ function Inbox() {
               </TableHead>
               <TableBody>
                 {peopleList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((person) => (
-                  <TableRow key={person.id} style={{ userSelect: 'none' }}>
+                  <TableRow key={person._id} style={{ userSelect: 'none' }}>
                     <ButtonBase
-                      onClick={() => handleRowClick(person.id)}
+                      onClick={() => handleRowClick(person._id)}
                       style={{ display: 'contents' }} 
                       disableRipple
                     >
