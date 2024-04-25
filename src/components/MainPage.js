@@ -1,4 +1,7 @@
 import { React, useState, useEffect } from "react";
+import { ToastContainer } from 'react-toastify';
+
+
 import {
   Routes,
   Route,
@@ -41,6 +44,11 @@ import AddInventory from "./mainPage/AddInventory";
 import AddRoom from "./mainPage/AddRoom";
 import CreateProcess from "./mainPage/CreateProcess";
 
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { io } from 'socket.io-client';
+export const socket = io('https://mediflow-cse416.onrender.com');
+
 
 // Mock array of upcoming patients
 // const upcomingPatients = [
@@ -63,15 +71,6 @@ export default function MainPage() {
     },
   };
 
-  // const checkToken = useCallback(() => {
-  //   axios
-  //     .post("https://mediflow-cse416.onrender.com/decode", {
-  // //      cookies: cookies.user
-  //     }, {withCredentials: true})
-  //     .then((res) => {
-  //       console.log(res.data);
-  //     });
-  // });
 
   useEffect(() => {
     const checkSession = () => {
@@ -82,18 +81,33 @@ export default function MainPage() {
         // If token or username is not found in sessionStorage, redirect to the login page
         navigate('/login');
       }
+
+      socket.emit('userConnected', storedUser);
+
     };
 
     checkSession(); // Check session when component mounts
 
-    // Optionally, you can also check the session periodically or on certain events
-    // For example, you can use setInterval to check session every X seconds
-    // const intervalId = setInterval(checkSession, 5000);
+    socket.on('chatReady', (data) => {
+      console.log(data); 
+      if (!data.initiatedByMe) {
+        console.log("Data not initiated by me")
+        toast(`Click here to join the chat with ${data.otherUserId}`, {
+            onClick: () => navigate(`/main/chatscreen/${data.roomID}`),
+            autoClose: 5000
+        });
+      } else {
+          navigate(`/main/chatscreen/${data.roomID}`);
+      }
+      
+    });
 
-    // Clean up interval to prevent memory leaks
-    // return () => clearInterval(intervalId);
+    return () => {
+      socket.off('chatReady');
+
+    };
+
   }, [navigate]);
-
  
 
   const handleRefreshClick = (targetPath) => (event) => {
@@ -108,6 +122,7 @@ export default function MainPage() {
   const handleLogout = () => {
 
     sessionStorage.clear();
+    socket.disconnect()
     navigate("/login");
   };
 
@@ -117,6 +132,7 @@ export default function MainPage() {
   };
 
   return (
+
     <Box
       sx={{
         display: "flex",
@@ -125,6 +141,8 @@ export default function MainPage() {
         overflow: "hidden",
       }}
     >
+      <ToastContainer />
+
       <Drawer
         variant="permanent"
         open={isDrawerOpen}
@@ -259,7 +277,7 @@ export default function MainPage() {
           <Route path="addstaff" element={<AddStaff />} />
           <Route path="addinventory" element={<AddInventory />} />
           <Route path="addroom" element={<AddRoom />} />
-          <Route path="chatscreen" element={<ChatScreen />} />
+          <Route path="chatscreen/:roomID" element={<ChatScreen />} />
           <Route path="inbox" element={<Inbox />} />
           <Route path="createprocess" element={<CreateProcess />} />
           <Route path="profile" element={<Profile />} />
