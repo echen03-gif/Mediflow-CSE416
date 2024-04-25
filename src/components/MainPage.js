@@ -46,7 +46,7 @@ import CreateProcess from "./mainPage/CreateProcess";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { io } from 'socket.io-client';
-export const socket = io('http://localhost:8000');
+export const socket = io('https://mediflow-cse416.onrender.com');
 
 
 //import axios from "axios";
