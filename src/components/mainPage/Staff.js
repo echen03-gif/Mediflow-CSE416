@@ -14,12 +14,14 @@ const Staff = () => {
   const [search, setSearch] = useState("");
   const [usersList, setUsers] = useState([]);
   const [filter, setFilter] = useState("ALL");
-
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   // DB API
 
   useEffect(() => {
+    let userId = sessionStorage.getItem('user');
+
     axios.get("https://mediflow-cse416.onrender.com/users", {
       headers: {
         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
@@ -30,6 +32,12 @@ const Staff = () => {
       });
       setUsers(usersWithStatus);
     });
+
+    axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => setIsAdmin(res.data.role === 'admin'));
   }, []);
 
   // Functions
