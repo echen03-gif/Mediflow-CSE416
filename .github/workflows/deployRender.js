@@ -79,12 +79,14 @@ async function rollbackDeploy() {
 
         let retrieveDeployListRes = await axios.request(retrieveDeployList);
 
+        let redeployID;
         let findRecentSuccess = -1;
 
         for (let i = 0; i < retrieveDeployListRes.data.length; i++) {
 
             if (retrieveDeployListRes.data[i].deploy.status === "deactivated") {
                 findRecentSuccess = i;
+                redeployID = retrieveDeployListRes.data[i].deploy.id
                 break;
             }
         }
@@ -97,7 +99,8 @@ async function rollbackDeploy() {
                 headers: {
                     accept: 'application/json',
                     authorization: `Bearer ${apiKey}`
-                }
+                },
+                data: {deployId: redeployID}
             };
 
             let rollbackDeployRes = await axios.request(rollbackDeploy);
