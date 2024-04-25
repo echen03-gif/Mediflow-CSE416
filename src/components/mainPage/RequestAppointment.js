@@ -4,24 +4,49 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
 export default function RequestAppointment() {
-
+  const navigate = useNavigate();
   const [patientName, setPatientName] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-
   const [process, setProcess] = useState("");
-
   const [usersList, setUsersList] = useState([]);
   const [roomsList, setRooms] = useState([]);
   const [processList, setProcessList] = useState([]);
   const [equipmentList, setEquipmentList] = useState([]);
   const [procedureList, setProcedureList] = useState([]);
-
   const [staffSelections, setStaffSelections] = useState({});
   const [roomSelections, setRoomSelections] = useState({});
 
+  // DB API
 
-  const navigate = useNavigate();
+  useEffect(() => {
+
+    axios.get('https://mediflow-cse416.onrender.com/users').then(res => { setUsersList(res.data) });
+
+    axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) }).then(console.log('found rooms'));
+
+    axios.get('https://mediflow-cse416.onrender.com/processes').then(res => { setProcessList(res.data) });
+
+    axios.get('https://mediflow-cse416.onrender.com/procedures').then(res => { setProcedureList(res.data) });
+
+    axios.get('https://mediflow-cse416.onrender.com/equipment').then(res => { setEquipmentList(res.data) });
+
+  }, []);
+
+  useEffect(() => {
+    if (process) {
+      const initStaff = {};
+      const initRooms = {};
+      process.components.forEach(proc => {
+        initStaff[proc] = { staff: [], equipment: [] };
+        initRooms[proc] = [];
+      });
+      setStaffSelections(initStaff);
+      setRoomSelections(initRooms);
+    }
+  }, [process]);
+
+  // Functions
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,7 +73,7 @@ export default function RequestAppointment() {
       room: roomAssigned,
       headers: {
         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-        }
+      }
 
     }).then(console.log("Added Appointment"));
 
@@ -85,9 +110,8 @@ export default function RequestAppointment() {
         roomName: room,
         appointment: newAppointment.data
       });
-    }))
 
-    // for each equipment, add appointments
+    }))
 
     navigate("/main/schedule");
   };
@@ -96,34 +120,6 @@ export default function RequestAppointment() {
   const handleCreateProcess = () => {
     navigate("/main/createprocess");
   }
-
-  useEffect(() => {
-
-    axios.get('https://mediflow-cse416.onrender.com/users').then(res => { setUsersList(res.data) });
-
-    axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) }).then(console.log('found rooms'));
-
-    axios.get('https://mediflow-cse416.onrender.com/processes').then(res => { setProcessList(res.data) });
-
-    axios.get('https://mediflow-cse416.onrender.com/procedures').then(res => { setProcedureList(res.data) });
-
-    axios.get('https://mediflow-cse416.onrender.com/equipment').then(res => { setEquipmentList(res.data) });
-
-  }, []);
-
-  useEffect(() => {
-    if (process) {
-      const initStaff = {};
-      const initRooms = {};
-      process.components.forEach(proc => {
-        initStaff[proc] = { staff: [], equipment: [] };
-        initRooms[proc] = [];
-      });
-      setStaffSelections(initStaff);
-      setRoomSelections(initRooms);
-    }
-  }, [process]);
-
 
   const handleStaffChange = (procedureId) => (event, newValue) => {
     setStaffSelections(prev => ({
@@ -150,8 +146,7 @@ export default function RequestAppointment() {
     setRoomSelections(prev => ({ ...prev, [procedureId]: newValue }));
   };
 
-
-  console.log(staffSelections);
+  // Display
 
   return (
     <Container maxWidth="lg" sx={{ display: "flex", mt: 4, height: '90vh', overflow: 'auto' }}>

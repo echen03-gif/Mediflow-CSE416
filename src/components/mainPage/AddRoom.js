@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import  { useEffect } from 'react';
+import { useEffect } from 'react';
 import {
   Box,
   Button,
@@ -19,13 +19,17 @@ const AddRoom = () => {
   const [rooms, setRooms] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    axios.get('https://mediflow-cse416.onrender.com/rooms',{ 
-      headers: {
-      'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-      }}).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
-   }, []);
+  // DB API
 
+  useEffect(() => {
+    axios.get('https://mediflow-cse416.onrender.com/rooms', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
+  }, []);
+
+  // Functions
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,6 +47,8 @@ const AddRoom = () => {
       status: "Open"
     }).then(console.log("Added room")).then(navigate("/main/rooms"));
   };
+
+  // Display
 
   return (
     <Box sx={{ mt: 8, mx: 4 }}>
