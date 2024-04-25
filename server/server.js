@@ -4,6 +4,8 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const { createServer } = require('node:http');
+const { Server } = require('socket.io');
 
 
 app.use(express.json());
@@ -56,9 +58,9 @@ mongoose.connect(uri);
 
 let db = mongoose.connection;
 
-let server = app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+// let server = app.listen(port, () => {
+//     console.log(`Server is running on port ${port}`);
+// });
 
 db.on('connected', function () {
 
@@ -80,6 +82,108 @@ const equipment = require('./models/equipment.js');
 const equipmentHead = require('./models/equipmentHead.js');
 
 // Define Backend Functions
+
+//Socket io Stuff
+
+const socketServer = createServer(app);
+const io = new Server(socketServer, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+        credentials: true,
+    },
+})
+
+socketServer.listen(port, () => {
+
+    console.log('socket server running at port: ' + port);
+
+});
+
+const chatRooms = new Map()
+const userSocketMap = new Map();
+
+
+io.on('connection', (socket) => {
+
+    console.log('user ' + socket.id + ' connected');
+
+    socket.on('userConnected', (userId) => {
+        let x = userSocketMap.get(userId)
+
+        if(!x) {
+            console.log("Saving socket from user: " + userId+ " as " + socket.id)
+            userSocketMap.set(userId, socket.id);
+        }
+    });
+
+    socket.on('disconnect', () => {
+
+        let userIdToDelete = null;
+        for (let [userId, socketId] of userSocketMap.entries()) {
+            if (socketId === socket.id) {
+                userIdToDelete = userId;
+                break; // Stop searching once we find the user
+            }
+        }
+        if (userIdToDelete !== null) {
+            userSocketMap.delete(userIdToDelete);
+            console.log(`User ${userIdToDelete} disconnected and removed from map`);
+        } else {
+            console.log(`No user found for socket ${socket.id} on disconnect`);
+        }
+    });
+
+    socket.on("chatStart", (recipientUserId) => {
+    
+        let senderUserId = null;
+        //iterate over the map to find the userId for the current socket.id
+        for (let [key, value] of userSocketMap.entries()) {
+            if (value === socket.id) {
+                senderUserId = key;
+                break;
+            }
+        }
+        const roomKey = [senderUserId, recipientUserId].sort().join('-'); 
+    
+        if (userSocketMap.has(recipientUserId)) {
+            const recipientSocketId = userSocketMap.get(recipientUserId);
+    
+            if (!chatRooms.has(roomKey)) {
+                chatRooms.set(roomKey, new Set([senderUserId, recipientUserId]));
+                console.log(`Created a new room for users: ${roomKey}`);
+            } else {
+                console.log(`Room already exists for users: ${roomKey}, reusing it.`);
+            }
+    
+            socket.join(roomKey);
+            io.to(recipientSocketId).socketsJoin(roomKey);
+    
+            socket.emit('chatReady', { roomID: roomKey, initiatedByMe: true, message: `You started a chat with ${recipientUserId}` });
+            io.to(recipientSocketId).emit('chatReady', { roomID: roomKey, initiatedByMe: false, message: `Chat started by ${senderUserId}` });
+    
+            console.log(`Both users ${senderUserId} and ${recipientUserId} have joined room: ${roomKey}`);
+        } else {
+            console.log(`User ${recipientUserId} is not currently connected.`);
+            socket.emit('userOffline', { recipientUserId });
+        }
+    });
+
+    socket.on('sendMessage', ({ roomID, text, sender }) => {
+       
+        const message = {
+            id: 0, 
+            text: text,
+            sender: sender,
+            timestamp: new Date() 
+        };
+
+        io.in(roomID).emit('receiveMessage', message);
+        console.log(`Message sent in room ${roomID}: ${text}`);
+    });
+
+})
+
 
 // GET FUNCTIONS
 
@@ -325,7 +429,7 @@ app.post('/login', async (req, res) => {
         //     httpOnly: true
         // });
 
-        res.send({ success: true, user: user._id, token: token });
+        res.send({ success: true, user: user._id, name: user.name, token: token });
     } else {
         console.log("Failed to Login");
         res.send({ success: false, message: 'Invalid Input: Incorrect Email/Password!' });
@@ -415,4 +519,4 @@ app.put('/changeEquipmentAppointment', async (req, res) => {
 
 });
 
-module.exports = {app, server};
+module.exports = {app, socketServer};

@@ -24,6 +24,7 @@ export default function LoginPage() {
             if (res.data.success) {
               sessionStorage.setItem('token', res.data.token);
               sessionStorage.setItem('user', res.data.user);
+              sessionStorage.setItem("name", res.data.name)
               navigate('/main/schedule');
             } else {
               console.log("Error")
