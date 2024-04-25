@@ -83,7 +83,7 @@ const equipmentHead = require('./models/equipmentHead.js');
 
 // Define Backend Functions
 
-//Socket io Stuff
+// Socket io Stuff
 
 const socketServer = createServer(app);
 const io = new Server(socketServer, {
@@ -194,6 +194,15 @@ app.get('/users', async (req, res) => {
     res.send(users);
 
 });
+
+app.get('/userID/:userId', async (req, res) => {
+
+    const { userId } = req.params;
+
+    let user = await Users.findOne({ _id: userId });
+
+    res.send(user);
+})
 
 app.get('/user/:email', async (req, res) => {
 
