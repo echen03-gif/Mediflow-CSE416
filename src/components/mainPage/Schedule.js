@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -9,14 +9,10 @@ import axios from 'axios';
 export default function Schedule() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [userAppointments, setUserAppointments] = useState([]);
+  const [appointmentsList, setAppointmentList] = useState([]);
+  const [fullCalendar, setFullCalendar] = useState([]);
   const navigate = useNavigate();
-
-  const events = [
-    { title: 'Appointment 1', date: '2024-04-012T10:00:00' },
-    { title: 'Appointment 2', date: '2024-04-12T14:00:00' },
-    { title: 'Appointment 3', date: '2024-04-12T16:00:00' },
-    // Add more appointments as needed
-  ];
 
   // DB API
 
@@ -41,6 +37,35 @@ export default function Schedule() {
       });
   }
 
+  useEffect(() => {
+    let userId = sessionStorage.getItem('user');
+
+    axios.get('https://mediflow-cse416.onrender.com/appointments', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => setAppointmentList(res.data));
+
+    axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => setUserAppointments(res.data.appointments));
+
+  }, []);
+
+  useEffect(() => {
+
+    setFullCalendar(userAppointments.map(appointment => ({
+      title: appointmentsList.find(item => item._id === appointment).patientName,
+      start: appointmentsList.find(item => item._id === appointment).scheduledStartTime,
+      end: appointmentsList.find(item => item._id === appointment).scheduledEndTime
+    })))
+
+
+  }, [appointmentsList]);
+
+
   // Functions
 
   const handleRequest = () => {
@@ -55,6 +80,7 @@ export default function Schedule() {
   const handleClose = () => {
     setSelectedEvent(null);
   };
+
 
   // Display
 
@@ -92,17 +118,16 @@ export default function Schedule() {
           plugins={[timeGridPlugin, interactionPlugin]}
           initialView="timeGridDay"
           dateClick={(info) => setSelectedDate(info.date)}
-          events={events}
+          events={fullCalendar}
           eventClick={handleEventClick}
         />
       </div>
 
-      {/* Dialog for displaying event details */}
-      <Dialog
+      {selectedEvent && <Dialog
         open={selectedEvent !== null}
         onClose={handleClose}
       >
-        <DialogTitle>Appointment With Patient 1</DialogTitle>
+        <DialogTitle>{selectedEvent._def.title}</DialogTitle>
         <DialogContent>
           <List>
             <ListItem>
@@ -123,6 +148,7 @@ export default function Schedule() {
           </List>
         </DialogContent>
       </Dialog>
+    } 
     </div>
   );
 }
