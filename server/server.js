@@ -465,7 +465,7 @@ app.post('/createAppointment' , async (req, res) => {
         patient: req.body.patient,
         procedures: req.body.procedures,
         process: req.body.process,
-        location: req.body.room
+
     })
 
     res.send(await newAppointment.save());
