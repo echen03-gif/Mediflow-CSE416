@@ -30,6 +30,7 @@ function Inventory() {
 	const [equipmentList, setEquipmentList] = useState([]);
 	const [equipmentDB, setEquipmentDB] = useState([]);
 	const [roomList, setRooms] = useState([]);
+	const [isAdmin, setIsAdmin] = useState([]);
 
 	// DB API
 
@@ -53,23 +54,35 @@ function Inventory() {
 
 	// use api.get instead of axios.get
 	useEffect(() => {
-		api.get("/users").then((res) => {
-			setUsersList(res.data);
-		});
+		const fetchData = async () => {
+		  try {
+			let userId = sessionStorage.getItem('user');
+	  
+			// Fetch users list
+			const usersResponse = api.get("/users");
+			setUsersList(usersResponse.data);
+	  
+			const inventoryHeadResponse = api.get("/equipmentHead");
+			setInventoryHead(inventoryHeadResponse.data);
+	
+			const roomsResponse = api.get("/rooms");
+			setRooms(roomsResponse.data);
 
-		api.get("/equipmentHead").then((res) => {
-			setInventoryHead(res.data);
-		});
-		api.get("/rooms").then((res) => {
-			setRooms(res.data);
-		});
-		api.get("/equipment").then((res) => {
-			setEquipmentDB(res.data);
-		});
-		api.get("/appointments").then((res) => {
-			setAppointmentList(res.data);
-		});
-	}, []);
+			const equipmentResponse = api.get("/equipment");
+			setEquipmentDB(equipmentResponse.data);
+	  
+			const appointmentsResponse = api.get("/appointments");
+			setAppointmentList(appointmentsResponse.data);
+	  
+			const userResponse = api.get(`/userID/${userId}`);
+			setIsAdmin(userResponse.data.role === 'admin');
+		  } catch (error) {
+			console.error('Error fetching data:', error);
+		  }
+		};
+	  
+		fetchData();
+	  }, []);
 
 	// Functions
 
@@ -157,13 +170,16 @@ function Inventory() {
 							/>
 						</FormControl>
 					</Box>
-					<Button
+					{isAdmin &&
+						<Button
 						variant="contained"
 						color="primary"
 						onClick={navigateToAddInventory}
 					>
 						Add Inventory
 					</Button>
+					}
+					
 					<TableContainer component={Paper} sx={{ height: 500 }}>
 						<Table aria-label="simple table">
 							<TableHead>
@@ -279,13 +295,18 @@ function Inventory() {
 							/>
 						</FormControl>
 					</Box>
-					<Button
+					
+					{
+						isAdmin && 
+						<Button
 						variant="contained"
 						color="primary"
 						onClick={navigateToAddInventory}
 					>
 						Add Inventory
 					</Button>
+					}
+					
 					<TableContainer component={Paper} sx={{ height: 500 }}>
 						<Table aria-label="simple table">
 							<TableHead>
@@ -456,13 +477,17 @@ function Inventory() {
 							/>
 						</FormControl>
 					</Box>
-					<Button
+					{
+						isAdmin &&
+						<Button
 						variant="contained"
 						color="primary"
 						onClick={navigateToAddInventory}
 					>
 						Add Inventory
 					</Button>
+					}
+					
 					<TableContainer component={Paper} sx={{ height: 500 }}>
 						<Table aria-label="simple table">
 							<TableHead>
