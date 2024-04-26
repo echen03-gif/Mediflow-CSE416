@@ -84,8 +84,6 @@ function Inventory() {
 		fetchData();
 	  }, []);
 	  
-		fetchData();
-	  }, []);
 
 	// Functions
 
