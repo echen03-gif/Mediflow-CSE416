@@ -6,8 +6,6 @@ import axios from 'axios';
 export default function RequestAppointment() {
   const navigate = useNavigate();
   const [patientUser, setPatientUser] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
   const [process, setProcess] = useState("");
   const [usersList, setUsersList] = useState([]);
   const [roomsList, setRooms] = useState([]);
@@ -205,8 +203,8 @@ export default function RequestAppointment() {
             fullWidth
             sx={{ mb: 2 }}
             name="patientUser"
-            value={process}
-            onChange={(e) => setProcess(e.target.value)}
+            value={patientUser}
+            onChange={(e) => setPatientUser(e.target.value)}
             required
           >
             {usersList.filter(user => user.role === 'patient').map(user => (

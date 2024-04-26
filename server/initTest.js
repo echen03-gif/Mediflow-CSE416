@@ -21,7 +21,6 @@ let Processes = require('./models/processes.js');
 
 const uri = process.env.MEDIFLOWKEY;
 let mongoose = require('mongoose');
-const { schedule } = require('firebase-functions/v1/pubsub');
 
 mongoose.connect(uri);
 
