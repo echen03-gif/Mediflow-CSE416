@@ -27,9 +27,16 @@ const Staff = () => {
         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
       }
     }).then((res) => {
-      const usersWithStatus = res.data.map(user => {
-        return { ...user, status: getStatus(user.schedule) };
+
+      
+      const doctors = res.data.filter(user => user.role === "doctor" || user.role == "admin");
+
+      
+      const usersWithStatus = doctors.map(doctor => {
+        return { ...doctor, status: getStatus(doctor.schedule) };
       });
+
+      
       setUsers(usersWithStatus);
     });
 
@@ -51,6 +58,7 @@ const Staff = () => {
   };
 
   const getStatus = (schedule) => {
+
 
 
     const now = new Date();

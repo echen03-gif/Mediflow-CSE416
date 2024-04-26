@@ -10,6 +10,7 @@ export default function Schedule() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [userAppointments, setUserAppointments] = useState([]);
+  const [usersList, setUsersList] = useState([]);
   const [appointmentsList, setAppointmentList] = useState([]);
   const [fullCalendar, setFullCalendar] = useState([]);
   const navigate = useNavigate();
@@ -52,19 +53,32 @@ export default function Schedule() {
       }
     }).then(res => setUserAppointments(res.data.appointments));
 
+    axios.get('https://mediflow-cse416.onrender.com/users', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setUsersList(res.data) });
+
   }, []);
 
   useEffect(() => {
 
-    setFullCalendar(userAppointments.map(appointment => ({
-      title: appointmentsList.find(item => item._id === appointment).patientName,
-      start: appointmentsList.find(item => item._id === appointment).scheduledStartTime,
-      end: appointmentsList.find(item => item._id === appointment).scheduledEndTime
-    })))
+    setFullCalendar(userAppointments.flatMap(appointmentId => {
+  
+      let appointmentItem = appointmentsList.find(item => item._id === appointmentId);
+    
+      if (!appointmentItem) return []; 
+      return appointmentItem.procedures.map(procedure => ({
 
+        title: usersList.find(patient => patient._id === appointmentItem.patient).name, 
+        start: procedure.scheduledStartTime,
+        end: procedure.scheduledEndTime
+
+      }));
+    }));
+    
 
   }, [appointmentsList]);
-
 
   // Functions
 
@@ -131,7 +145,7 @@ export default function Schedule() {
         <DialogContent>
           <List>
             <ListItem>
-              <ListItemText primary="Patient 1" secondary="Age: 30, Gender: Male" />
+              <ListItemText primary = {selectedEvent._def.title} secondary="Age: 30, Gender: Male" />
             </ListItem>
             <ListItem>
               <ListItemText primary="Time" secondary="10:00 AM - 11:00 AM" />
