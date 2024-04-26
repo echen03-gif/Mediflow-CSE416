@@ -87,11 +87,13 @@ export default function Schedule() {
       return appointmentItem.procedures.map(procedure => {
         const patient = usersList.find(patient => patient._id === appointmentItem.patient);
         if (!patient) return null; 
-  
+        const start = new Date(procedure.scheduledStartTime);
+				const end = new Date(procedure.scheduledEndTime);
+       
         return {
           title: patient.name,
-          start: procedure.scheduledStartTime,
-          end: procedure.scheduledEndTime,
+          start: start,
+          end: end,
           extendedProps: {
             patient: patient,
             appointmentDetais: appointmentItem,

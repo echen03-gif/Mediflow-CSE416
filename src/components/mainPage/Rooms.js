@@ -5,11 +5,6 @@ import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, FormControl, Button } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 
-function isRoomAvailable(roomName, date) {
-  // For now, let's assume all rooms are available on even-numbered days.
-  return date.getDate() % 2 === 0;
-}
-
 function Rooms() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -28,7 +23,7 @@ function Rooms() {
     const fetchData = async () => {
       try {
         let userId = sessionStorage.getItem('user');
-  
+
         const roomsResponse = await axios.get('https://mediflow-cse416.onrender.com/rooms', {
           headers: {
             'Authorization': 'Bearer ' + sessionStorage.getItem('token')
@@ -36,7 +31,7 @@ function Rooms() {
         });
         setRooms(roomsResponse.data);
         console.log('Found rooms');
-  
+
         const usersResponse = await axios.get('https://mediflow-cse416.onrender.com/users', {
           headers: {
             'Authorization': 'Bearer ' + sessionStorage.getItem('token')
@@ -44,7 +39,7 @@ function Rooms() {
         });
         setUsersList(usersResponse.data);
         console.log('Found users');
-  
+
         const appointmentsResponse = await axios.get('https://mediflow-cse416.onrender.com/appointments', {
           headers: {
             'Authorization': 'Bearer ' + sessionStorage.getItem('token')
@@ -52,7 +47,7 @@ function Rooms() {
         });
         setAppointmentList(appointmentsResponse.data);
         console.log('Found appointments');
-  
+
         const userResponse = await axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
           headers: {
             'Authorization': 'Bearer ' + sessionStorage.getItem('token')
@@ -64,7 +59,7 @@ function Rooms() {
         console.error('Error fetching data:', error);
       }
     };
-  
+
     fetchData();
   }, []);
 
@@ -98,6 +93,31 @@ function Rooms() {
       setRoomPage('appointmentViewing')
 
     }
+  }
+
+  function isRoomAvailable(room, date) {
+    
+    if (appointmentList.length > 0) {
+      
+      const currentDate = new Date(date);
+
+      const isAvailable = room.appointments.some(appointment => {
+
+        let appointmentData = appointmentList.find(appointmentId => appointmentId._id === appointment);
+
+        return appointmentData.procedures.some(procedure => {
+          const start = new Date(procedure.scheduledStartTime);
+          const end = new Date(procedure.scheduledEndTime);
+
+
+          return currentDate >= start && currentDate <= end;
+        });
+      });
+
+
+      return !isAvailable;
+    }
+   
   }
 
   // Display
@@ -160,19 +180,6 @@ function Rooms() {
                         scope="row"
                         style={{ padding: "10px", paddingRight: "0" }}
                       >
-                        <div
-                          style={{
-                            width: "15px",
-                            height: "30px",
-                            backgroundColor: isRoomAvailable(
-                              room.roomNumber,
-                              selectedDate
-                            )
-                              ? "green"
-                              : "red",
-                            marginRight: "10px",
-                          }}
-                        ></div>
                       </TableCell>
                       <TableCell>
                         {
@@ -245,10 +252,10 @@ function Rooms() {
           {
             isAdmin &&
             <Button variant="contained" color="primary" onClick={navigateToAddRoom}> {/* Updated onClick handler */}
-            Add Room
+              Add Room
             </Button>
           }
-          
+
           <TableContainer component={Paper} sx={{ height: 500 }}>
             <Table aria-label="simple table">
               <TableHead>
@@ -274,7 +281,7 @@ function Rooms() {
                             width: "15px",
                             height: "30px",
                             backgroundColor: isRoomAvailable(
-                              room.roomNumber,
+                              room,
                               selectedDate
                             )
                               ? "green"

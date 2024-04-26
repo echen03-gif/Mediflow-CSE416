@@ -100,13 +100,29 @@ function Inventory() {
 
 
 	function isProductAvailable(productName, date) {
-		// For now, let's assume all rooms are available on even-numbered days.
-		console.log(productName);
+		
+		
+		const equipment = equipmentDB.find(equipment => equipment._id === productName);
 
-		console.log(equipmentDB.find(equipment => equipment._id === productName).appointments)
+		const currentDate = new Date(date);
+		
+		const isAvailable = equipment.appointments.some(appointment => {
 
-		return date.getDate() % 2 === 0;	
+			let appointmentData = appointmentList.find(appointmentId => appointmentId._id === appointment);
+			
+			return appointmentData.procedures.some(procedure => {
+				const start = new Date(procedure.scheduledStartTime);
+				const end = new Date(procedure.scheduledEndTime);
+
+				
+				return currentDate >= start && currentDate <= end;
+			});
+		});
+		
+	
+		return !isAvailable;
 	}
+	
 
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
