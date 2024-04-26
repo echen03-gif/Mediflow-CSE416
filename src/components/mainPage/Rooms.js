@@ -25,32 +25,47 @@ function Rooms() {
   // DB API
 
   useEffect(() => {
-    let userId = sessionStorage.getItem('user');
-
-    axios.get('https://mediflow-cse416.onrender.com/rooms', {
-      headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+    const fetchData = async () => {
+      try {
+        let userId = sessionStorage.getItem('user');
+  
+        const roomsResponse = await axios.get('https://mediflow-cse416.onrender.com/rooms', {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
+        });
+        setRooms(roomsResponse.data);
+        console.log('Found rooms');
+  
+        const usersResponse = await axios.get('https://mediflow-cse416.onrender.com/users', {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
+        });
+        setUsersList(usersResponse.data);
+        console.log('Found users');
+  
+        const appointmentsResponse = await axios.get('https://mediflow-cse416.onrender.com/appointments', {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
+        });
+        setAppointmentList(appointmentsResponse.data);
+        console.log('Found appointments');
+  
+        const userResponse = await axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
+        });
+        setIsAdmin(userResponse.data.role === 'admin');
+        console.log(isAdmin);
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
-    }).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
-
-    axios.get('https://mediflow-cse416.onrender.com/users', {
-      headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-      }
-    }).then(res => { setUsersList(res.data) }).then(console.log('found users'));
-
-    axios.get('https://mediflow-cse416.onrender.com/appointments', {
-      headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-      }
-    }).then(res => { setAppointmentList(res.data) });
-
-    axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
-      headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-      }
-    }).then(res => setIsAdmin(res.data.role === 'admin'));
-
+    };
+  
+    fetchData();
   }, []);
 
   // Functions
