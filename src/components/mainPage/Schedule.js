@@ -10,7 +10,9 @@ export default function Schedule() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [userAppointments, setUserAppointments] = useState([]);
+  const [usersList, setUsersList] = useState([]);
   const [appointmentsList, setAppointmentList] = useState([]);
+  const [proceduresList, setProceduresList] = useState([]);
   const [fullCalendar, setFullCalendar] = useState([]);
   const navigate = useNavigate();
 
@@ -52,19 +54,43 @@ export default function Schedule() {
       }
     }).then(res => setUserAppointments(res.data.appointments));
 
+    axios.get('https://mediflow-cse416.onrender.com/users', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setUsersList(res.data) });
+
+    axios.get('https://mediflow-cse416.onrender.com/procedures', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setProceduresList(res.data) });
+
   }, []);
 
   useEffect(() => {
 
-    setFullCalendar(userAppointments.map(appointment => ({
-      title: appointmentsList.find(item => item._id === appointment).patientName,
-      start: appointmentsList.find(item => item._id === appointment).scheduledStartTime,
-      end: appointmentsList.find(item => item._id === appointment).scheduledEndTime
-    })))
+    setFullCalendar(userAppointments.flatMap(appointmentId => {
+
+      let appointmentItem = appointmentsList.find(item => item._id === appointmentId);
+
+      if (!appointmentItem) return [];
+      return appointmentItem.procedures.map(procedure => ({
+
+        title: usersList.find(patient => patient._id === appointmentItem.patient).name,
+        start: procedure.scheduledStartTime,
+        end: procedure.scheduledEndTime,
+        extendedProps: {
+          patient: usersList.find(patient => patient._id === appointmentItem.patient),
+          appointmentDetais: appointmentItem,
+          procedureDetails: procedure
+        }
+
+      }));
+    }));
 
 
   }, [appointmentsList]);
-
 
   // Functions
 
@@ -78,6 +104,17 @@ export default function Schedule() {
     navigate("/main/pending");
   }
 
+  function formatTime(timeObject) {
+    const date = new Date(timeObject);
+    let hours = date.getUTCHours();
+    let minutes = date.getUTCMinutes();
+
+    hours = hours.toString().padStart(2, '0');
+    minutes = minutes.toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+
   const handleEventClick = (info) => {
     setSelectedEvent(info.event);
   };
@@ -86,6 +123,7 @@ export default function Schedule() {
     setSelectedEvent(null);
   };
 
+  console.log(selectedEvent);
 
   // Display
 
@@ -147,40 +185,35 @@ export default function Schedule() {
           eventClick={handleEventClick}
         />
       </div>
-
-      {selectedEvent && (
-        <Dialog open={selectedEvent !== null} onClose={handleClose}>
-          <DialogTitle>{selectedEvent._def.title}</DialogTitle>
-          <DialogContent>
-            <List>
-              <ListItem>
-                <ListItemText
-                  primary="Patient 1"
-                  secondary="Age: 30, Gender: Male"
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText primary="Time" secondary="10:00 AM - 11:00 AM" />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary="Purpose/Specifications"
-                  secondary="Regular Checkup"
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary="Other Staff"
-                  secondary="Nurse 1, Nurse 2"
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText primary="Room" secondary="Room 1" />
-              </ListItem>
-            </List>
-          </DialogContent>
-        </Dialog>
-      )}
+      {selectedEvent && <Dialog
+        open={selectedEvent !== null}
+        onClose={handleClose}
+      >
+        <DialogTitle>{selectedEvent._def.title}</DialogTitle>
+        <DialogContent>
+          <List>
+            <ListItem>
+              <ListItemText primary={"Patient Information"} secondary={"Age: " + selectedEvent._def.extendedProps.patient.age + ", Gender: " + selectedEvent._def.extendedProps.patient.gender} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Date" secondary={`${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledStartTime).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })} 
+              ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledStartTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })} - 
+              ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })} 
+              ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Purpose/Specifications" secondary = {proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).name} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Other Staff" secondary="Nurse 1, Nurse 2" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Room" secondary="Room 1" />
+            </ListItem>
+          </List>
+        </DialogContent>
+      </Dialog>
+      }
     </div>
   );
 }
