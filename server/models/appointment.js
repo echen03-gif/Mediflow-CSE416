@@ -10,15 +10,10 @@ const appointmentSchema = new mongoose.Schema({
       equipment: [{ type: mongoose.Schema.Types.ObjectId, ref: "Equipment" }],
       scheduledEndTime: { type: Date },
       scheduledStartTime: { type: Date },
+      room: { type: mongoose.Schema.Types.ObjectId, ref: "Room" }
     },
   ],
   process: { type: mongoose.Schema.Types.ObjectId, ref: "Processes" },
-  location: [
-    {
-      room: { type: mongoose.Schema.Types.ObjectId, ref: "Room" },
-      procedure: { type: mongoose.Schema.Types.ObjectId, ref: "Procedure" },
-    },
-  ],
   status: {
     type: String,
     enum: ["pending", "accepted", "cancelled", "completed"],
