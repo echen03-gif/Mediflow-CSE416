@@ -17,6 +17,7 @@ function Rooms() {
   const [roomList, setRooms] = useState([]);
   const [appointmentList, setAppointmentList] = useState([]);
   const [appointmentIds, setAppointmentIds] = useState([]);
+  const [usersList, setUsersList] = useState([]);
   const [roomPage, setRoomPage] = useState('default');
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -31,6 +32,12 @@ function Rooms() {
         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
       }
     }).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
+
+    axios.get('https://mediflow-cse416.onrender.com/users', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setUsersList(res.data) }).then(console.log('found users'));
 
     axios.get('https://mediflow-cse416.onrender.com/appointments', {
       headers: {
@@ -112,17 +119,20 @@ function Rooms() {
           {
             isAdmin &&
             <Button variant="contained" color="primary" onClick={navigateToAddRoom}> {/* Updated onClick handler */}
-            Add Room
+              Add Room
             </Button>
           }
-          
+
           <TableContainer component={Paper} sx={{ height: 500 }}>
             <Table aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell></TableCell>
+                  <TableCell></TableCell>{" "}
+                  {/* Added this line */}
                   <TableCell>Appointment</TableCell>
-                  <TableCell align="right">ScheduledStartDate</TableCell>
+                  <TableCell align="center">
+                    Scheduled Dates
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -149,8 +159,27 @@ function Rooms() {
                           }}
                         ></div>
                       </TableCell>
-                      <TableCell>{appointmentList.find(appointment => appointment._id === room).patientName}</TableCell>
-                      <TableCell align="right">{appointmentList.find(appointment => appointment._id === room).scheduledStartTime}</TableCell>
+                      <TableCell>
+                        {
+                          usersList.find(userId => userId._id === appointmentList.find(
+                            (appointment) =>
+                              appointment._id ===
+                              room
+                          ).patient).name
+                        }
+                      </TableCell>
+                      <TableCell align="center">
+                        {
+                          appointmentList.find(
+                            (appointment) => appointment._id === room
+                          ).procedures.map(procedure => {
+                            const date = new Date(procedure.scheduledStartTime);
+                            const endDate = new Date(procedure.scheduledEndTime);
+                            return `${date.getMonth() + 1}/${date.getDate()} - ${endDate.getMonth() + 1}/${endDate.getDate()}`;
+                          }).join(", ")
+
+                        }
+                      </TableCell>
                     </TableRow>
                   ))}
               </TableBody>

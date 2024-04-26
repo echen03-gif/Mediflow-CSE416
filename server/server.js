@@ -274,7 +274,8 @@ app.get("/appointments/pending", async (req, res) => {
 });
 
 app.get("/check-session", (req, res) => {
-    if (req.session.userId) {
+    console.log(req.session);
+    if (req.session.user) {
         res.send({ loggedIn: true });
     } else {
         res.send({ loggedIn: false });
