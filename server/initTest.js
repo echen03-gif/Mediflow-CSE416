@@ -21,7 +21,6 @@ let Processes = require('./models/processes.js');
 
 const uri = process.env.MEDIFLOWKEY;
 let mongoose = require('mongoose');
-const { schedule } = require('firebase-functions/v1/pubsub');
 
 mongoose.connect(uri);
 
@@ -105,6 +104,7 @@ const populate = async () => {
         Saturday: [{start: "15:00", end: "18:00"}],
         Sunday: [{start: "04:00", end: "15:00"}]
     });
+
     let testDoctor = await createUser(false, "testDoctor@gmail.com", "testDoctor", hashedPass, "doctor", 0, 
     {
         Monday: [{start: "05:00", end: "13:00"}],
@@ -115,6 +115,7 @@ const populate = async () => {
         Saturday: [{start: "01:00", end: "10:00"}],
         Sunday: [{start: "01:00", end: "10:00"}]
     });
+
     let testDoctor2 = await createUser(false, "testDoctor2@gmail.com", "testDoctor2", hashedPass, "doctor", 0, {
         Monday: [{start: "10:00", end: "23:00"}],
         Tuesday: [{start: "10:00", end: "23:00"}],
@@ -124,6 +125,8 @@ const populate = async () => {
         Saturday: [{start: "01:00", end: "10:00"}],
         Sunday: [{start: "11:00", end: "15:00"}]
     });
+
+    let testPatient = await createUser(false, "testPatient@gmail.com", "testPatient", hashedPass, "patient", 0, null);
 
     let testRoom = await createRoom("Test Room", 0, "Open", "Radiology");
     let testEquipment = await createEquipmentHead("CT Machine", 0, "Radiology");
