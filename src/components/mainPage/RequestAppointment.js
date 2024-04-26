@@ -5,7 +5,7 @@ import axios from 'axios';
 
 export default function RequestAppointment() {
   const navigate = useNavigate();
-  const [patientName, setPatientName] = useState("");
+  const [patientUser, setPatientUser] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [process, setProcess] = useState("");
@@ -21,15 +21,35 @@ export default function RequestAppointment() {
 
   useEffect(() => {
 
-    axios.get('https://mediflow-cse416.onrender.com/users').then(res => { setUsersList(res.data) });
+    axios.get('https://mediflow-cse416.onrender.com/users', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setUsersList(res.data) });
 
-    axios.get('https://mediflow-cse416.onrender.com/rooms').then(res => { setRooms(res.data) }).then(console.log('found rooms'));
+    axios.get('https://mediflow-cse416.onrender.com/rooms', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
 
-    axios.get('https://mediflow-cse416.onrender.com/processes').then(res => { setProcessList(res.data) });
+    axios.get('https://mediflow-cse416.onrender.com/processes', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setProcessList(res.data) });
 
-    axios.get('https://mediflow-cse416.onrender.com/procedures').then(res => { setProcedureList(res.data) });
+    axios.get('https://mediflow-cse416.onrender.com/procedures', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setProcedureList(res.data) });
 
-    axios.get('https://mediflow-cse416.onrender.com/equipment').then(res => { setEquipmentList(res.data) });
+    axios.get('https://mediflow-cse416.onrender.com/equipment', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setEquipmentList(res.data) });
 
   }, []);
 
@@ -38,7 +58,7 @@ export default function RequestAppointment() {
       const initStaff = {};
       const initRooms = {};
       process.components.forEach(proc => {
-        initStaff[proc] = { staff: [], equipment: [] };
+        initStaff[proc] = { staff: [], equipment: [], scheduledStartTime: '', scheduledEndTime: '' };
         initRooms[proc] = [];
       });
       setStaffSelections(initStaff);
@@ -51,10 +71,12 @@ export default function RequestAppointment() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const staffAssigned = Object.entries(staffSelections).map(([procedureId, { staff, equipment }]) => ({
+    const staffAssigned = Object.entries(staffSelections).map(([procedureId, { staff, equipment, scheduledStartTime, scheduledEndTime }]) => ({
       staff: staff,
       procedure: procedureId,
-      equipment: equipment
+      equipment: equipment,
+      scheduledStartTime: scheduledStartTime,
+      scheduledEndTime: scheduledEndTime
     }));
 
     const roomAssigned = Object.entries(roomSelections).map(([procedureId, roomId]) => ({
@@ -65,10 +87,8 @@ export default function RequestAppointment() {
 
     let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/createAppointment", {
 
-      name: patientName,
+      patient: patientUser,
       procedures: staffAssigned,
-      start: new Date(startTime),
-      end: new Date(endTime),
       process: process,
       room: roomAssigned,
       headers: {
@@ -142,9 +162,32 @@ export default function RequestAppointment() {
   };
 
   const handleRoomChange = (procedureId) => (event, newValue) => {
-    console.log("New room values for procedure", procedureId, newValue);
+
     setRoomSelections(prev => ({ ...prev, [procedureId]: newValue }));
   };
+
+  const handleStartDateChange = (procedureId) => (event) => {
+    const newValue = event.target.value;
+    setStaffSelections(prev => ({
+      ...prev,
+      [procedureId]: {
+        ...prev[procedureId],
+        scheduledStartTime: newValue
+      }
+    }));
+  };
+
+  const handleEndDateChange = (procedureId) => (event) => {
+    const newValue = event.target.value;
+    setStaffSelections(prev => ({
+      ...prev,
+      [procedureId]: {
+        ...prev[procedureId],
+        scheduledEndTime: newValue
+      }
+    }));
+  };
+
 
   // Display
 
@@ -156,43 +199,22 @@ export default function RequestAppointment() {
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
-            label="Patient Name"
+            select
+            label="Patient"
             variant="outlined"
             fullWidth
             sx={{ mb: 2 }}
-            name="patientName"
-            value={patientName}
-            onChange={(e) => setPatientName(e.target.value)}
+            name="patientUser"
+            value={process}
+            onChange={(e) => setProcess(e.target.value)}
             required
-          />
-          <TextField
-            type="date"
-            label="Scheduled Start Time"
-            variant="outlined"
-            fullWidth
-            sx={{ mb: 2 }}
-            name="startTime"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            required
-          />
-          <TextField
-            type="date"
-            label="Scheduled End Time"
-            variant="outlined"
-            fullWidth
-            sx={{ mb: 2 }}
-            name="endTime"
-            value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            required
-          />
+          >
+            {usersList.filter(user => user.role === 'patient').map(user => (
+              <MenuItem key={user._id} value={user}>
+                {user.name}
+              </MenuItem>
+            ))}
+          </TextField>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={8}>
               <TextField
@@ -280,6 +302,35 @@ export default function RequestAppointment() {
 
                     />
                   )}
+                />
+
+                <TextField
+                  type="datetime-local"
+                  label="Scheduled Start Time"
+                  variant="outlined"
+                  fullWidth
+                  sx={{ mb: 2 }}
+                  name="scheduledStartTime"
+                  value={staffSelections[procedure]?.scheduledStartTime || ''}
+                  onChange={(e) => handleStartDateChange(procedure)(e)}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  required
+                />
+                <TextField
+                  type="datetime-local"
+                  label="Scheduled End Time"
+                  variant="outlined"
+                  fullWidth
+                  sx={{ mb: 2 }}
+                  name="scheduledEndTime"
+                  value={staffSelections[procedure]?.scheduledEndTime || ''}
+                  onChange={(e) => handleEndDateChange(procedure)(e)}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  required
                 />
               </Box>
             ))}

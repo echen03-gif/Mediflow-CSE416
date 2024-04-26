@@ -462,10 +462,8 @@ app.post('/createAppointment' , async (req, res) => {
     const newAppointment = new Appointment({
 
         created: new Date(),
-        patientName: req.body.name,
+        patient: req.body.patient,
         procedures: req.body.procedures,
-        scheduledStartTime: req.body.start,
-        scheduledEndTime: req.body.end,
         process: req.body.process,
         location: req.body.room
     })

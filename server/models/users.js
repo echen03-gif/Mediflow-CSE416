@@ -13,6 +13,8 @@ const userSchema = new mongoose.Schema({
     email: {type: String},
     joined: {type: Date},
     name: {type: String},
+    age: {type: Number},
+    gender: {type: String},
     password: {type: String},
     appointments: [{type: mongoose.Schema.Types.ObjectId, ref:'Appointments'}],
     role: {type: String},
