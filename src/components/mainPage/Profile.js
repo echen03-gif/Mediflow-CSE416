@@ -7,10 +7,10 @@ function Profile() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const userEmail = sessionStorage.getItem('user');
-      const response = await axios.get(`https://mediflow-cse416.onrender.com/user/${userEmail}`,{ 
+      const userId = sessionStorage.getItem('user');
+      const response = await axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
         headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          'Authorization': 'Bearer ' + sessionStorage.getItem('token')
         }
       });
       setUser(response.data);
