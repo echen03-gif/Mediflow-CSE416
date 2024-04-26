@@ -445,7 +445,6 @@ app.post("/requestAppointment", async (req, res) => {
     patient: req.body.patient,
     procedures: req.body.procedures,
     process: req.body.process,
-    location: req.body.room,
     status: 'pending'
   });
 
