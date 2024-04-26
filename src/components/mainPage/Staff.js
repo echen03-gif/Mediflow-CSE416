@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useData } from "./DataContext"; // Import useData from where it is defined
 import {
   Grid,
   Typography,
@@ -12,84 +12,59 @@ import { useNavigate } from "react-router-dom";
 
 const Staff = () => {
   const [search, setSearch] = useState("");
-  const [usersList, setUsers] = useState([]);
   const [filter, setFilter] = useState("ALL");
-  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
-  // DB API
+  // Use context to get users list and admin status
+  const { usersList, isAdmin, api, updateData } = useData(); // Assuming isAdmin and api are part of your context
 
+  // Effect to fetch users if the users list is empty
   useEffect(() => {
-    let userId = sessionStorage.getItem('user');
-
-    axios.get("https://mediflow-cse416.onrender.com/users", {
-      headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-      }
-    }).then((res) => {
-
-      
-      const doctors = res.data.filter(user => user.role === "doctor" || user.role == "admin");
-
-      
-      const usersWithStatus = doctors.map(doctor => {
-        return { ...doctor, status: getStatus(doctor.schedule) };
+    if (usersList.length === 0) {
+      api.get("/users").then((res) => {
+        const usersWithStatus = res.data.map((user) => ({
+          ...user,
+          status: getStatus(user.schedule),
+        }));
+        updateData({ usersList: usersWithStatus });
       });
+    }
+  }, [usersList, api, updateData]);
 
-      
-      setUsers(usersWithStatus);
-    });
-
-    axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
-      headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-      }
-    }).then(res => setIsAdmin(res.data.role === 'admin'));
-  }, []);
-
-  // Functions
-
+  // Function to handle search input changes
   const handleSearch = (event) => {
     setSearch(event.target.value);
   };
 
+  // Navigation to add staff page
   const navigateToAddStaff = () => {
     navigate("/main/addstaff");
   };
 
+  // Function to get status based on schedule
   const getStatus = (schedule) => {
-
-
-
     const now = new Date();
-    const currentDay = now.toLocaleString('default', { weekday: 'long' });
-    const currentTime = now.getHours() * 60 + now.getMinutes();  // Current time in minutes since midnight
+    const currentDay = now.toLocaleString("default", { weekday: "long" });
+    const currentTime = now.getHours() * 60 + now.getMinutes(); // Current time in minutes since midnight
 
     const todaysSchedule = schedule[currentDay];
-    console.log(todaysSchedule, currentDay)
-
-    if (!todaysSchedule) {
-      return "NOT AVAILABLE";
-    }
-
-    for (let i = 0; i < todaysSchedule.length; i++) {
-      const shiftStart = parseInt(todaysSchedule[i].start.split(':')[0]) * 60 + parseInt(todaysSchedule[i].start.split(':')[1]);  // Shift start time in minutes since midnight
-      const shiftEnd = parseInt(todaysSchedule[i].end.split(':')[0]) * 60 + parseInt(todaysSchedule[i].end.split(':')[1]);  // Shift end time in minutes since midnight
-      console.log(shiftEnd)
-      console.log(shiftStart)
+    if (!todaysSchedule) return "NOT AVAILABLE";
+    for (let period of todaysSchedule) {
+      const [startHour, startMinute] = period.start.split(":").map(Number);
+      const [endHour, endMinute] = period.end.split(":").map(Number);
+      const shiftStart = startHour * 60 + startMinute;
+      const shiftEnd = endHour * 60 + endMinute;
       if (currentTime >= shiftStart && currentTime <= shiftEnd) {
         return "ON DUTY";
       }
     }
-
     return "NOT AVAILABLE";
   };
 
+  // Function to handle filter changes
   const handleFilterChange = (status) => {
     setFilter(status);
   };
-
-  // Display
 
   return (
     <Box pt={5} sx={{ flexGrow: 1, padding: 2 }}>
@@ -117,13 +92,15 @@ const Staff = () => {
             value={search}
             onChange={handleSearch}
           />
-
-          <Grid container justifyContent="flex-end" style={{ marginBottom: "20px" }}>
+          <Grid
+            container
+            justifyContent="flex-end"
+            style={{ marginBottom: "20px" }}
+          >
             <Button
               variant="contained"
               color="primary"
               onClick={() => handleFilterChange("ALL")}
-              style={{ margin: "0" }}
             >
               All
             </Button>
@@ -131,7 +108,6 @@ const Staff = () => {
               variant="contained"
               color="primary"
               onClick={() => handleFilterChange("ON DUTY")}
-              style={{ margin: "0 1%" }}
             >
               On Duty
             </Button>
@@ -139,14 +115,11 @@ const Staff = () => {
               variant="contained"
               color="primary"
               onClick={() => handleFilterChange("NOT AVAILABLE")}
-              style={{ margin: "0" }}
             >
               Not Available
             </Button>
           </Grid>
-
         </Grid>
-
         {usersList
           .filter(
             (staff) =>
@@ -159,7 +132,7 @@ const Staff = () => {
                 <Grid item key={staff.name} style={{ textAlign: "center" }}>
                   <Avatar
                     alt={staff.name}
-                    src={""}
+                    src={staff.photo || ""}
                     style={{ width: "7vh", height: "7vh" }}
                   />
                   <Typography>{staff.name}</Typography>
