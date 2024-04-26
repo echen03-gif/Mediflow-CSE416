@@ -73,6 +73,11 @@ export default function Schedule() {
     navigate('/main/request');
   }
 
+  const handlePending = () => {
+    //checkSession();
+    navigate("/main/pending");
+  }
+
   const handleEventClick = (info) => {
     setSelectedEvent(info.event);
   };
@@ -97,7 +102,14 @@ export default function Schedule() {
         backgroundColor: "white",
       }}
     >
-      <div style={{ flex: 1, overflow: "hidden", paddingRight: "24px", paddingTop: "30px" }}>
+      <div
+        style={{
+          flex: 1,
+          overflow: "hidden",
+          paddingRight: "24px",
+          paddingTop: "30px",
+        }}
+      >
         <h2>SCHEDULE</h2>
         <button
           style={{
@@ -110,7 +122,20 @@ export default function Schedule() {
           }}
           onClick={handleRequest}
         >
-          + Request
+          Request Appointment
+        </button>
+        <button
+          style={{
+            backgroundColor: "#1976D2",
+            color: "white",
+            padding: "8px 16px",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+          onClick={handlePending}
+        >
+          Pending Appointments
         </button>
 
         <FullCalendar
@@ -123,32 +148,39 @@ export default function Schedule() {
         />
       </div>
 
-      {selectedEvent && <Dialog
-        open={selectedEvent !== null}
-        onClose={handleClose}
-      >
-        <DialogTitle>{selectedEvent._def.title}</DialogTitle>
-        <DialogContent>
-          <List>
-            <ListItem>
-              <ListItemText primary="Patient 1" secondary="Age: 30, Gender: Male" />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Time" secondary="10:00 AM - 11:00 AM" />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Purpose/Specifications" secondary="Regular Checkup" />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Other Staff" secondary="Nurse 1, Nurse 2" />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Room" secondary="Room 1" />
-            </ListItem>
-          </List>
-        </DialogContent>
-      </Dialog>
-    } 
+      {selectedEvent && (
+        <Dialog open={selectedEvent !== null} onClose={handleClose}>
+          <DialogTitle>{selectedEvent._def.title}</DialogTitle>
+          <DialogContent>
+            <List>
+              <ListItem>
+                <ListItemText
+                  primary="Patient 1"
+                  secondary="Age: 30, Gender: Male"
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="Time" secondary="10:00 AM - 11:00 AM" />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Purpose/Specifications"
+                  secondary="Regular Checkup"
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Other Staff"
+                  secondary="Nurse 1, Nurse 2"
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="Room" secondary="Room 1" />
+              </ListItem>
+            </List>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

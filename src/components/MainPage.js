@@ -43,6 +43,7 @@ import AddStaff from "./mainPage/AddStaff";
 import AddInventory from "./mainPage/AddInventory";
 import AddRoom from "./mainPage/AddRoom";
 import CreateProcess from "./mainPage/CreateProcess";
+import PendingAppointment from "./mainPage/AdminAppointmentView";
 
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -133,7 +134,6 @@ export default function MainPage() {
   };
 
   return (
-
     <Box
       sx={{
         display: "flex",
@@ -273,6 +273,7 @@ export default function MainPage() {
           <Route path="inventory" element={<Inventory />} />
           <Route path="additem" element={<AddItem />} />
           <Route path="request" element={<Request />} />
+          <Route path="pending" element={<PendingAppointment />} />
           <Route path="rooms" element={<Rooms />} />
           <Route path="staff" element={<Staff />} />
           <Route path="addstaff" element={<AddStaff />} />
@@ -282,7 +283,6 @@ export default function MainPage() {
           <Route path="inbox" element={<Inbox />} />
           <Route path="createprocess" element={<CreateProcess />} />
           <Route path="profile" element={<Profile />} />
-
         </Routes>
       </Box>
 
@@ -307,36 +307,28 @@ export default function MainPage() {
           </IconButton>
 
           {/* User profile picture and name on the right */}
-          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+          <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
             {/* Content in the center */}
             {/* <Typography variant="h6" component="div">
               Content Here
             </Typography> */}
           </Box>
 
-
-            <Avatar
-              alt="Remy Sharp"
-              src="https://mui.com/static/images/avatar/1.jpg"
-              component={Link}
-              to="/main/profile"
-              onClick={handleRefreshClick("/main/profile")}
-              sx={location.pathname === "/main/profile" ? activeRouteStyle : {}}
-            />
-
-      
+          <Avatar
+            alt="Remy Sharp"
+            src="https://mui.com/static/images/avatar/1.jpg"
+            component={Link}
+            to="/main/profile"
+            onClick={handleRefreshClick("/main/profile")}
+            sx={location.pathname === "/main/profile" ? activeRouteStyle : {}}
+          />
 
           {/* User name */}
           <Typography variant="h6" component="div">
             Test User
           </Typography>
         </Toolbar>
-
-        
       </AppBar>
-
-
-
     </Box>
   );
 }
