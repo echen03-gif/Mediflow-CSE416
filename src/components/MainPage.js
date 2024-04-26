@@ -94,7 +94,7 @@ export default function MainPage() {
       console.log(data); 
       if (!data.initiatedByMe) {
         console.log("Data not initiated by me")
-        toast(`Click here to join the chat with ${data.otherUserId}`, {
+        toast(`${data.message}`, {
             onClick: () => navigate(`/main/chatscreen/${data.roomID}`),
             autoClose: 5000
         });
