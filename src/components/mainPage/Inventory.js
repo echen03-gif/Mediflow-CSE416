@@ -57,29 +57,32 @@ function Inventory() {
 		const fetchData = async () => {
 		  try {
 			let userId = sessionStorage.getItem('user');
-	  
+		
 			// Fetch users list
-			const usersResponse = api.get("/users");
+			const usersResponse = await api.get("/users");
 			setUsersList(usersResponse.data);
-	  
-			const inventoryHeadResponse = api.get("/equipmentHead");
+		
+			const inventoryHeadResponse = await api.get("/equipmentHead");
 			setInventoryHead(inventoryHeadResponse.data);
-	
-			const roomsResponse = api.get("/rooms");
+		
+			const roomsResponse = await api.get("/rooms");
 			setRooms(roomsResponse.data);
-
-			const equipmentResponse = api.get("/equipment");
+		
+			const equipmentResponse = await api.get("/equipment");
 			setEquipmentDB(equipmentResponse.data);
-	  
-			const appointmentsResponse = api.get("/appointments");
+		
+			const appointmentsResponse = await api.get("/appointments");
 			setAppointmentList(appointmentsResponse.data);
-	  
-			const userResponse = api.get(`/userID/${userId}`);
+		
+			const userResponse = await api.get(`/userID/${userId}`);
 			setIsAdmin(userResponse.data.role === 'admin');
 		  } catch (error) {
 			console.error('Error fetching data:', error);
 		  }
 		};
+	  
+		fetchData();
+	  }, []);
 	  
 		fetchData();
 	  }, []);
