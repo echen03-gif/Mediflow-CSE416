@@ -149,6 +149,9 @@ export default function RequestAppointment() {
   }
 
   const handleChange = (procedureId, field) => (event, newValue) => {
+
+    console.log(newValue);
+    
     setStaffSelections(prev => ({
       ...prev,
       [procedureId]: {
