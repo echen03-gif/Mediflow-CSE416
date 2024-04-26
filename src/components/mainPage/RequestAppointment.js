@@ -84,15 +84,14 @@ export default function RequestAppointment() {
 
 
     let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/createAppointment", {
-
       patient: patientUser,
       procedures: staffAssigned,
       process: process,
-      room: roomAssigned,
+      room: roomAssigned
+    }, {
       headers: {
         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
       }
-
     }).then(console.log("Added Appointment"));
 
     const uniqueStaffIds = new Set();
@@ -111,13 +110,22 @@ export default function RequestAppointment() {
       ...Array.from(uniqueStaffIds).map(staffId =>
         axios.put("https://mediflow-cse416.onrender.com/changeStaffAppointment", {
           staffName: staffId,
-          appointment: newAppointment.data
+          appointment: newAppointment.data,
+        }, {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
         })
       ),
       ...Array.from(uniqueEquipmentIds).map(equipmentId =>
         axios.put("https://mediflow-cse416.onrender.com/changeEquipmentAppointment", {
           equipment: equipmentId,
-          appointment: newAppointment.data
+          appointment: newAppointment.data,
+
+        }, {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
         })
       )
     ]);
@@ -126,7 +134,12 @@ export default function RequestAppointment() {
     await Promise.all(roomAssigned.map(({ room }) => {
       return axios.put("https://mediflow-cse416.onrender.com/changeRoomAppointment", {
         roomName: room,
-        appointment: newAppointment.data
+        appointment: newAppointment.data,
+
+      }, {
+        headers: {
+          'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        }
       });
 
     }))
@@ -256,7 +269,7 @@ export default function RequestAppointment() {
 
                 <Autocomplete
                   multiple
-                  options={usersList}
+                  options={usersList.filter(user => user.role === 'doctor')}
                   getOptionLabel={(option) => option.name}
                   value={staffSelections[procedure]}
                   onChange={(event, newValue) => handleStaffChange(procedure)(event, newValue)}
