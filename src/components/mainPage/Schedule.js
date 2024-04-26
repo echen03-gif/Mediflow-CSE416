@@ -99,6 +99,11 @@ export default function Schedule() {
     navigate('/main/request');
   }
 
+  const handlePending = () => {
+    //checkSession();
+    navigate("/main/pending");
+  }
+
   function formatTime(timeObject) {
     const date = new Date(timeObject);
     let hours = date.getUTCHours();
@@ -135,7 +140,14 @@ export default function Schedule() {
         backgroundColor: "white",
       }}
     >
-      <div style={{ flex: 1, overflow: "hidden", paddingRight: "24px", paddingTop: "30px" }}>
+      <div
+        style={{
+          flex: 1,
+          overflow: "hidden",
+          paddingRight: "24px",
+          paddingTop: "30px",
+        }}
+      >
         <h2>SCHEDULE</h2>
         <button
           style={{
@@ -148,7 +160,20 @@ export default function Schedule() {
           }}
           onClick={handleRequest}
         >
-          + Request
+          Request Appointment
+        </button>
+        <button
+          style={{
+            backgroundColor: "#1976D2",
+            color: "white",
+            padding: "8px 16px",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+          onClick={handlePending}
+        >
+          Pending Appointments
         </button>
 
         <FullCalendar
@@ -160,7 +185,6 @@ export default function Schedule() {
           eventClick={handleEventClick}
         />
       </div>
-
       {selectedEvent && <Dialog
         open={selectedEvent !== null}
         onClose={handleClose}

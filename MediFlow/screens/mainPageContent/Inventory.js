@@ -1,6 +1,6 @@
 import * as React from "react";
 import { View, StyleSheet, TextInput } from "react-native";
-import { DataTable, Button, Title, IconButton } from "react-native-paper";
+import { DataTable, Button, IconButton } from "react-native-paper";
 import { theme } from "../../core/theme";
 import MainPageHeader from "../../components/MainPageHeader";
 import { MainPageContext } from "../MainPageContext";
@@ -12,7 +12,7 @@ export default function Inventory() {
 	const [itemsPerPage, onItemsPerPageChange] = React.useState(
 		numberOfItemsPerPageList[0]
 	);
-	const {setActiveComponent} = React.useContext(MainPageContext);
+	const { setActiveComponent } = React.useContext(MainPageContext);
 
 	const inventoryData = [
 		{ key: "1", name: "CT Machine", location: "Room A1", status: "Yes" },
@@ -39,7 +39,7 @@ export default function Inventory() {
 	};
 
 	const navigateToAddInventory = () => {
-		setActiveComponent("AddInventory")
+		setActiveComponent("AddInventory");
 	};
 
 	return (
@@ -58,7 +58,11 @@ export default function Inventory() {
 						onPress={handleDateChange}
 					/>
 				</View>
-				<Button mode="contained" onPress={navigateToAddInventory}>
+				<Button
+					mode="contained"
+					style={styles.addInventory}
+					onPress={navigateToAddInventory}
+				>
 					Add Inventory
 				</Button>
 			</View>
@@ -132,5 +136,9 @@ const styles = StyleSheet.create({
 	addButton: {
 		marginTop: 10,
 		color: theme.colors.primary,
+	},
+	addInventory: {
+		width: "15%",
+		alignSelf: "flex-end"
 	},
 });

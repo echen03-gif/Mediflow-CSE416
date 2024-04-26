@@ -76,7 +76,7 @@ export default function RequestAppointment() {
     }));
 
 
-    let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/createAppointment", {
+    let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/requestAppointment", {
       patient: patientUser,
       procedures: procedures,
       process: process,
