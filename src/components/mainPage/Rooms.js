@@ -19,10 +19,13 @@ function Rooms() {
   const [appointmentIds, setAppointmentIds] = useState([]);
   const [roomPage, setRoomPage] = useState('default');
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // DB API
 
   useEffect(() => {
+    let userId = sessionStorage.getItem('user');
+
     axios.get('https://mediflow-cse416.onrender.com/rooms', {
       headers: {
         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
@@ -34,6 +37,13 @@ function Rooms() {
         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
       }
     }).then(res => { setAppointmentList(res.data) });
+
+    axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => setIsAdmin(res.data.role === 'admin'));
+
   }, []);
 
   // Functions
@@ -99,9 +109,13 @@ function Rooms() {
               />
             </FormControl>
           </Box>
-          <Button variant="contained" color="primary" onClick={navigateToAddRoom}> {/* Updated onClick handler */}
+          {
+            isAdmin &&
+            <Button variant="contained" color="primary" onClick={navigateToAddRoom}> {/* Updated onClick handler */}
             Add Room
-          </Button>
+            </Button>
+          }
+          
           <TableContainer component={Paper} sx={{ height: 500 }}>
             <Table aria-label="simple table">
               <TableHead>

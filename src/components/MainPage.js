@@ -62,6 +62,7 @@ export default function MainPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true); // initially true if you want it open by default
   const navigate = useNavigate();
   const location = useLocation();
+  const [isAdmin, setIsAdmin] = useState(false); 
  // const [cookies, , removeCookies] = useCookies(['user']);
 
   const activeRouteStyle = {
@@ -73,7 +74,7 @@ export default function MainPage() {
 
 
   useEffect(() => {
-    const checkSession = () => {
+    const checkSession = async () => {
       const storedToken = sessionStorage.getItem('token');
       const storedUser = sessionStorage.getItem('user');
 
