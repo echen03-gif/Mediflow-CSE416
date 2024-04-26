@@ -103,18 +103,7 @@ export default function Schedule() {
     //checkSession();
     navigate("/main/pending");
   }
-
-  function formatTime(timeObject) {
-    const date = new Date(timeObject);
-    let hours = date.getUTCHours();
-    let minutes = date.getUTCMinutes();
-
-    hours = hours.toString().padStart(2, '0');
-    minutes = minutes.toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
-  }
-
-
+  
   const handleEventClick = (info) => {
     setSelectedEvent(info.event);
   };
@@ -164,6 +153,7 @@ export default function Schedule() {
         </button>
         <button
           style={{
+            display: "none",
             backgroundColor: "#1976D2",
             color: "white",
             padding: "8px 16px",
@@ -173,7 +163,9 @@ export default function Schedule() {
           }}
           onClick={handlePending}
         >
+          {/* THIS WILL BE FOR ADMIN VIEW LATER */}
           Pending Appointments
+
         </button>
 
         <FullCalendar

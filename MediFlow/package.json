@@ -29,7 +29,8 @@
     "react-test-renderer": "^18.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
+    "@babel/core": "^7.24.4",
+    "@babel/preset-react": "^7.24.1",
     "babel-jest": "^29.7.0"
   },
   "private": true
