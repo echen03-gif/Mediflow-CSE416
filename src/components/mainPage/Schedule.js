@@ -103,18 +103,7 @@ export default function Schedule() {
     //checkSession();
     navigate("/main/pending");
   }
-
-  function formatTime(timeObject) {
-    const date = new Date(timeObject);
-    let hours = date.getUTCHours();
-    let minutes = date.getUTCMinutes();
-
-    hours = hours.toString().padStart(2, '0');
-    minutes = minutes.toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
-  }
-
-
+  
   const handleEventClick = (info) => {
     setSelectedEvent(info.event);
   };
