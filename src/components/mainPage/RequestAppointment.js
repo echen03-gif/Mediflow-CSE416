@@ -129,7 +129,7 @@ export default function RequestAppointment() {
 
 
     await Promise.all(Array.from(uniqueRoomIds).map(room => {
-      return axios.put("http://localhost:8000/changeRoomAppointment", {
+      return axios.put("https://mediflow-cse416.onrender.com/changeRoomAppointment", {
         roomName: room,
         appointment: newAppointment.data,
       }, {
