@@ -12,6 +12,7 @@ export default function Schedule() {
   const [userAppointments, setUserAppointments] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [appointmentsList, setAppointmentList] = useState([]);
+  const [roomsList, setRooms] = useState([]);
   const [proceduresList, setProceduresList] = useState([]);
   const [fullCalendar, setFullCalendar] = useState([]);
   const navigate = useNavigate();
@@ -66,31 +67,41 @@ export default function Schedule() {
       }
     }).then(res => { setProceduresList(res.data) });
 
+    axios.get('https://mediflow-cse416.onrender.com/rooms', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
+
   }, []);
 
   useEffect(() => {
-
+    if (!userAppointments || !appointmentsList || !usersList) {
+      return; 
+    }
+  
     setFullCalendar(userAppointments.flatMap(appointmentId => {
-
       let appointmentItem = appointmentsList.find(item => item._id === appointmentId);
-
       if (!appointmentItem) return [];
-      return appointmentItem.procedures.map(procedure => ({
-
-        title: usersList.find(patient => patient._id === appointmentItem.patient).name,
-        start: procedure.scheduledStartTime,
-        end: procedure.scheduledEndTime,
-        extendedProps: {
-          patient: usersList.find(patient => patient._id === appointmentItem.patient),
-          appointmentDetais: appointmentItem,
-          procedureDetails: procedure
-        }
-
-      }));
+  
+      return appointmentItem.procedures.map(procedure => {
+        const patient = usersList.find(patient => patient._id === appointmentItem.patient);
+        if (!patient) return null; 
+  
+        return {
+          title: patient.name,
+          start: procedure.scheduledStartTime,
+          end: procedure.scheduledEndTime,
+          extendedProps: {
+            patient: patient,
+            appointmentDetais: appointmentItem,
+            procedureDetails: procedure
+          }
+        };
+      }).filter(item => item !== null); 
     }));
-
-
-  }, [appointmentsList]);
+  }, [userAppointments, appointmentsList, usersList]); 
+  
 
   // Functions
 
@@ -103,7 +114,7 @@ export default function Schedule() {
     //checkSession();
     navigate("/main/pending");
   }
-  
+
   const handleEventClick = (info) => {
     setSelectedEvent(info.event);
   };
@@ -111,8 +122,6 @@ export default function Schedule() {
   const handleClose = () => {
     setSelectedEvent(null);
   };
-
-  console.log(selectedEvent);
 
   // Display
 
@@ -194,13 +203,27 @@ export default function Schedule() {
               ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`} />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Purpose/Specifications" secondary = {proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).name} />
+              <ListItemText primary="Purpose/Specifications" secondary={proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).name} />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Other Staff" secondary="Nurse 1, Nurse 2" />
+              <ListItemText primary="Other Staff" secondary={
+                (() => {
+                  const currentUserId = sessionStorage.getItem('user');
+                  const filteredStaffNames = selectedEvent._def.extendedProps.procedureDetails.staff
+                    .map(staffId => usersList.find(user => user._id === staffId))
+                    .filter(user => user && user._id !== currentUserId)
+                    .map(user => user.name);
+
+                  if (filteredStaffNames.length === 0) {
+                    return "N/A";
+                  } else {
+                    return filteredStaffNames.join(', ');
+                  }
+                })()
+              } />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Room" secondary="Room 1" />
+              <ListItemText primary="Room" secondary= {roomsList.find(room => room._id === selectedEvent._def.extendedProps.procedureDetails.room).name} />
             </ListItem>
           </List>
         </DialogContent>

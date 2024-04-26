@@ -88,14 +88,18 @@ export default function RequestAppointment() {
 
     const uniqueStaffIds = new Set();
     const uniqueEquipmentIds = new Set();
+    const uniqueRoomIds = new Set();
 
-    procedures.forEach(({ staff, equipment }) => {
+    procedures.forEach(({ staff, equipment, room }) => {
       staff.forEach(staffId => {
         uniqueStaffIds.add(staffId);
       });
       equipment.forEach(equipmentId => {
         uniqueEquipmentIds.add(equipmentId);
       });
+
+      uniqueRoomIds.add(room);
+
     });
 
     await Promise.all([
@@ -123,7 +127,7 @@ export default function RequestAppointment() {
     ]);
 
 
-    await Promise.all(procedures.map(({ room }) => {
+    await Promise.all(uniqueRoomIds.map(({ room }) => {
       return axios.put("https://mediflow-cse416.onrender.com/changeRoomAppointment", {
         roomName: room,
         appointment: newAppointment.data,

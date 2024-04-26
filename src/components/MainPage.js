@@ -325,7 +325,7 @@ export default function MainPage() {
 
           {/* User name */}
           <Typography variant="h6" component="div">
-            Test User
+            {sessionStorage.getItem('name')}
           </Typography>
         </Toolbar>
       </AppBar>
