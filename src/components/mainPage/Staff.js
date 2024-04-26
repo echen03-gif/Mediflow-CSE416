@@ -20,32 +20,38 @@ const Staff = () => {
   // DB API
 
   useEffect(() => {
-    let userId = sessionStorage.getItem('user');
+    const fetchData = async () => {
+      try {
+        let userId = sessionStorage.getItem('user');
+  
+        const usersResponse = await axios.get("https://mediflow-cse416.onrender.com/users", {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
+        });
+  
+        const doctors = usersResponse.data.filter(user => user.role === "doctor" || user.role === "admin");
 
-    axios.get("https://mediflow-cse416.onrender.com/users", {
-      headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        const usersWithStatus = doctors.map(doctor => {
+          return { ...doctor, status: getStatus(doctor.schedule) };
+        });
+  
+        setUsers(usersWithStatus);
+
+        const userResponse = await axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
+        });
+        setIsAdmin(userResponse.data.role === 'admin');
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
-    }).then((res) => {
-
-      
-      const doctors = res.data.filter(user => user.role === "doctor" || user.role == "admin");
-
-      
-      const usersWithStatus = doctors.map(doctor => {
-        return { ...doctor, status: getStatus(doctor.schedule) };
-      });
-
-      
-      setUsers(usersWithStatus);
-    });
-
-    axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
-      headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-      }
-    }).then(res => setIsAdmin(res.data.role === 'admin'));
+    };
+  
+    fetchData();
   }, []);
+  
 
   // Functions
 
@@ -98,13 +104,17 @@ const Staff = () => {
           <Typography variant="h4" gutterBottom>
             Staff
           </Typography>
-          <Button
+          {
+            isAdmin && 
+            <Button
             variant="contained"
             color="primary"
             onClick={navigateToAddStaff}
           >
             Add Staff
           </Button>
+          }
+          
           <TextField
             variant="outlined"
             margin="normal"
