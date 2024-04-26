@@ -27,13 +27,15 @@ let db = mongoose.connection;
 
 // Create Functions
 
-function createUser(adminBool, email, name, password, role, staffID, schedule){
+function createUser(adminBool, email, name, age, gender, password, role, staffID, schedule){
 
     let createUser = {
         admin: adminBool,
         email: email,
         joined: new Date(),
         name: name,
+        age: age,
+        gender: gender,
         password: password,
         processes: [],
         role: role,
@@ -141,7 +143,7 @@ const hashedPass = bcrypt.hashSync(admin_password, saltRounds);
 
 const populate = async () => {
 
-    let sysAdmin = await createUser(true, "sysAdmin@gmail.com", "SYSTEM ADMIN", hashedPass, "admin", 0,
+    let sysAdmin = await createUser(true, "sysAdmin@gmail.com", "SYSTEM ADMIN", 28, "Male", hashedPass, "admin", 0,
      {
         Monday: [{start: "09:00", end: "17:00"}],
         Tuesday: [{start: "09:00", end: "17:00"}],

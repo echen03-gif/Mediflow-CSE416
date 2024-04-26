@@ -36,6 +36,8 @@ function createUser(adminBool, email, name, password, role, staffID, schedule){
         email: email,
         joined: new Date(),
         name: name,
+        age: 24,
+        gender: "Male",
         password: password,
         processes: [],
         role: role,
