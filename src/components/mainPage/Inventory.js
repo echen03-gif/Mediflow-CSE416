@@ -30,7 +30,7 @@ function Inventory() {
 	const [equipmentList, setEquipmentList] = useState([]);
 	const [equipmentDB, setEquipmentDB] = useState([]);
 	const [roomList, setRooms] = useState([]);
-	const [isAdmin, setIsAdmin] = useState([]);
+	const [isAdmin, setIsAdmin] = useState(false);
 
 	// DB API
 
