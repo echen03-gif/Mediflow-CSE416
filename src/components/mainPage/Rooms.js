@@ -242,9 +242,13 @@ function Rooms() {
               />
             </FormControl>
           </Box>
-          <Button variant="contained" color="primary" onClick={navigateToAddRoom}> {/* Updated onClick handler */}
+          {
+            isAdmin &&
+            <Button variant="contained" color="primary" onClick={navigateToAddRoom}> {/* Updated onClick handler */}
             Add Room
-          </Button>
+            </Button>
+          }
+          
           <TableContainer component={Paper} sx={{ height: 500 }}>
             <Table aria-label="simple table">
               <TableHead>
