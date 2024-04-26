@@ -19,8 +19,8 @@ export default function Schedule() {
 
   // DB API
 
-  const checkSession = () => {
-    axios.get("https://mediflow-cse416.onrender.com/check-session",
+  /* const checkSession = () => {
+    axios.get("http://localhost:8000/check-session",
       {
         headers: {
           'Authorization': 'Bearer ' + sessionStorage.getItem('token')
@@ -38,7 +38,7 @@ export default function Schedule() {
       .catch(error => {
         console.log("Error checking session", error);
       });
-  }
+  } */
 
   useEffect(() => {
     let userId = sessionStorage.getItem('user');
@@ -106,7 +106,7 @@ export default function Schedule() {
   // Functions
 
   const handleRequest = () => {
-    checkSession()
+    //checkSession()
     navigate('/main/request');
   }
 

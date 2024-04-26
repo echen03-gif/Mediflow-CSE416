@@ -16,6 +16,7 @@ export default function RequestAppointment() {
   
 
   // DB API
+  
 
   useEffect(() => {
 
@@ -127,18 +128,17 @@ export default function RequestAppointment() {
     ]);
 
 
-    await Promise.all(uniqueRoomIds.map(({ room }) => {
-      return axios.put("https://mediflow-cse416.onrender.com/changeRoomAppointment", {
+    await Promise.all(Array.from(uniqueRoomIds).map(room => {
+      return axios.put("http://localhost:8000/changeRoomAppointment", {
         roomName: room,
         appointment: newAppointment.data,
-
       }, {
         headers: {
           'Authorization': 'Bearer ' + sessionStorage.getItem('token')
         }
       });
-
-    }))
+    }));
+    
 
     navigate("/main/schedule");
   };

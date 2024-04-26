@@ -17,11 +17,6 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-function isProductAvailable(productName, date) {
-	// For now, let's assume all rooms are available on even-numbered days.
-	return date.getDate() % 2 === 0;
-}
-
 function Inventory() {
 	const navigate = useNavigate();
 	const [page, setPage] = useState(0);
@@ -31,6 +26,7 @@ function Inventory() {
 	const [appointmentList, setAppointmentList] = useState([]);
 	const [appointmentIds, setAppointmentIds] = useState([]);
 	const [inventoryHeadList, setInventoryHead] = useState([]);
+	const [usersList, setUsersList] = useState([]);
 	const [equipmentList, setEquipmentList] = useState([]);
 	const [equipmentDB, setEquipmentDB] = useState([]);
 	const [roomList, setRooms] = useState([]);
@@ -57,6 +53,10 @@ function Inventory() {
 
 	// use api.get instead of axios.get
 	useEffect(() => {
+		api.get("/users").then((res) => {
+			setUsersList(res.data);
+		});
+
 		api.get("/equipmentHead").then((res) => {
 			setInventoryHead(res.data);
 		});
@@ -69,7 +69,7 @@ function Inventory() {
 		api.get("/appointments").then((res) => {
 			setAppointmentList(res.data);
 		});
-	});
+	}, []);
 
 	// Functions
 
@@ -97,6 +97,16 @@ function Inventory() {
 			setInventoryPage("appointmentViewing");
 		}
 	};
+
+
+	function isProductAvailable(productName, date) {
+		// For now, let's assume all rooms are available on even-numbered days.
+		console.log(productName);
+
+		console.log(equipmentDB.find(equipment => equipment._id === productName).appointments)
+
+		return date.getDate() % 2 === 0;	
+	}
 
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
@@ -162,7 +172,7 @@ function Inventory() {
 									{/* Added this line */}
 									<TableCell>Appointment</TableCell>
 									<TableCell align="center">
-										ScheduledStartDate
+										Scheduled Dates
 									</TableCell>
 								</TableRow>
 							</TableHead>
@@ -192,37 +202,26 @@ function Inventory() {
 														paddingRight: "0",
 													}}
 												>
-													<div
-														style={{
-															width: "15px",
-															height: "30px",
-															backgroundColor:
-																isProductAvailable(
-																	product.name,
-																	selectedDate
-																)
-																	? "green"
-																	: "red",
-															marginRight: "10px",
-														}}
-													></div>
 												</TableCell>
 												<TableCell>
 													{
-														appointmentList.find(
+														usersList.find(userId => userId._id === appointmentList.find(
 															(appointment) =>
 																appointment._id ===
 																product
-														).patientName
+														).patient).name
 													}
 												</TableCell>
 												<TableCell align="center">
 													{
 														appointmentList.find(
-															(appointment) =>
-																appointment._id ===
-																product
-														).scheduledStartTime
+															(appointment) => appointment._id === product
+														).procedures.map(procedure => {
+															const date = new Date(procedure.scheduledStartTime);
+															const endDate = new Date(procedure.scheduledEndTime);
+															return `${date.getMonth() + 1}/${date.getDate()} - ${endDate.getMonth() + 1}/${endDate.getDate()}`;
+														}).join(", ")
+
 													}
 												</TableCell>
 											</TableRow>
@@ -332,7 +331,7 @@ function Inventory() {
 															height: "30px",
 															backgroundColor:
 																isProductAvailable(
-																	product.name,
+																	product,
 																	selectedDate
 																)
 																	? "green"
@@ -495,20 +494,7 @@ function Inventory() {
 													paddingRight: "0",
 												}}
 											>
-												<div
-													style={{
-														width: "15px",
-														height: "30px",
-														backgroundColor:
-															isProductAvailable(
-																product.name,
-																selectedDate
-															)
-																? "green"
-																: "red",
-														marginRight: "10px",
-													}}
-												></div>
+
 											</TableCell>
 											<TableCell>
 												<Typography
