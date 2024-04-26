@@ -153,6 +153,7 @@ export default function Schedule() {
         </button>
         <button
           style={{
+            display: "none",
             backgroundColor: "#1976D2",
             color: "white",
             padding: "8px 16px",
@@ -162,7 +163,9 @@ export default function Schedule() {
           }}
           onClick={handlePending}
         >
+          {/* THIS WILL BE FOR ADMIN VIEW LATER */}
           Pending Appointments
+
         </button>
 
         <FullCalendar
