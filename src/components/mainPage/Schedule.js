@@ -12,6 +12,7 @@ export default function Schedule() {
   const [userAppointments, setUserAppointments] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [appointmentsList, setAppointmentList] = useState([]);
+  const [proceduresList, setProceduresList] = useState([]);
   const [fullCalendar, setFullCalendar] = useState([]);
   const navigate = useNavigate();
 
@@ -59,24 +60,35 @@ export default function Schedule() {
       }
     }).then(res => { setUsersList(res.data) });
 
+    axios.get('https://mediflow-cse416.onrender.com/procedures', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setProceduresList(res.data) });
+
   }, []);
 
   useEffect(() => {
 
     setFullCalendar(userAppointments.flatMap(appointmentId => {
-  
+
       let appointmentItem = appointmentsList.find(item => item._id === appointmentId);
-    
-      if (!appointmentItem) return []; 
+
+      if (!appointmentItem) return [];
       return appointmentItem.procedures.map(procedure => ({
 
-        title: usersList.find(patient => patient._id === appointmentItem.patient).name, 
+        title: usersList.find(patient => patient._id === appointmentItem.patient).name,
         start: procedure.scheduledStartTime,
-        end: procedure.scheduledEndTime
+        end: procedure.scheduledEndTime,
+        extendedProps: {
+          patient: usersList.find(patient => patient._id === appointmentItem.patient),
+          appointmentDetais: appointmentItem,
+          procedureDetails: procedure
+        }
 
       }));
     }));
-    
+
 
   }, [appointmentsList]);
 
@@ -87,6 +99,17 @@ export default function Schedule() {
     navigate('/main/request');
   }
 
+  function formatTime(timeObject) {
+    const date = new Date(timeObject);
+    let hours = date.getUTCHours();
+    let minutes = date.getUTCMinutes();
+
+    hours = hours.toString().padStart(2, '0');
+    minutes = minutes.toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+
   const handleEventClick = (info) => {
     setSelectedEvent(info.event);
   };
@@ -95,6 +118,7 @@ export default function Schedule() {
     setSelectedEvent(null);
   };
 
+  console.log(selectedEvent);
 
   // Display
 
@@ -145,13 +169,16 @@ export default function Schedule() {
         <DialogContent>
           <List>
             <ListItem>
-              <ListItemText primary = {selectedEvent._def.title} secondary="Age: 30, Gender: Male" />
+              <ListItemText primary={"Patient Information"} secondary={"Age: " + selectedEvent._def.extendedProps.patient.age + ", Gender: " + selectedEvent._def.extendedProps.patient.gender} />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Time" secondary="10:00 AM - 11:00 AM" />
+              <ListItemText primary="Date" secondary={`${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledStartTime).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })} 
+              ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledStartTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })} - 
+              ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })} 
+              ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`} />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Purpose/Specifications" secondary="Regular Checkup" />
+              <ListItemText primary="Purpose/Specifications" secondary = {proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).name} />
             </ListItem>
             <ListItem>
               <ListItemText primary="Other Staff" secondary="Nurse 1, Nurse 2" />
@@ -162,7 +189,7 @@ export default function Schedule() {
           </List>
         </DialogContent>
       </Dialog>
-    } 
+      }
     </div>
   );
 }

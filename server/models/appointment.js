@@ -8,14 +8,11 @@ const appointmentSchema = new mongoose.Schema({
         staff: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Users' }],
         procedure: { type: mongoose.Schema.Types.ObjectId, ref: 'Procedure' },
         equipment: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Equipment' }],
+        room: { type: mongoose.Schema.Types.ObjectId, ref: 'Room' },
         scheduledEndTime: { type: Date },
         scheduledStartTime: { type: Date }
     }],
     process: { type: mongoose.Schema.Types.ObjectId, ref: 'Processes' },
-    location: [{
-        room: { type: mongoose.Schema.Types.ObjectId, ref: 'Room' },
-        procedure: { type: mongoose.Schema.Types.ObjectId, ref: 'Procedure' }
-    }]
 
 });
 

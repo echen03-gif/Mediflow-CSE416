@@ -13,7 +13,7 @@ export default function RequestAppointment() {
   const [equipmentList, setEquipmentList] = useState([]);
   const [procedureList, setProcedureList] = useState([]);
   const [staffSelections, setStaffSelections] = useState({});
-  const [roomSelections, setRoomSelections] = useState({});
+  
 
   // DB API
 
@@ -54,13 +54,10 @@ export default function RequestAppointment() {
   useEffect(() => {
     if (process) {
       const initStaff = {};
-      const initRooms = {};
       process.components.forEach(proc => {
-        initStaff[proc] = { staff: [], equipment: [], scheduledStartTime: '', scheduledEndTime: '' };
-        initRooms[proc] = [];
+        initStaff[proc] = { staff: [], equipment: [], scheduledStartTime: '', scheduledEndTime: '', roomId: '' };
       });
       setStaffSelections(initStaff);
-      setRoomSelections(initRooms);
     }
   }, [process]);
 
@@ -69,25 +66,20 @@ export default function RequestAppointment() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const staffAssigned = Object.entries(staffSelections).map(([procedureId, { staff, equipment, scheduledStartTime, scheduledEndTime }]) => ({
-      staff: staff,
+    const procedures = Object.entries(staffSelections).map(([procedureId, { staff, equipment, scheduledStartTime, scheduledEndTime, roomId }]) => ({
       procedure: procedureId,
-      equipment: equipment,
-      scheduledStartTime: scheduledStartTime,
-      scheduledEndTime: scheduledEndTime
-    }));
-
-    const roomAssigned = Object.entries(roomSelections).map(([procedureId, roomId]) => ({
-      room: roomId,
-      procedure: procedureId
+      staff,
+      equipment,
+      scheduledStartTime,
+      scheduledEndTime,
+      room: roomId
     }));
 
 
     let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/createAppointment", {
       patient: patientUser,
-      procedures: staffAssigned,
+      procedures: procedures,
       process: process,
-      room: roomAssigned
     }, {
       headers: {
         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
@@ -97,7 +89,7 @@ export default function RequestAppointment() {
     const uniqueStaffIds = new Set();
     const uniqueEquipmentIds = new Set();
 
-    staffAssigned.forEach(({ staff, equipment }) => {
+    procedures.forEach(({ staff, equipment }) => {
       staff.forEach(staffId => {
         uniqueStaffIds.add(staffId);
       });
@@ -131,7 +123,7 @@ export default function RequestAppointment() {
     ]);
 
 
-    await Promise.all(roomAssigned.map(({ room }) => {
+    await Promise.all(procedures.map(({ room }) => {
       return axios.put("https://mediflow-cse416.onrender.com/changeRoomAppointment", {
         roomName: room,
         appointment: newAppointment.data,
@@ -152,53 +144,15 @@ export default function RequestAppointment() {
     navigate("/main/createprocess");
   }
 
-  const handleStaffChange = (procedureId) => (event, newValue) => {
+  const handleChange = (procedureId, field) => (event, newValue) => {
     setStaffSelections(prev => ({
       ...prev,
       [procedureId]: {
         ...prev[procedureId],
-        staff: newValue.map(item => item)
+        [field]: newValue?.map ? newValue.map(item => item) : newValue
       }
     }));
   };
-
-  const handleEquipmentChange = (procedureId) => (event, newValue) => {
-    setStaffSelections(prev => ({
-      ...prev,
-      [procedureId]: {
-        ...prev[procedureId],
-        equipment: newValue.map(item => item)
-      }
-    }));
-  };
-
-  const handleRoomChange = (procedureId) => (event, newValue) => {
-
-    setRoomSelections(prev => ({ ...prev, [procedureId]: newValue }));
-  };
-
-  const handleStartDateChange = (procedureId) => (event) => {
-    const newValue = event.target.value;
-    setStaffSelections(prev => ({
-      ...prev,
-      [procedureId]: {
-        ...prev[procedureId],
-        scheduledStartTime: newValue
-      }
-    }));
-  };
-
-  const handleEndDateChange = (procedureId) => (event) => {
-    const newValue = event.target.value;
-    setStaffSelections(prev => ({
-      ...prev,
-      [procedureId]: {
-        ...prev[procedureId],
-        scheduledEndTime: newValue
-      }
-    }));
-  };
-
 
   // Display
 
@@ -272,7 +226,7 @@ export default function RequestAppointment() {
                   options={usersList.filter(user => user.role === 'doctor')}
                   getOptionLabel={(option) => option.name}
                   value={staffSelections[procedure]}
-                  onChange={(event, newValue) => handleStaffChange(procedure)(event, newValue)}
+                  onChange={handleChange(procedure, 'staff')}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -286,8 +240,8 @@ export default function RequestAppointment() {
                 <Autocomplete
                   options={roomsList}
                   getOptionLabel={(option) => option.name}
-                  value={roomSelections[procedure]}
-                  onChange={(event, newValue) => handleRoomChange(procedure)(event, newValue)}
+                  value={staffSelections[procedure]}
+                  onChange={handleChange(procedure, 'roomId')}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -303,7 +257,7 @@ export default function RequestAppointment() {
                   options={equipmentList}
                   getOptionLabel={(option) => option.name}
                   value={staffSelections[procedure]}
-                  onChange={(event, newValue) => handleEquipmentChange(procedure)(event, newValue)}
+                  onChange={handleChange(procedure, 'equipment')}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -323,7 +277,7 @@ export default function RequestAppointment() {
                   sx={{ mb: 2 }}
                   name="scheduledStartTime"
                   value={staffSelections[procedure]?.scheduledStartTime || ''}
-                  onChange={(e) => handleStartDateChange(procedure)(e)}
+                  onChange={(e) => handleChange(procedure, 'scheduledStartTime')(e, e.target.value)}
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -337,7 +291,7 @@ export default function RequestAppointment() {
                   sx={{ mb: 2 }}
                   name="scheduledEndTime"
                   value={staffSelections[procedure]?.scheduledEndTime || ''}
-                  onChange={(e) => handleEndDateChange(procedure)(e)}
+                  onChange={(e) => handleChange(procedure, 'scheduledEndTime')(e, e.target.value)}
                   InputLabelProps={{
                     shrink: true,
                   }}
