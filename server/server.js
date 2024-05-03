@@ -188,8 +188,8 @@ io.on("connection", (socket) => {
         }
         const roomKey = [senderUserId, recipientUserId].sort().join("-");
 
-        if (userSocketMap.has([recipientUserName, recipientUserId])) {
-            const recipientSocketId = userSocketMap.get([recipientUserName, recipientUserId]);
+        if (userSocketMap.has([recipientUsername, recipientUserId])) {
+            const recipientSocketId = userSocketMap.get([recipientUsername, recipientUserId]);
 
             if (!chatRooms.has(roomKey)) {
                 chatRooms.set(roomKey, new Set([senderUserId, recipientUserId]));
