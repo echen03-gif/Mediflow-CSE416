@@ -213,7 +213,7 @@ io.on("connection", (socket) => {
                 message: `New Message From ${senderUsername}`,
                 otherUser: senderUsername
             });
-
+            console.log("testing");
             console.log(
                 `Both users ${senderUserId} and ${recipientUserId} have joined room: ${roomKey}`
             );
