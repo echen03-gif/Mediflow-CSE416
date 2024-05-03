@@ -78,13 +78,14 @@ export default function MainPage() {
     const checkSession = async () => {
       const storedToken = sessionStorage.getItem('token');
       const storedUser = sessionStorage.getItem('user');
+      const storedName = sessionStorage.getItem('name');
 
       if (!storedToken || !storedUser) {
         // If token or username is not found in sessionStorage, redirect to the login page
         navigate('/login');
       }
 
-      socket.emit('userConnected', storedUser);
+      socket.emit('userConnected', storedUser, storedName);
 
     };
 
@@ -95,7 +96,7 @@ export default function MainPage() {
       if (!data.initiatedByMe) {
         console.log("Data not initiated by me")
         toast(`${data.message}`, {
-          onClick: () => navigate(`/main/chatscreen/${data.roomID}`),
+          onClick: () => navigate(`/main/chatscreen/${data.otherUser}`),
           position: "bottom-right",
           autoClose: 10000, 
           style: {
@@ -108,7 +109,7 @@ export default function MainPage() {
         }
       });
       } else {
-          navigate(`/main/chatscreen/${data.roomID}`);
+          navigate(`/main/chatscreen/${data.otherUser}`);
       }
       
     });
