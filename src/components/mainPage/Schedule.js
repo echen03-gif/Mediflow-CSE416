@@ -77,19 +77,19 @@ export default function Schedule() {
 
   useEffect(() => {
     if (!userAppointments || !appointmentsList || !usersList) {
-      return; 
+      return;
     }
-  
+
     setFullCalendar(userAppointments.flatMap(appointmentId => {
       let appointmentItem = appointmentsList.find(item => item._id === appointmentId);
       if (!appointmentItem) return [];
-  
+
       return appointmentItem.procedures.map(procedure => {
         const patient = usersList.find(patient => patient._id === appointmentItem.patient);
-        if (!patient) return null; 
+        if (!patient) return null;
         const start = new Date(procedure.scheduledStartTime);
-				const end = new Date(procedure.scheduledEndTime);
-       
+        const end = new Date(procedure.scheduledEndTime);
+
         return {
           title: patient.name,
           start: start,
@@ -100,10 +100,10 @@ export default function Schedule() {
             procedureDetails: procedure
           }
         };
-      }).filter(item => item !== null); 
+      }).filter(item => item !== null);
     }));
-  }, [userAppointments, appointmentsList, usersList]); 
-  
+  }, [userAppointments, appointmentsList, usersList]);
+
 
   // Functions
 
@@ -132,7 +132,7 @@ export default function Schedule() {
       style={{
         display: "flex",
         height: "93%",
-        overflowY: "hidden",
+        overflowY: "auto",
         padding: 0,
         margin: 0,
         boxSizing: "border-box",
@@ -143,7 +143,7 @@ export default function Schedule() {
       <div
         style={{
           flex: 1,
-          overflow: "hidden",
+          overflow: "auto",
           paddingRight: "24px",
           paddingTop: "30px",
         }}
@@ -186,7 +186,10 @@ export default function Schedule() {
           dateClick={(info) => setSelectedDate(info.date)}
           events={fullCalendar}
           eventClick={handleEventClick}
+          height="auto"
+          contentHeight="auto"
         />
+
       </div>
       {selectedEvent && <Dialog
         open={selectedEvent !== null}
@@ -225,7 +228,7 @@ export default function Schedule() {
               } />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Room" secondary= {roomsList.find(room => room._id === selectedEvent._def.extendedProps.procedureDetails.room).name} />
+              <ListItemText primary="Room" secondary={roomsList.find(room => room._id === selectedEvent._def.extendedProps.procedureDetails.room).name} />
             </ListItem>
           </List>
         </DialogContent>
