@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 function Rooms() {
   const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [roomList, setRooms] = useState([]);
@@ -16,6 +17,7 @@ function Rooms() {
   const [roomPage, setRoomPage] = useState('default');
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [availabilityCache, setAvailabilityCache] = useState({});
 
   // DB API
 
@@ -59,9 +61,22 @@ function Rooms() {
         console.error('Error fetching data:', error);
       }
     };
+    setLoading(false);
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const newCache = {...availabilityCache};
+    roomList.forEach(room => {
+      const roomKey = `${room._id}-${selectedDate.toISOString().split("T")[0]}`;
+      if (newCache[roomKey] === undefined) { 
+        newCache[roomKey] = isRoomAvailable(room, selectedDate);
+      }
+    });
+    setAvailabilityCache(newCache);
+  }, [roomList, appointmentList, selectedDate]); 
+  
 
   // Functions
 
@@ -95,33 +110,42 @@ function Rooms() {
     }
   }
 
-  function isRoomAvailable(room, date) {
-    
-    if (appointmentList.length > 0) {
-      
-      const currentDate = new Date(date);
-
-      const isAvailable = room.appointments.some(appointment => {
-
-        let appointmentData = appointmentList.find(appointmentId => appointmentId._id === appointment);
-
-        return appointmentData.procedures.some(procedure => {
-          const start = new Date(procedure.scheduledStartTime);
-          const end = new Date(procedure.scheduledEndTime);
-
-
-          return currentDate >= start && currentDate <= end;
-        });
-      });
-
-
-      return !isAvailable;
-    }
-   
+function isRoomAvailable(room, date) {
+  const dateKey = date.toISOString().split("T")[0]; 
+  const roomKey = `${room._id}-${dateKey}`;
+  
+  
+  if (availabilityCache[roomKey] !== undefined) {
+    return availabilityCache[roomKey];
   }
+  
+  if (appointmentList.length > 0) {
+    const currentDate = date.getTime(); 
+
+    const isAvailable = !room.appointments.some(appointmentId => {
+      const appointmentData = appointmentList.find(appointment => appointment._id === appointmentId);
+      return appointmentData && appointmentData.procedures.some(procedure => {
+        const start = new Date(procedure.scheduledStartTime).getTime();
+        const end = new Date(procedure.scheduledEndTime).getTime();
+        return currentDate >= start && currentDate <= end;
+      });
+    });
+
+    
+    setAvailabilityCache(prev => ({...prev, [roomKey]: isAvailable}));
+
+    return isAvailable;
+  }
+  return true; 
+}
+
 
   // Display
 
+  if (loading) {
+    return <Typography>Loading...</Typography>; 
+  } 
+  else{
   switch (roomPage) {
 
     case 'appointmentViewing':
@@ -319,7 +343,7 @@ function Rooms() {
     default:
       return;
   }
-
+  }
 }
 export default Rooms;
 
