@@ -162,7 +162,7 @@ io.on("connection", (socket) => {
             io.to(recipientSocketId).emit("chatReady", {
                 roomID: roomKey,
                 initiatedByMe: false,
-                message: `Chat started by ${senderUserId}`,
+                message: `New Message From ${senderUserId}`,
             });
 
             console.log(
@@ -279,6 +279,36 @@ app.get("/check-session", (req, res) => {
         res.send({ loggedIn: true });
     } else {
         res.send({ loggedIn: false });
+    }
+});
+
+app.get('/processes/user/:userId', async (req, res) => {
+    try {
+        const user = await Users.findById(req.params.userId).populate('processes');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user.processes);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+app.get('/procedures/user/:userId', async (req, res) => {
+    try {
+        const user = await Users.findById(req.params.userId).populate({
+            path: 'processes',
+            populate: { path: 'components' }  // Assuming 'components' holds references to procedures
+        });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Extract procedures from processes
+        const procedures = user.processes.map(process => process.components).flat();
+        res.json(procedures);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
 
