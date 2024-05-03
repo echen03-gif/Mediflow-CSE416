@@ -141,12 +141,13 @@ const userSocketMap = new Map();
 io.on("connection", (socket) => {
     console.log("user " + socket.id + " connected");
 
-    socket.on("userConnected", (userId) => {
-        let x = userSocketMap.get(userId);
-
+    socket.on("userConnected", (userId, storedName) => {
+        let keyTuple = [storedName, userId];
+        let x = userSocketMap.get(keyTuple);
+    
         if (!x) {
             console.log("Saving socket from user: " + userId + " as " + socket.id);
-            userSocketMap.set(userId, socket.id);
+            userSocketMap.set(keyTuple, socket.id);
         }
     });
 
@@ -168,17 +169,27 @@ io.on("connection", (socket) => {
 
     socket.on("chatStart", (recipientUserId) => {
         let senderUserId = null;
+        let senderUsername = null;
+        let recipientUsername = null;
         //iterate over the map to find the userId for the current socket.id
+        
         for (let [key, value] of userSocketMap.entries()) {
             if (value === socket.id) {
-                senderUserId = key;
+                senderUserId = key[1];
+                senderUsername = key[0];
+                break;
+            }
+        }
+        for (let x of userSocketMap.keys()) {
+            if (x[1] === recipientUserId) {
+                recipientUsername = key[0];
                 break;
             }
         }
         const roomKey = [senderUserId, recipientUserId].sort().join("-");
 
-        if (userSocketMap.has(recipientUserId)) {
-            const recipientSocketId = userSocketMap.get(recipientUserId);
+        if (userSocketMap.has([recipientUserName, recipientUserId])) {
+            const recipientSocketId = userSocketMap.get([recipientUserName, recipientUserId]);
 
             if (!chatRooms.has(roomKey)) {
                 chatRooms.set(roomKey, new Set([senderUserId, recipientUserId]));
@@ -193,12 +204,14 @@ io.on("connection", (socket) => {
             socket.emit("chatReady", {
                 roomID: roomKey,
                 initiatedByMe: true,
-                message: `You started a chat with ${recipientUserId}`,
+                message: `You started a chat with ${recipientUsername}`,
+                otherUser: recipientUsername
             });
             io.to(recipientSocketId).emit("chatReady", {
                 roomID: roomKey,
                 initiatedByMe: false,
-                message: `New Message From ${senderUserId}`,
+                message: `New Message From ${senderUsername}`,
+                otherUser: senderUsername
             });
 
             console.log(
@@ -206,7 +219,7 @@ io.on("connection", (socket) => {
             );
         } else {
             console.log(`User ${recipientUserId} is not currently connected.`);
-            socket.emit("userOffline", { recipientUserId });
+            socket.emit("userOffline", { recipientUsername });
         }
     });
 
