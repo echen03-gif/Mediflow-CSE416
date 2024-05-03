@@ -169,7 +169,7 @@ const Staff = () => {
                 <Grid item key={staff.name} style={{ textAlign: "center" }}>
                   <Avatar
                     alt={staff.name}
-                    src={""}
+                    src={staff.profilePic}
                     style={{ width: "7vh", height: "7vh" }}
                   />
                   <Typography>{staff.name}</Typography>

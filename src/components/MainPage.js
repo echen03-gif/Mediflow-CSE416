@@ -63,7 +63,7 @@ export default function MainPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true); // initially true if you want it open by default
   const navigate = useNavigate();
   const location = useLocation();
-  const [isAdmin, setIsAdmin] = useState(false); 
+  //const [isAdmin, setIsAdmin] = useState(false); 
  // const [cookies, , removeCookies] = useCookies(['user']);
 
   const activeRouteStyle = {
@@ -95,9 +95,18 @@ export default function MainPage() {
       if (!data.initiatedByMe) {
         console.log("Data not initiated by me")
         toast(`${data.message}`, {
-            onClick: () => navigate(`/main/chatscreen/${data.roomID}`),
-            autoClose: 5000
-        });
+          onClick: () => navigate(`/main/chatscreen/${data.roomID}`),
+          position: "bottom-right",
+          autoClose: 10000, 
+          style: {
+              backgroundColor: "#4caf50",
+              color: "white" 
+          },
+          progressStyle: {
+            background: "#ffffff", 
+            height: '5px' 
+        }
+      });
       } else {
           navigate(`/main/chatscreen/${data.roomID}`);
       }
@@ -315,8 +324,7 @@ export default function MainPage() {
           </Box>
 
           <Avatar
-            alt="Remy Sharp"
-            src="https://mui.com/static/images/avatar/1.jpg"
+            src={`https://mediflow-cse416.onrender.com/uploads/${sessionStorage.getItem('pfp')}`}
             component={Link}
             to="/main/profile"
             onClick={handleRefreshClick("/main/profile")}

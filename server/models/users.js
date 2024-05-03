@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
         Saturday: [shiftSchema],
         Sunday: [shiftSchema]
     },
+    processes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Processes' }],
+    procedures: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Procedure' }],
+    profilePic: { type: String, default: 'default.jpg' },
+
 
 
 });

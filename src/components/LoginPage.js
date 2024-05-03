@@ -25,6 +25,8 @@ export default function LoginPage() {
               sessionStorage.setItem('token', res.data.token);
               sessionStorage.setItem('user', res.data.user);
               sessionStorage.setItem("name", res.data.name)
+              sessionStorage.setItem("pfp", res.data.profilePic)
+
               navigate('/main/schedule');
             } else {
               console.log("Error")
