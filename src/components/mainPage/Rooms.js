@@ -177,7 +177,7 @@ function isRoomAvailable(room, date) {
           </Box>
           {
             isAdmin &&
-            <Button variant="contained" color="primary" onClick={navigateToAddRoom}> {/* Updated onClick handler */}
+            <Button variant="contained" color="primary" onClick={navigateToAddRoom}> 
               Add Room
             </Button>
           }
@@ -187,7 +187,7 @@ function isRoomAvailable(room, date) {
               <TableHead>
                 <TableRow>
                   <TableCell></TableCell>{" "}
-                  {/* Added this line */}
+                
                   <TableCell>Appointment</TableCell>
                   <TableCell align="center">
                     Scheduled Dates
@@ -275,7 +275,7 @@ function isRoomAvailable(room, date) {
           </Box>
           {
             isAdmin &&
-            <Button variant="contained" color="primary" onClick={navigateToAddRoom}> {/* Updated onClick handler */}
+            <Button variant="contained" color="primary" onClick={navigateToAddRoom}> 
               Add Room
             </Button>
           }
@@ -284,10 +284,9 @@ function isRoomAvailable(room, date) {
             <Table aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell></TableCell> {/* Added this line */}
+                  <TableCell></TableCell> 
                   <TableCell>Room #</TableCell>
                   <TableCell align="right">Room Type</TableCell>
-                  <TableCell align="right">Assigned Appointment</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -319,9 +318,6 @@ function isRoomAvailable(room, date) {
                       </Typography>
                       </TableCell>
                       <TableCell align="right">{room.type}</TableCell>
-                      <TableCell align="right">
-                        Current Processes/Appointment
-                      </TableCell>
                     </TableRow>
                   ))}
               </TableBody>
