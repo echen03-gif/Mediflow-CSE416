@@ -386,23 +386,6 @@ app.post("/decode", async (req, res) => {
     console.log("Hopefully there are cookies");
     console.log(req.body.cookies);
 
-    // if (!cookieHeader) {
-    //     return res.status(400).send('No cookies found in the request.');
-    //   }
-
-    //   const cookies = cookieHeader.split('; ');
-    //   const jwtCookie = cookies.find(cookie => cookie.startsWith('user='));
-
-    //   if (!jwtCookie) {
-    //     return res.status(400).send('JWT cookie not found.');
-    //   }
-
-    //   const jwtToken = jwtCookie.split('=')[1];
-
-    //   // Decode the JWT token
-    //   const decodedToken = jwtDecode(jwtToken);
-    //   console.log('Decoded Token:', decodedToken);
-
     res.send(cookieHeader);
 });
 
@@ -511,14 +494,7 @@ app.post("/login", async (req, res) => {
             { expiresIn: "3h" }
         );
 
-        // res.cookie('token', token, {
-        //     path: "/",
-        //     //sameSite: 'None',
-        //     secure: false,
-        //     //domain: ".onrender.com",
-        //     httpOnly: true
-        // });
-
+    
         res.send({ success: true, user: user._id, name: user.name, token: token, profilePic: user.profilePic });
     } else {
         console.log("Failed to Login");
@@ -528,16 +504,6 @@ app.post("/login", async (req, res) => {
         });
     }
 });
-
-// app.post('/logout', async (req, res) => {
-//     console.log("logging out")
-//     res.clearCookie('token', {
-//         path: "/",
-//         //domain: ".onrender.com",
-//         //sameSite: 'None',
-//         //secure: true
-//     }).sendStatus(200);
-// });
 
 app.post("/requestAppointment", async (req, res) => {
     const newAppointment = new Appointment({
