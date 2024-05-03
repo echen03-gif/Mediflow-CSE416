@@ -6,8 +6,13 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const { createServer } = require("node:http");
 const { Server } = require("socket.io");
+const multer = require('multer');
+const path = require('path');
+
+
 
 app.use(express.json());
+app.use(express.static('../public'));
 app.use(cookieParser());
 app.use(
     cors({
@@ -19,8 +24,9 @@ app.use(
 
 const verifyToken = (req, res, next) => {
     // Get token from request headers
-    const token =
-        req.headers.authorization && req.headers.authorization.split(" ")[1];
+    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
+
+    console.log("token " + token)
 
     if (!token) {
         return res
@@ -49,6 +55,36 @@ app.use((req, res, next) => {
         verifyToken(req, res, next); // Apply the middleware to other routes
     }
 });
+
+//PROFILE PIC STUFF
+
+const storage = multer.diskStorage({
+    destination: '../public/uploads/',
+    filename: function(req, file, cb){
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits:{fileSize: 1000000}, 
+    fileFilter: function(req, file, cb){
+        checkFileType(file, cb);
+    }
+}).single('profilePic');
+
+function checkFileType(file, cb){
+
+    const filetypes = /jpeg|jpg|png|gif/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+
+    if(mimetype && extname){
+        return cb(null, true);
+    } else {
+        cb('Error: Images Only!');
+    }
+}
 
 const port = 8000;
 // The below URL is for npm start and local host
@@ -196,6 +232,7 @@ app.get("/users", async (req, res) => {
 });
 
 app.get("/userID/:userId", async (req, res) => {
+    console.log("here3")
     const { userId } = req.params;
 
     let user = await Users.findOne({ _id: userId });
@@ -283,8 +320,12 @@ app.get("/check-session", (req, res) => {
 });
 
 app.get('/processes/user/:userId', async (req, res) => {
+    console.log("here")
+    const { userId } = req.params;
+
     try {
-        const user = await Users.findById(req.params.userId).populate('processes');
+        const user = await Users.findOne({_id: userId}).populate('processes');
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -295,22 +336,50 @@ app.get('/processes/user/:userId', async (req, res) => {
 });
 
 app.get('/procedures/user/:userId', async (req, res) => {
+
     try {
-        const user = await Users.findById(req.params.userId).populate({
+        const user = await Users.findOne({_id:req.params.userId}).populate({
             path: 'processes',
-            populate: { path: 'components' }  // Assuming 'components' holds references to procedures
+            populate: { path: 'components' }  
         });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Extract procedures from processes
         const procedures = user.processes.map(process => process.components).flat();
         res.json(procedures);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
+
+
+
+app.post('/profile-upload/:userId', async (req, res) => {
+    upload(req, res, async (error) => {
+        if (error) {
+            console.log("Error 1 " + error)
+            return res.status(500).json({ message: error });
+        }
+        if (!req.file) {
+            console.log("Error 2 " + error)
+
+            return res.status(400).json({ message: 'Please upload a file!' });
+        }
+
+        try {
+            const { userId } = req.params;
+
+            const user = await Users.findByIdAndUpdate(userId, { profilePic: req.file.path }, { new: true });
+            res.status(200).json({ message: 'Profile picture updated successfully!', imagePath: user.profilePic });
+        } catch (err) {
+            console.log("Error 3 " + err)
+
+            res.status(500).json({ message: "Error uploading!" });
+        }
+    });
+});
+
 
 app.post("/decode", async (req, res) => {
     const cookieHeader = req.body.cookies;
@@ -450,7 +519,7 @@ app.post("/login", async (req, res) => {
         //     httpOnly: true
         // });
 
-        res.send({ success: true, user: user._id, name: user.name, token: token });
+        res.send({ success: true, user: user._id, name: user.name, token: token, profilePic: user.profilePic });
     } else {
         console.log("Failed to Login");
         res.send({
