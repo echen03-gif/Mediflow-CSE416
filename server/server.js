@@ -182,7 +182,7 @@ io.on("connection", (socket) => {
         }
         for (let x of userSocketMap.keys()) {
             if (x[1] === recipientUserId) {
-                recipientUsername = key[0];
+                recipientUsername = x[0];
                 break;
             }
         }
