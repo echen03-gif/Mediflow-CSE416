@@ -84,10 +84,10 @@ function Inbox() {
                       disableRipple
                     >
                       <TableCell>
-                        <img src={person.profileImageUrl} alt={person.name} style={{ width: 50, borderRadius: '50%' }} />
+                        <img src={`https://mediflow-cse416.onrender.com/uploads/${person.profilePic.split('/').pop()}`} alt={person.name} style={{ width: 50, borderRadius: '50%' }} />
                       </TableCell>
                       <TableCell>{person.name}</TableCell>
-                      <TableCell align="right">Test Information</TableCell>
+                      <TableCell align="right">N/A</TableCell>
                     </ButtonBase>
                   </TableRow>
                 ))}

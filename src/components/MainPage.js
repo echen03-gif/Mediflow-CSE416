@@ -66,12 +66,12 @@ export default function MainPage() {
   //const [isAdmin, setIsAdmin] = useState(false); 
  // const [cookies, , removeCookies] = useCookies(['user']);
 
-  const activeRouteStyle = {
-    backgroundColor: "#FF8C00", // Example background color for active route
-    "&:hover": {
-      backgroundColor: "#ff7900", // Darker on hover for active route
-    },
-  };
+ const activeRouteStyle = {
+  backgroundColor: "#FF8C00",
+  "&:hover": {
+    backgroundColor: "#FFA500",
+  },
+};
 
 
   useEffect(() => {
@@ -323,6 +323,9 @@ export default function MainPage() {
             </Typography> */}
           </Box>
 
+          <Typography variant="h6" component="div">
+            {`${sessionStorage.getItem('name')}`}
+          </Typography>
           <Avatar
             src={`https://mediflow-cse416.onrender.com/uploads/${sessionStorage.getItem('pfp')}`}
             component={Link}
@@ -331,10 +334,6 @@ export default function MainPage() {
             sx={location.pathname === "/main/profile" ? activeRouteStyle : {}}
           />
 
-          {/* User name */}
-          <Typography variant="h6" component="div">
-            {sessionStorage.getItem('name')}
-          </Typography>
         </Toolbar>
       </AppBar>
     </Box>
