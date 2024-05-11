@@ -13,10 +13,10 @@ export default function RequestAppointment() {
   const [equipmentList, setEquipmentList] = useState([]);
   const [procedureList, setProcedureList] = useState([]);
   const [staffSelections, setStaffSelections] = useState({});
-  
+
 
   // DB API
-  
+
 
   useEffect(() => {
 
@@ -63,18 +63,38 @@ export default function RequestAppointment() {
   }, [process]);
 
   // Functions
-
+  console.log(process);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const procedures = Object.entries(staffSelections).map(([procedureId, { staff, equipment, scheduledStartTime, scheduledEndTime, roomId }]) => ({
-      procedure: procedureId,
-      staff,
-      equipment,
-      scheduledStartTime,
-      scheduledEndTime,
-      room: roomId
-    }));
+    // Automate Staff, Room and Equipment Selection
+
+
+
+    const procedures = Object.entries(staffSelections).map(([procedureId, { staff, equipment, scheduledStartTime, scheduledEndTime, roomId }]) => {
+      const procedureDetails = procedureList.find(p => p._id === procedureId);
+
+      
+      const selectedStaff = usersList
+        .filter(user => user.role === 'doctor')
+        .slice(0, procedureDetails.requiredStaffCount)
+        .map(staff => staff._id); 
+
+      
+      const selectedEquipment = equipmentList;
+
+      
+      const selectedRoom = roomsList; 
+
+      return {
+        procedure: procedureId,
+        staff: selectedStaff,
+        equipment: selectedEquipment,
+        scheduledStartTime, 
+        scheduledEndTime,   
+        room: selectedRoom
+      };
+    });
 
 
     let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/requestAppointment", {
@@ -138,7 +158,7 @@ export default function RequestAppointment() {
         }
       });
     }));
-    
+
 
     navigate("/main/schedule");
   };
@@ -150,8 +170,7 @@ export default function RequestAppointment() {
 
   const handleChange = (procedureId, field) => (event, newValue) => {
 
-    console.log(newValue);
-    
+
     setStaffSelections(prev => ({
       ...prev,
       [procedureId]: {
@@ -227,54 +246,6 @@ export default function RequestAppointment() {
             {process && process.components.map(procedure => (
               <Box key={procedure}>
                 <Typography variant="h6">{procedureList.find(item => item._id === procedure).name}</Typography>
-
-                <Autocomplete
-                  multiple
-                  options={usersList.filter(user => user.role === 'doctor')}
-                  getOptionLabel={(option) => option.name}
-                  value={staffSelections[procedure]}
-                  onChange={handleChange(procedure, 'staff')}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Staff"
-                      variant="outlined"
-                      fullWidth
-
-                    />
-                  )}
-                />
-                <Autocomplete
-                  options={roomsList}
-                  getOptionLabel={(option) => option.name}
-                  value={staffSelections[procedure]}
-                  onChange={handleChange(procedure, 'roomId')}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Room"
-                      variant="outlined"
-                      fullWidth
-
-                    />
-                  )}
-                />
-                <Autocomplete
-                  multiple
-                  options={equipmentList}
-                  getOptionLabel={(option) => option.name}
-                  value={staffSelections[procedure]}
-                  onChange={handleChange(procedure, 'equipment')}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Equipment"
-                      variant="outlined"
-                      fullWidth
-
-                    />
-                  )}
-                />
 
                 <TextField
                   type="datetime-local"

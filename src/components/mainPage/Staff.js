@@ -30,7 +30,7 @@ const Staff = () => {
           }
         });
   
-        const doctors = usersResponse.data.filter(user => user.role === "doctor" || user.role === "admin");
+        const doctors = usersResponse.data.filter(user => user.role !== "patient");
 
         const usersWithStatus = doctors.map(doctor => {
           return { ...doctor, status: getStatus(doctor.schedule) };
