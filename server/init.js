@@ -110,7 +110,8 @@ function createProcedure(description, estimatedDuration, name, procedureID, requ
         requiredEquipment: requiredEquipment,
         requiredRoomType: requiredRoomType,
         location: locationRoom,
-        staffType: staffType
+        staffType: staffType,
+        staffRequired: 2
 
     }
 
@@ -142,7 +143,8 @@ const saltRounds = 10;
 const hashedPass = bcrypt.hashSync(admin_password, saltRounds);
 
 const populate = async () => {
-
+    
+    // SYS ADMIN
     let sysAdmin = await createUser(true, "sysAdmin@gmail.com", "SYSTEM ADMIN", 28, "Male", hashedPass, "admin", 0,
      {
         Monday: [{start: "09:00", end: "17:00"}],
@@ -153,6 +155,10 @@ const populate = async () => {
         Saturday: [{start: "15:00", end: "18:00"}],
         Sunday: [{start: "04:00", end: "15:00"}]
     });
+
+    // USERS
+
+
 
     // ROOMS
 
@@ -168,7 +174,7 @@ const populate = async () => {
     // PROCEDURES
 
     let heartSurgeryPreOp = await createProcedure("Patient needs to complete chest x-ray, blood tests, and fasting diet requirements.", 1000, "Heart Surgery PreOP", 0, [], null, null, "Nurse");
-    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 2000, "Heart Surgery OP", 1, "Cardiology", heartRoom, "Doctor");
+    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 2000, "Heart Surgery OP", 1, [], "Cardiology", heartRoom, "Doctor");
     let heartSurgeryPostOp = await createProcedure("Patient needs to rest and be monitored", 1000, "Heart Surgery PostOP", 2, [], "ICU", icu, "Nurse");
 
     // PROCESSES
