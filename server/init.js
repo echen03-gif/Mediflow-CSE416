@@ -110,8 +110,7 @@ function createProcedure(description, estimatedDuration, name, procedureID, requ
         requiredEquipment: requiredEquipment,
         requiredRoomType: requiredRoomType,
         location: locationRoom,
-        staffType: staffType,
-        staffRequired: 2
+        staffType: staffType
 
     }
 
