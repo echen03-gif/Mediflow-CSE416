@@ -8,8 +8,7 @@ const procedureSchema = new mongoose.Schema({
     name: {type: String},
     procedureID: {type: Number},
     requiredRoomType: {type: String},
-    staffType: {type: String},
-    staffRequired: {type: Number}
+    staffType: {type: String}
 
 });
 
