@@ -85,21 +85,21 @@ export default function RequestAppointment() {
 
     const weekDay = scheduledStart.toLocaleString('en-us', { weekday: 'long' });
 
-    const shifts = user.schedule[weekDay];
+    //const shifts = user.schedule[weekDay];
     
-    let isInShift = false;
-    for (let shift of shifts) {
-        const shiftStart = new Date(`${scheduledStartTime.split('T')[0]}T${shift.start}`);
-        const shiftEnd = new Date(`${scheduledStartTime.split('T')[0]}T${shift.end}`);
-        if (scheduledStart >= shiftStart && scheduledEnd <= shiftEnd) {
-            isInShift = true;
-            break;
-        }
-    }
+    // let isInShift = false;
+    // for (let shift of shifts) {
+    //     const shiftStart = new Date(`${scheduledStartTime.split('T')[0]}T${shift.start}`);
+    //     const shiftEnd = new Date(`${scheduledStartTime.split('T')[0]}T${shift.end}`);
+    //     if (scheduledStart >= shiftStart && scheduledEnd <= shiftEnd) {
+    //         isInShift = true;
+    //         break;
+    //     }
+    // }
 
-    if (!isInShift) {
-        return false; 
-    }
+    // if (!isInShift) {
+    //     return false; 
+    // }
 
     for (let appointmentId of user.appointments) {
 
@@ -234,6 +234,10 @@ export default function RequestAppointment() {
       if(procedure.requiredRoomType != null && selectedRoom == null){
         checkAvaliability = false;
       }
+      
+      console.log(selectedStaff)
+      console.log(selectedRoom)
+      console.log(selectedEquipment)
 
       return {
         procedure: procedureId,
