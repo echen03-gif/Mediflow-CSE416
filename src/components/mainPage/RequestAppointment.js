@@ -79,9 +79,27 @@ export default function RequestAppointment() {
 
   // Functions
 
-  const checkSchedule = (user, scheduledStartTime, scheduledEndTime) => {
+  const checkUserSchedule = (user, scheduledStartTime, scheduledEndTime) => {
     const scheduledStart = new Date(scheduledStartTime);
     const scheduledEnd = new Date(scheduledEndTime);
+
+    const weekDay = scheduledStart.toLocaleString('en-us', { weekday: 'long' });
+
+    const shifts = user.schedule[weekDay];
+    
+    let isInShift = false;
+    for (let shift of shifts) {
+        const shiftStart = new Date(`${scheduledStartTime.split('T')[0]}T${shift.start}`);
+        const shiftEnd = new Date(`${scheduledStartTime.split('T')[0]}T${shift.end}`);
+        if (scheduledStart >= shiftStart && scheduledEnd <= shiftEnd) {
+            isInShift = true;
+            break;
+        }
+    }
+
+    if (!isInShift) {
+        return false; 
+    }
 
     for (let appointmentId of user.appointments) {
 
@@ -170,7 +188,7 @@ export default function RequestAppointment() {
       
         if (usersList[i].role === procedure.staffType) {
 
-          if (checkSchedule(usersList[i], scheduledStartTime, scheduledEndTime)) {
+          if (checkUserSchedule(usersList[i], scheduledStartTime, scheduledEndTime)) {
             selectedStaff.push(usersList[i]);
           }
         }
@@ -209,7 +227,7 @@ export default function RequestAppointment() {
         }
       }
       
-      if(selectedStaff.length != numStaff || selectedEquipment.length != equipmentListName.length ){
+      if(selectedStaff.length !== numStaff || selectedEquipment.length !== equipmentListName.length ){
         checkAvaliability = false;
       }
 
@@ -229,7 +247,7 @@ export default function RequestAppointment() {
 
 
     if (!checkAvaliability) {
-      alert('Some procedures could not be fully staffed or some rooms are not avaliable. Please adjust your selections.');
+      alert('Some procedures could not be fully staffed or some rooms are not avaliable. Please adjust your time selections');
       return; 
     }
 

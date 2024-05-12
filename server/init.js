@@ -8,7 +8,9 @@
 */
 
 const bcrypt = require('bcrypt');
+const faker = require('faker'); 
 
+const departments = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Emergency"];
 let Users = require('./models/users.js');
 let Procedures = require('./models/procedure.js');
 let Equipment = require('./models/equipment.js');
@@ -136,6 +138,21 @@ function createProcess(name, procedures){
     return addProcess.save();
 }
 
+function getRandomSchedule() {
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+    let schedule = {};
+
+    days.forEach(day => {
+        let startHour = faker.datatype.number({min: 6, max: 10}); 
+        let endHour = startHour + faker.datatype.number({min: 8, max: 10}); 
+        schedule[day] = [{
+            start: `${startHour.toString().padStart(2, '0')}:00`, 
+            end: `${endHour.toString().padStart(2, '0')}:00`
+        }];
+    });
+
+    return schedule;
+}
 
 // Populate
 const admin_password = "sysAdmin"
@@ -158,13 +175,28 @@ const populate = async () => {
 
     // USERS
 
+    for (let i = 0; i < 10; i++) {
+        let department = departments[Math.floor(Math.random() * departments.length)];
+        let name = faker.name.findName();
+        let email = faker.internet.email(); 
+        let age = faker.datatype.number({ min: 25, max: 60 }); 
+        let gender = faker.random.arrayElement(["Male", "Female"]);
+        let staffID = faker.datatype.number(1000, 9999); 
 
+        await createUser(false, email, name, age, gender, hashedPass, department, staffID, getRandomSchedule());
+    }
 
     // ROOMS
 
     let storageRoom = await createRoom("Storage Room", 0, "OPEN", "Storage");
     let heartRoom = await createRoom("Room 101", 1, "OPEN", "Cardiology");
     let icu = await createRoom("Room 102", 2, "OPEN", "ICU");
+    let baseRoomNumber = 103; 
+    for (let i = 0; i < departments.length; i++) {
+        let roomName = `Room ${baseRoomNumber + i}`; 
+        let department = departments[i];
+        await createRoom(roomName, baseRoomNumber + i, "OPEN", department);
+    }
 
     // EQUIPMENT
 
