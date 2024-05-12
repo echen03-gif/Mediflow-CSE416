@@ -5,7 +5,7 @@ const messageSchema = new mongoose.Schema({
     roomID: {type: String},
     text: {type: String},
     sender: {type: String},
-    senderID: {type: Number},
+    senderID: {type: String},
     timestamp: {type: Date},
 
 });

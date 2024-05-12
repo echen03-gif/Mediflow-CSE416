@@ -48,7 +48,7 @@ import PendingAppointment from "./mainPage/AdminAppointmentView";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { io } from 'socket.io-client';
-export const socket = io('https://mediflow-cse416.onrender.com/');
+export const socket = io('http://localhost:8000');
 
 
 // Mock array of upcoming patients
@@ -126,6 +126,7 @@ export default function MainPage() {
     if(location.pathname.indexOf("chatscreen") >= 0){
       const roomId = location.pathname.substring(location.pathname.lastIndexOf("/")+1);
       console.log("you have left the chat screen of room id " + roomId);
+      socket.emit("leaveRoom", roomId);
     }
     
     if (location.pathname === targetPath) {
