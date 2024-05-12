@@ -105,7 +105,7 @@ const populate = async () => {
         Sunday: [{start: "04:00", end: "15:00"}]
     });
 
-    let testDoctor = await createUser(false, "testDoctor@gmail.com", "testDoctor", hashedPass, "doctor", 0, 
+    let testDoctor = await createUser(false, "testDoctor@gmail.com", "testDoctor", hashedPass, "Cardiology", 0, 
     {
         Monday: [{start: "05:00", end: "13:00"}],
         Tuesday: [{start: "04:00", end: "20:00"}],
@@ -116,7 +116,27 @@ const populate = async () => {
         Sunday: [{start: "01:00", end: "10:00"}]
     });
 
-    let testDoctor2 = await createUser(false, "testDoctor2@gmail.com", "testDoctor2", hashedPass, "doctor", 0, {
+    let testDoctor2 = await createUser(false, "testDoctor2@gmail.com", "testDoctor2", hashedPass, "Radiology", 0, {
+        Monday: [{start: "10:00", end: "23:00"}],
+        Tuesday: [{start: "10:00", end: "23:00"}],
+        Wednesday: [{start: "05:00", end: "17:00"}],
+        Thursday: [{start: "01:00", end: "6:00"}],
+        Friday: [{start: "01:00", end: "10:00"}],
+        Saturday: [{start: "01:00", end: "10:00"}],
+        Sunday: [{start: "11:00", end: "15:00"}]
+    });
+
+    let testNurse = await createUser(false, "testNurse@gmail.com", "testNurse", hashedPass, "Nurse", 0, {
+        Monday: [{start: "10:00", end: "23:00"}],
+        Tuesday: [{start: "10:00", end: "23:00"}],
+        Wednesday: [{start: "05:00", end: "17:00"}],
+        Thursday: [{start: "01:00", end: "6:00"}],
+        Friday: [{start: "01:00", end: "10:00"}],
+        Saturday: [{start: "01:00", end: "10:00"}],
+        Sunday: [{start: "11:00", end: "15:00"}]
+    });
+
+    let testNurse2 = await createUser(false, "testNurse2@gmail.com", "testNurse2", hashedPass, "Nurse", 0, {
         Monday: [{start: "10:00", end: "23:00"}],
         Tuesday: [{start: "10:00", end: "23:00"}],
         Wednesday: [{start: "05:00", end: "17:00"}],
@@ -128,8 +148,11 @@ const populate = async () => {
 
     let testPatient = await createUser(false, "testPatient@gmail.com", "testPatient", hashedPass, "patient", 0, null);
 
-    let testRoom = await createRoom("Test Room", 0, "Open", "Radiology");
-    let testEquipment = await createEquipmentHead("CT Machine", 0, "Radiology");
+    let testRoom = await createRoom("Test Room", 3, "Open", "Radiology");
+
+    let testRoom2 = await createRoom("Test Room 2", 4, "Open", "Cardiology");
+
+    let testEquipment2 = await createEquipmentHead("Heart Pacer", 0, "Cardiology");
     
 
     if (db) db.close();
