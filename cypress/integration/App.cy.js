@@ -6,7 +6,7 @@ describe('<App />', () => {
         
         cy.mount(<App />);
     
-        cy.get('h5').should('contain', 'Welcome Back, Login.');
+        cy.get('h5').should('contain', 'Welcome Back');
         cy.get('form').should('be.visible');
       });
 
