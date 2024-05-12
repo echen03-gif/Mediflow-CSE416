@@ -321,10 +321,10 @@ app.get("/procedures", async (req, res) => {
 });
 
 app.get("/messages/:roomID", async (req, res) => {
-    let messages = await Messages.find({roomID: roomID});
+    const roomID = req.params.roomID;
+    let messages = await Messages.find({ roomID: roomID });
     res.send(messages);
 });
-
 app.get("/equipment", async (req, res) => {
     let equipment = await Equipment.find();
 
