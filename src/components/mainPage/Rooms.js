@@ -322,7 +322,9 @@ function isRoomAvailable(room, date) {
                   ))}
               </TableBody>
             </Table>
-            <Box sx={{ display: "flex", justifyContent: "center", padding: 2 }}>
+
+          </TableContainer>
+          <Box sx={{ display: "flex", justifyContent: "center", padding: 2 }}>
               <TablePagination
                 rowsPerPageOptions={[10]}
                 component="div"
@@ -333,7 +335,7 @@ function isRoomAvailable(room, date) {
                 onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </Box>
-          </TableContainer>
+          
         </Box>
       );
     default:

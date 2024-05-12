@@ -609,7 +609,7 @@ app.post('/forgot-password', async (req, res) => {
         subject: 'Password Reset',
         text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.
         Please click on the following link, or paste this into your browser to complete the process:
-        https://mediflow-cse416.onrender.com/reset/${token}`
+        https://mediflow-lnmh.onrender.com/reset/${token}`
       };
       
 
