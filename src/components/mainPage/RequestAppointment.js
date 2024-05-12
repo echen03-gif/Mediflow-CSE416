@@ -227,7 +227,7 @@ export default function RequestAppointment() {
         }
       }
       
-      if(selectedStaff.length != numStaff || selectedEquipment.length != equipmentListName.length ){
+      if(selectedStaff.length !== numStaff || selectedEquipment.length !== equipmentListName.length ){
         checkAvaliability = false;
       }
 
