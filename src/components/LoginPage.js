@@ -11,6 +11,10 @@ export default function LoginPage() {
   const navigate = useNavigate();
  // console.log(cookies);
 
+  const handleForgotPasswordClick = () => {
+    navigate('/forgot-password');
+  };
+
   const handleLogin = (event) => {
     console.log("Handling Login")
     event.preventDefault();
@@ -59,7 +63,7 @@ export default function LoginPage() {
       }}
     >
       <Typography variant="h5" sx={{ marginBottom: 4 }}>
-        Welcome Back, Login.
+        Welcome Back
       </Typography>
       <form onSubmit={handleLogin}>
         <TextField
@@ -95,7 +99,7 @@ export default function LoginPage() {
           Login
         </Button>
       </form>
-      <Button color="secondary">Forgot Password</Button>
+      <Button color="secondary" onClick={handleForgotPasswordClick} >Forgot Password</Button>
       <p id="loginError"></p>
     </Container>
   );
