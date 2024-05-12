@@ -37,13 +37,13 @@ function ChatScreen() {
                     'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                 }
             });
-            const messages = await axios.get(`https://mediflow-cse416.onrender.com/messages/${roomID}`, {
+            const messagesResponse = await axios.get(`https://mediflow-cse416.onrender.com/messages/${roomID}`, {
               headers: {
                   'Authorization': 'Bearer ' + sessionStorage.getItem('token')
               }
           });
             setRecipient(response.data.name);
-            setMessages(messages);
+            setMessages(messagesResponse.data);
         } catch (error) {
             // Handle error
             console.error('Error fetching user data:', error);
