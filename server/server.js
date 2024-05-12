@@ -269,7 +269,7 @@ app.get("/users", async (req, res) => {
 });
 
 app.get("/userID/:userId", async (req, res) => {
-    console.log("here3")
+    
     const { userId } = req.params;
 
     let user = await Users.findOne({ _id: userId });
@@ -449,7 +449,7 @@ app.post("/createUser", async (req, res) => {
         processes: [],
         role,
         staffID: req.body.staffID,
-        schedule: processedSchedule, // Use the processed schedule data
+        schedule: processedSchedule, 
         resetPasswordToken: "",
         resetPasswordExpire: new Date()
 
