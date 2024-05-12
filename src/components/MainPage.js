@@ -48,7 +48,7 @@ import PendingAppointment from "./mainPage/AdminAppointmentView";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { io } from 'socket.io-client';
-export const socket = io('https://mediflow-cse416.onrender.com');
+export const socket = io('http://localhost:8000');
 
 
 // Mock array of upcoming patients
@@ -91,31 +91,30 @@ export default function MainPage() {
 
     checkSession(); // Check session when component mounts
 
-    socket.on('chatReady', (data) => {
-      console.log(data); 
-      if (!data.initiatedByMe) {
-        console.log("Data not initiated by me")
-        toast(`${data.message}`, {
-          onClick: () => navigate(`/main/chatscreen/${data.otherUser}`),
-          position: "bottom-right",
-          autoClose: 10000, 
-          style: {
-              backgroundColor: "#4caf50",
-              color: "white" 
-          },
-          progressStyle: {
-            background: "#ffffff", 
-            height: '5px' 
+    socket.on('notification', (data) => {
+      console.log(data.sender);
+      console.log(data.text);
+      const toastId = toast(data.sender + " sent you a message: " + data.text, {
+        onClick: () => {
+          socket.emit('joinRoom', data.roomID);
+          navigate(`/main/chatscreen/${data.roomID}`);
+          toast.dismiss(toastId);
+        },
+        position: "bottom-right",
+        autoClose: 10000, 
+        style: {
+            backgroundColor: "#4caf50",
+            color: "white" 
+        },
+        progressStyle: {
+          background: "#ffffff", 
+          height: '5px' 
         }
       });
-      } else {
-          navigate(`/main/chatscreen/${data.otherUser}`);
-      }
-      
     });
 
     return () => {
-      socket.off('chatReady');
+      socket.off('notification');
 
     };
 
@@ -124,6 +123,10 @@ export default function MainPage() {
 
   const handleRefreshClick = (targetPath) => (event) => {
     console.log("redirecting" + targetPath + location.pathname)
+    if(location.pathname.indexOf("chatscreen") >= 0){
+      const roomId = location.pathname.substring(location.pathname.lastIndexOf("/")+1);
+      console.log("you have left the chat screen of room id " + roomId);
+    }
     
     if (location.pathname === targetPath) {
       event.preventDefault();

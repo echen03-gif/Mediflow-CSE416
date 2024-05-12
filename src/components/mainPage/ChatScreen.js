@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Typography, TextField, Button, Paper, Box } from '@mui/material';
 import { socket } from '../MainPage'; 
+import axios from 'axios';
 
 
 function ChatScreen() {
@@ -9,9 +10,10 @@ function ChatScreen() {
   const [newMessage, setNewMessage] = useState('');
   const { roomID } = useParams();
   const messagesEndRef = useRef(null);
-
+  const [recipient, setRecipient] = useState('');
 
   const loggedInUser = sessionStorage.getItem('name')
+  const senderId = sessionStorage.getItem('user');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -24,7 +26,34 @@ function ChatScreen() {
     scrollToBottom();
   }, [messages]);
 
-  
+  useEffect(() => {
+    const fetchData = async () => {
+      const userIds = roomID.split("-");
+      const currentUserID = sessionStorage.getItem('user');
+      const otherUserID = userIds.find(id => id !== currentUserID);
+        try {
+            const response = await axios.get(`https://mediflow-cse416.onrender.com/userID/${otherUserID}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+                }
+            });
+            const messages = await axios.get(`https://mediflow-cse416.onrender.com/messages/${roomID}`, {
+              headers: {
+                  'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+              }
+          });
+            setRecipient(response.data.name);
+            setMessages(messages);
+        } catch (error) {
+            // Handle error
+            console.error('Error fetching user data:', error);
+        }
+    };
+
+    fetchData();
+
+}, [roomID]);
+
 
 
   useEffect(() => {
@@ -42,7 +71,7 @@ function ChatScreen() {
   const handleMessageSubmit = (e) => {
     e.preventDefault();
     if (newMessage.trim()) {
-      socket.emit('sendMessage', { roomID, text: newMessage, sender: loggedInUser }); 
+      socket.emit('sendMessage', { roomID, text: newMessage, sender: loggedInUser, senderId: senderId }); 
       setNewMessage('');
     }
   };
@@ -53,7 +82,7 @@ function ChatScreen() {
   return (
     <Box sx={{ padding: 2 }}>
       <Typography variant="h4" gutterBottom>
-        Chat in Room: {roomID}
+        Chat with: {recipient}
       </Typography>
       <Paper sx={{ maxHeight: 400, overflowY: 'auto', padding: 2 }}>
         {messages.map((message, index) => (

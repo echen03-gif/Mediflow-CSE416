@@ -115,6 +115,7 @@ let Rooms = require("./models/room.js");
 let Communication = require("./models/communication.js");
 let Processes = require("./models/processes.js");
 let Appointment = require("./models/appointment.js");
+let Messages = require("./models/messages.js");
 const equipment = require("./models/equipment.js");
 const equipmentHead = require("./models/equipmentHead.js");
 
@@ -141,13 +142,12 @@ const userSocketMap = new Map();
 io.on("connection", (socket) => {
     console.log("user " + socket.id + " connected");
 
-    socket.on("userConnected", (userId, storedName) => {
-        let keyTuple = [storedName, userId];
-        let x = userSocketMap.get(keyTuple);
+    socket.on("userConnected", (userId) => {
+        let x = userSocketMap.get(userId);
     
         if (!x) {
-            console.log("Saving socket from user: " + storedName + " as " + socket.id);
-            userSocketMap.set(keyTuple, socket.id);
+            console.log("Saving socket from user: " + userId + " as " + socket.id);
+            userSocketMap.set(userId, socket.id);
         }
     });
 
@@ -231,15 +231,38 @@ io.on("connection", (socket) => {
     //     }
     // });
 
-    socket.on("sendMessage", ({ roomID, text, sender }) => {
-        const message = {
-            id: 0,
+    socket.on("sendMessage", async ({ roomID, text, sender, senderId }) => {
+        const message = new Messages({
+            roomID: roomID,
             text: text,
             sender: sender,
+            senderID: senderID,
             timestamp: new Date(),
-        };
+        });
 
-        io.in(roomID).emit("receiveMessage", message);
+        await message.save();
+
+        const numSocketsInRoom = io.sockets.adapter.rooms.get(roomID)?.size || 0;
+        if(numSocketsInRoom === 2){
+            io.in(roomID).emit("receiveMessage", message);
+        } else {
+            //This means tthat the other user is not in the chat room and should be sent a notification
+            //we gotta find the other socket first
+            const userIds = roomID.split("-");
+            const currentUserID = senderId;
+            const otherUserID = userIds.find(id => id !== currentUserID);
+            const otherSocketID = userSocketMap.get(otherUserID);
+            const otherSocket = io.sockets.sockets.get(otherSocketID);
+
+            console.log(sender)
+            console.log(text)
+            if(otherSocket){
+                otherSocket.emit('notification', {sender: sender, text: text, roomID: roomID});
+            }
+            
+            io.in(roomID).emit("receiveMessage", message);
+        }
+        
         console.log(`Message sent in room ${roomID}: ${text}`);
     });
 });
@@ -279,6 +302,11 @@ app.get("/procedures", async (req, res) => {
     let procedures = await Procedures.find();
 
     res.send(procedures);
+});
+
+app.get("/messages/:roomID", async (req, res) => {
+    let messages = await Messages.find({roomID: roomID});
+    res.send(messages);
 });
 
 app.get("/equipment", async (req, res) => {
