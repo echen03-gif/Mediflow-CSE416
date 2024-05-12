@@ -661,7 +661,10 @@ app.put("/changeStaffAppointment", async (req, res) => {
 });
 
 app.put("/changeRoomAppointment", async (req, res) => {
-    let roomUpdate = await Rooms.findOne({ _id: req.body.roomName._id });
+
+    console.log(req.body.roomObject);
+    
+    let roomUpdate = await Rooms.findOne({ _id: req.body.roomObject._id });
 
     roomUpdate.appointments.push(req.body.appointment);
 
