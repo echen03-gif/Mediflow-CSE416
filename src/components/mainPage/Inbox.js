@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, ButtonBase } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, TablePagination, ButtonBase } from '@mui/material';
 import { socket } from '../MainPage.js';
-import { toast } from 'react-toastify';
+//import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {useNavigate} from 'react-router-dom';
 
 
 
@@ -13,7 +14,9 @@ function Inbox() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [peopleList, setPeople] = useState([]);
-  const [inboxType, setInboxType] = useState('general'); // 'general' or 'process'
+  const [inboxType, setInboxType] = useState('general');
+  const [userId, setUserId] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,15 +33,30 @@ function Inbox() {
         }
       } else if (inboxType === 'process') {
         try {
-          // Implement logic to fetch process inbox data
+          setPeople([]);
         } catch (error) {
           console.error('Error fetching process inbox data:', error);
         }
       }
+      setUserId(sessionStorage.getItem('user'));
     };
 
     fetchData();
   }, [inboxType]);
+
+  // useEffect(() => {
+
+
+  //   socket.on('userOffline', ({ recipientId }) => {
+  //     console.log("user offline");
+  //     toast.error(`User ${recipientId} is currently offline.`);
+  //   });
+
+  //   return () => {
+  //     socket.off('userOffline');
+
+  //   };
+  // });
 
   const handleTabChange = (type) => {
     setInboxType(type);
@@ -54,11 +72,15 @@ function Inbox() {
   };
 
   const handleRowClick = (personId) => {
-    // Handle row click based on the inbox type (general or process)
     if (inboxType === 'general') {
-      socket.emit('chatStart', personId);
+      //navigate to specific chatroom id based on Ids concatenated together alphabetically idk if this works but if it does im a genius
+      const roomId = [personId, userId].sort().join("-");
+      console.log("Joining a room with room id " + roomId);
+      socket.emit('joinRoom', roomId);
+      navigate(`/main/chatscreen/${roomId}`);
+
     } else if (inboxType === 'process') {
-      // Implement logic for process inbox row click
+
     }
   };
 

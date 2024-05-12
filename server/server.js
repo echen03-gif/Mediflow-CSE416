@@ -162,7 +162,7 @@ io.on("connection", (socket) => {
         let x = userSocketMap.get(keyTuple);
     
         if (!x) {
-            console.log("Saving socket from user: " + userId + " as " + socket.id);
+            console.log("Saving socket from user: " + storedName + " as " + socket.id);
             userSocketMap.set(keyTuple, socket.id);
         }
     });
@@ -183,61 +183,69 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("chatStart", (recipientUserId) => {
-        let senderUserId = null;
-        let senderUsername = null;
-        let recipientUsername = null;
-        //iterate over the map to find the userId for the current socket.id
-        
-        for (let [key, value] of userSocketMap.entries()) {
-            if (value === socket.id) {
-                senderUserId = key[1];
-                senderUsername = key[0];
-                break;
-            }
-        }
-        for (let x of userSocketMap.keys()) {
-            if (x[1] === recipientUserId) {
-                recipientUsername = x[0];
-                break;
-            }
-        }
-        const roomKey = [senderUserId, recipientUserId].sort().join("-");
+    socket.on('joinRoom', (roomId) => {
+        console.log(`Client wants to join room: ${roomId}`);
+        socket.join(roomId);
+      });
 
-        if (userSocketMap.has([recipientUsername, recipientUserId])) {
-            const recipientSocketId = userSocketMap.get([recipientUsername, recipientUserId]);
+    // socket.on("chatStart", async (recipientUserId) => {
+    //     let senderUserId = null;
+    //     let senderUsername = null;
+    //     let recipientUsername = null;
+    //     console.log("chat is starting")
+    //     //iterate over the map to find the userId for the current socket.id
+    //     for (let [key, value] of userSocketMap.entries()) {
+    //         if (value === socket.id) {
+    //             senderUserId = key[1];
+    //             senderUsername = key[0];
+    //             break;  
+    //         }
+    //     }
+    //     console.log("sender is " + senderUsername);
+    //     const user = await Users.findOne({_id: recipientUserId});
+    //     recipientUsername = user.name;
+    //     console.log("reciever is " + recipientUsername);
+    //     const roomKey = [senderUserId, recipientUserId].sort().join("-");
 
-            if (!chatRooms.has(roomKey)) {
-                chatRooms.set(roomKey, new Set([senderUserId, recipientUserId]));
-                console.log(`Created a new room for users: ${roomKey}`);
-            } else {
-                console.log(`Room already exists for users: ${roomKey}, reusing it.`);
-            }
+    //     for (let [tupleKey, value] of userSocketMap.entries()) {
+    //         console.log(`Tuple Key: ${tupleKey[0]}, ${tupleKey[1]}, Value: ${value}`);
+    //     }
 
-            socket.join(roomKey);
-            io.to(recipientSocketId).socketsJoin(roomKey);
+    //     const tupleKey = [recipientUsername, recipientUserId];
+    //     if (userSocketMap.has(tupleKey)) {
+    //         const recipientSocketId = userSocketMap.get(tupleKey);
 
-            socket.emit("chatReady", {
-                roomID: roomKey,
-                initiatedByMe: true,
-                message: `You started a chat with ${recipientUsername}`,
-                otherUser: recipientUsername
-            });
-            io.to(recipientSocketId).emit("chatReady", {
-                roomID: roomKey,
-                initiatedByMe: false,
-                message: `New Message From ${senderUsername}`,
-                otherUser: senderUsername
-            });
-            console.log("testing");
-            console.log(
-                `Both users ${senderUserId} and ${recipientUserId} have joined room: ${roomKey}`
-            );
-        } else {
-            console.log(`User ${recipientUserId} is not currently connected.`);
-            socket.emit("userOffline", { recipientUsername });
-        }
-    });
+    //         if (!chatRooms.has(roomKey)) {
+    //             chatRooms.set(roomKey, new Set([senderUserId, recipientUserId]));
+    //             console.log(`Created a new room for users: ${roomKey}`);
+    //         } else {
+    //             console.log(`Room already exists for users: ${roomKey}, reusing it.`);
+    //         }
+
+    //         socket.join(roomKey);
+    //         io.to(recipientSocketId).socketsJoin(roomKey);
+
+    //         socket.emit("chatReady", {
+    //             roomID: roomKey,
+    //             initiatedByMe: true,
+    //             message: `You started a chat with ${recipientUsername}`,
+    //             otherUser: recipientUsername
+    //         });
+    //         io.to(recipientSocketId).emit("chatReady", {
+    //             roomID: roomKey,
+    //             initiatedByMe: false,
+    //             message: `New Message From ${senderUsername}`,
+    //             otherUser: senderUsername
+    //         });
+    //         console.log("testing");
+    //         console.log(
+    //             `Both users ${senderUserId} and ${recipientUserId} have joined room: ${roomKey}`
+    //         );
+    //     } else {
+    //         console.log(`User ${recipientUserId} is not currently connected.`);
+    //         socket.emit("userOffline", { recipientId: recipientUsername });
+    //     }
+    // });
 
     socket.on("sendMessage", ({ roomID, text, sender }) => {
         const message = {
