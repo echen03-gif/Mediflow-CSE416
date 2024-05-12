@@ -55,11 +55,11 @@ const AddStaff = () => {
       email: email,
       password: password,
       role: position,
-      schedule: schedule,
-      headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-      }
-    }).then(navigate("/main/staff"));
+      schedule: schedule}, {
+        headers: {
+          'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        }
+      }).then(navigate("/main/staff"));
 
   };
 
