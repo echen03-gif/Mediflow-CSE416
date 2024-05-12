@@ -12,13 +12,14 @@ export default function RequestAppointment() {
   const [roomsList, setRooms] = useState([]);
   const [processList, setProcessList] = useState([]);
   const [equipmentList, setEquipmentList] = useState([]);
+  const [equipmentHeadList, setEquipmentHeadList] = useState([]);
   const [appointmentsList, setAppointmentList] = useState([]);
   const [procedureList, setProcedureList] = useState([]);
   const [staffSelections, setStaffSelections] = useState({});
-  
+
 
   // DB API
-  
+
 
   useEffect(() => {
 
@@ -52,6 +53,12 @@ export default function RequestAppointment() {
       }
     }).then(res => { setEquipmentList(res.data) });
 
+    axios.get('https://mediflow-cse416.onrender.com/equipmentHead', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setEquipmentHeadList(res.data) });
+
     axios.get('https://mediflow-cse416.onrender.com/appointments', {
       headers: {
         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
@@ -72,62 +79,143 @@ export default function RequestAppointment() {
 
   // Functions
 
-  console.log(appointmentsList);
-
   const checkSchedule = (user, scheduledStartTime, scheduledEndTime) => {
     const scheduledStart = new Date(scheduledStartTime);
     const scheduledEnd = new Date(scheduledEndTime);
 
     for (let appointmentId of user.appointments) {
-        
-        const appointment = appointmentsList.find(appt => appt._id === appointmentId);
 
-        
-        for (let procedure of appointment.procedures) {
-            const apptStart = new Date(procedure.scheduledStartTime);
-            const apptEnd = new Date(procedure.scheduledEndTime);
+      const appointment = appointmentsList.find(appt => appt._id === appointmentId);
 
-            
-            if ((apptStart < scheduledEnd) && (apptEnd > scheduledStart)) {
-                return false; 
-            }
+
+      for (let procedure of appointment.procedures) {
+
+        if (procedure.staff.includes(user._id)) {
+          const apptStart = new Date(procedure.scheduledStartTime);
+          const apptEnd = new Date(procedure.scheduledEndTime);
+
+
+          if ((apptStart < scheduledEnd) && (apptEnd > scheduledStart)) {
+            return false;
+          }
         }
+      }
     }
 
-    return true;  
-};
+    return true;
+  };
+
+  const checkEquipmentSchedule = (equipment, scheduledStartTime, scheduledEndTime) => {
+    const scheduledStart = new Date(scheduledStartTime);
+    const scheduledEnd = new Date(scheduledEndTime);
+
+    for (let appointmentId of equipment.appointments) {
+
+      const appointment = appointmentsList.find(appt => appt._id === appointmentId);
+
+      for (let procedure of appointment.procedures) {
+
+        if (procedure.equipment.includes(equipment._id)) {
+          const apptStart = new Date(procedure.scheduledStartTime);
+          const apptEnd = new Date(procedure.scheduledEndTime);
 
 
-  
+          if ((apptStart < scheduledEnd) && (apptEnd > scheduledStart)) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
+  };
+
+  const checkRoomSchedule = (room, scheduledStartTime, scheduledEndTime) => {
+    const scheduledStart = new Date(scheduledStartTime);
+    const scheduledEnd = new Date(scheduledEndTime);
+
+    for (let appointmentId of room.appointments) {
+
+      const appointment = appointmentsList.find(appt => appt._id === appointmentId);
+
+      for (let procedure of appointment.procedures) {
+
+        if (procedure.room === room._id) {
+          const apptStart = new Date(procedure.scheduledStartTime);
+          const apptEnd = new Date(procedure.scheduledEndTime);
+
+
+          if ((apptStart < scheduledEnd) && (apptEnd > scheduledStart)) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    let checkAvaliability = true;
     const procedures = Object.entries(staffSelections).map(([procedureId, { staff, equipment, scheduledStartTime, scheduledEndTime, roomId }]) => {
-      
-      let procedure = procedureList.filter(procedure => procedure._id === procedureId);
+
+      let procedure = procedureList.find(procedure => procedure._id === procedureId);
 
       let numStaff = procedure.numStaff;
       let equipmentListName = procedure.requiredEquipment;
 
       let selectedStaff = [];
-      for(let i = 0; i < usersList.length; i++) {
-        if(usersList[i].role === procedure.staffType) {
-            
-            if(checkSchedule(usersList[i], scheduledStartTime, scheduledEndTime)){
-              selectedStaff.push(usersList[i]);
-            }
+      for (let i = 0; i < usersList.length; i++) {
+      
+        if (usersList[i].role === procedure.staffType) {
+
+          if (checkSchedule(usersList[i], scheduledStartTime, scheduledEndTime)) {
+            selectedStaff.push(usersList[i]);
+          }
         }
 
-        if(selectedStaff.length > numStaff){
+        if (selectedStaff.length === numStaff) {
           break;
         }
-    }
-    
-      let selectedEquipment = equipmentList[0];
+      }
 
-      let selectedRoom = roomsList[0];
+      let selectedEquipment = [];
 
+      for (let equipmentName of equipmentListName) {
 
+        let equipmentHead = equipmentHeadList.find(equipment => equipment.name === equipmentName);
+
+        for (let equipmentId of equipmentHead.equipment) {
+
+          let checkEquipment = equipmentList.find(equipmentSearch => equipmentSearch._id === equipmentId);
+
+          if (checkEquipmentSchedule(checkEquipment, scheduledStartTime, scheduledEndTime) && checkEquipment.type === procedure.staffType) {
+            selectedEquipment.push(checkEquipment);
+            break;
+          }
+        }
+
+      }
+
+      let selectedRoom;
+
+      for(let roomSearch of roomsList){
+        if(roomSearch.type === procedure.requiredRoomType){
+          if(checkRoomSchedule(roomSearch, scheduledStartTime, scheduledEndTime)){
+            selectedRoom = roomSearch;
+            break;
+          }
+        }
+      }
+      
+      if(selectedStaff.length != numStaff || selectedEquipment.length != equipmentListName.length ){
+        checkAvaliability = false;
+      }
+
+      if(procedure.requiredRoomType != null && selectedRoom == null){
+        checkAvaliability = false;
+      }
 
       return {
         procedure: procedureId,
@@ -138,7 +226,12 @@ export default function RequestAppointment() {
         room: selectedRoom
       };
     });
-    
+
+
+    if (!checkAvaliability) {
+      alert('Some procedures could not be fully staffed or some rooms are not avaliable. Please adjust your selections.');
+      return; 
+    }
 
 
     let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/requestAppointment", {
@@ -163,7 +256,9 @@ export default function RequestAppointment() {
         uniqueEquipmentIds.add(equipmentId);
       });
 
-      uniqueRoomIds.add(room);
+      if(room){
+        uniqueRoomIds.add(room);
+      }
 
     });
 
@@ -193,8 +288,9 @@ export default function RequestAppointment() {
 
 
     await Promise.all(Array.from(uniqueRoomIds).map(room => {
+      console.log(room);
       return axios.put("https://mediflow-cse416.onrender.com/changeRoomAppointment", {
-        roomName: room,
+        roomObject: room,
         appointment: newAppointment.data,
       }, {
         headers: {
@@ -202,7 +298,7 @@ export default function RequestAppointment() {
         }
       });
     }));
-    
+
 
     navigate("/main/schedule");
   };
@@ -216,31 +312,31 @@ export default function RequestAppointment() {
     console.log(newValue);
 
     setStaffSelections(prev => {
-        
-        const currentSettings = prev[procedureId] || {};
-      
-        const updatedSettings = {
-            ...currentSettings,
-            [field]: newValue?.map ? newValue.map(item => item) : newValue,
-        };
 
-        
-        if (field === "scheduledStartTime") {
-           
-            const duration = procedureList.find(p => p._id === procedureId)?.estimatedDuration || 0;
-            const startTime = new Date(newValue);
-            const endTime = new Date(startTime.getTime() + duration * 60000); 
+      const currentSettings = prev[procedureId] || {};
 
-            updatedSettings['scheduledEndTime'] = endTime.toISOString();
-        }
+      const updatedSettings = {
+        ...currentSettings,
+        [field]: newValue?.map ? newValue.map(item => item) : newValue,
+      };
 
-        return {
-            ...prev,
-            [procedureId]: updatedSettings
-        };
+
+      if (field === "scheduledStartTime") {
+
+        const duration = procedureList.find(p => p._id === procedureId)?.estimatedDuration || 0;
+        const startTime = new Date(newValue);
+        const endTime = new Date(startTime.getTime() + duration * 60000);
+
+        updatedSettings['scheduledEndTime'] = endTime.toISOString();
+      }
+
+      return {
+        ...prev,
+        [procedureId]: updatedSettings
+      };
     });
 
-};
+  };
 
 
   // Display
@@ -325,7 +421,7 @@ export default function RequestAppointment() {
                   }}
                   required
                 />
-                
+
               </Box>
             ))}
           </Stack>
