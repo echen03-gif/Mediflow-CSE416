@@ -18,24 +18,23 @@ const Staff = () => {
   const navigate = useNavigate();
 
   // DB API
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         let userId = sessionStorage.getItem('user');
-  
+
         const usersResponse = await axios.get("https://mediflow-cse416.onrender.com/users", {
           headers: {
             'Authorization': 'Bearer ' + sessionStorage.getItem('token')
           }
         });
-  
+
         const doctors = usersResponse.data.filter(user => user.role !== "patient");
 
         const usersWithStatus = doctors.map(doctor => {
           return { ...doctor, status: getStatus(doctor.schedule) };
         });
-  
+
         setUsers(usersWithStatus);
 
         const userResponse = await axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
@@ -48,13 +47,11 @@ const Staff = () => {
         console.error('Error fetching data:', error);
       }
     };
-  
+
     fetchData();
   }, []);
-  
 
   // Functions
-
   const handleSearch = (event) => {
     setSearch(event.target.value);
   };
@@ -64,15 +61,11 @@ const Staff = () => {
   };
 
   const getStatus = (schedule) => {
-
-
-
     const now = new Date();
     const currentDay = now.toLocaleString('default', { weekday: 'long' });
     const currentTime = now.getHours() * 60 + now.getMinutes();  // Current time in minutes since midnight
 
     const todaysSchedule = schedule[currentDay];
-    console.log(todaysSchedule, currentDay)
 
     if (!todaysSchedule) {
       return "NOT AVAILABLE";
@@ -81,8 +74,6 @@ const Staff = () => {
     for (let i = 0; i < todaysSchedule.length; i++) {
       const shiftStart = parseInt(todaysSchedule[i].start.split(':')[0]) * 60 + parseInt(todaysSchedule[i].start.split(':')[1]);  // Shift start time in minutes since midnight
       const shiftEnd = parseInt(todaysSchedule[i].end.split(':')[0]) * 60 + parseInt(todaysSchedule[i].end.split(':')[1]);  // Shift end time in minutes since midnight
-      console.log(shiftEnd)
-      console.log(shiftStart)
       if (currentTime >= shiftStart && currentTime <= shiftEnd) {
         return "ON DUTY";
       }
@@ -96,7 +87,6 @@ const Staff = () => {
   };
 
   // Display
-
   return (
     <Box pt={5} sx={{ flexGrow: 1, padding: 2 }}>
       <Grid container spacing={3}>
@@ -107,12 +97,13 @@ const Staff = () => {
           {
             isAdmin && 
             <Button
-            variant="contained"
-            color="primary"
-            onClick={navigateToAddStaff}
-          >
-            Add Staff
-          </Button>
+              variant="contained"
+              color="primary"
+              onClick={navigateToAddStaff}
+              style={{ marginBottom: "20px" }}
+            >
+              Add Staff
+            </Button>
           }
           
           <TextField
@@ -133,7 +124,7 @@ const Staff = () => {
               variant="contained"
               color="primary"
               onClick={() => handleFilterChange("ALL")}
-              style={{ margin: "0" }}
+              style={{ margin: "0 5px" }}
             >
               All
             </Button>
@@ -141,7 +132,7 @@ const Staff = () => {
               variant="contained"
               color="primary"
               onClick={() => handleFilterChange("ON DUTY")}
-              style={{ margin: "0 1%" }}
+              style={{ margin: "0 5px" }}
             >
               On Duty
             </Button>
@@ -149,12 +140,11 @@ const Staff = () => {
               variant="contained"
               color="primary"
               onClick={() => handleFilterChange("NOT AVAILABLE")}
-              style={{ margin: "0" }}
+              style={{ margin: "0 5px" }}
             >
               Not Available
             </Button>
           </Grid>
-
         </Grid>
 
         {usersList
@@ -165,16 +155,14 @@ const Staff = () => {
           )
           .map((staff) => (
             <Grid item xs={3} key={staff.name}>
-              <Grid container spacing={1} justifyContent="center">
-                <Grid item key={staff.name} style={{ textAlign: "center" }}>
-                  <Avatar
-                    alt={staff.name}
-                    src={`https://mediflow-cse416.onrender.com/uploads/${staff.profilePic.split('/').pop()}`}
-                    style={{ width: "7vh", height: "7vh" }}
-                  />
-                  <Typography>{staff.name}</Typography>
-                </Grid>
-              </Grid>
+              <Box textAlign="center">
+                <Avatar
+                  alt={staff.name}
+                  src={`https://mediflow-cse416.onrender.com/uploads/${staff.profilePic.split('/').pop()}`}
+                  style={{ width: "7vh", height: "7vh", margin: "0 auto" }}
+                />
+                <Typography>{staff.name}</Typography>
+              </Box>
             </Grid>
           ))}
       </Grid>
