@@ -10,6 +10,7 @@ function ChatScreen() {
   const { roomID } = useParams();
   const messagesEndRef = useRef(null);
 
+
   const loggedInUser = sessionStorage.getItem('name')
 
   const scrollToBottom = () => {
