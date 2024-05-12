@@ -8,6 +8,9 @@ const { createServer } = require("node:http");
 const { Server } = require("socket.io");
 const multer = require('multer');
 const path = require('path');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+
 
 
 
@@ -49,7 +52,10 @@ const verifyToken = (req, res, next) => {
 };
 
 app.use((req, res, next) => {
-    if (req.path === "/login") {
+    const skipPaths = ['/login', '/forgot-password'];
+    const isResetRoute = req.path.startsWith('/reset/') && req.method === 'POST';
+  
+    if (skipPaths.includes(req.path) || isResetRoute) {
         next(); // Skip the middleware for the '/login' route
     } else {
         verifyToken(req, res, next); // Apply the middleware to other routes
@@ -119,6 +125,16 @@ const equipment = require("./models/equipment.js");
 const equipmentHead = require("./models/equipmentHead.js");
 
 // Define Backend Functions
+
+//Forgot password stuff
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: "mediflow416@gmail.com",
+      pass: "dvelemvixcjbdilq"
+    }
+  });
 
 // Socket io Stuff
 
@@ -426,6 +442,9 @@ app.post("/createUser", async (req, res) => {
         role,
         staffID: req.body.staffID,
         schedule: processedSchedule, // Use the processed schedule data
+        resetPasswordToken: "",
+        resetPasswordExpire: new Date()
+
     });
 
     res.send(await newUser.save());
@@ -530,6 +549,71 @@ app.post("/requestAppointment", async (req, res) => {
 
     res.send(await newAppointment.save());
 });
+
+app.post('/forgot-password', async (req, res) => {
+
+    const { email } = req.body;    
+
+    try {
+      const user = await Users.findOne({ email });
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+      const token = crypto.randomBytes(20).toString('hex');
+
+      user.resetPasswordToken = token;
+
+      user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+      
+      await user.save();
+  
+      const mailOptions = {
+        from: 'mediflow416@gmail.com',
+        to: user.email,
+        subject: 'Password Reset',
+        text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.
+        Please click on the following link, or paste this into your browser to complete the process:
+        https://mediflow-cse416.onrender.com/reset/${token}`
+      };
+      
+
+      transporter.sendMail(mailOptions, (err, response) => {
+        if (err) {
+          console.log('There was an error: ', err);
+        } else {
+          res.status(200).json('Recovery email sent');
+        }
+      });
+    } catch (err) {
+        res.status(500).send('Server error');
+    }
+});
+
+app.post('/reset/:token', async (req, res) => {
+    try {
+
+        console.log(req.params.token)
+        const user = await Users.findOne({
+            resetPasswordToken: req.params.token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+    
+        if (!user) {
+            return res.status(400).send('Password reset token is invalid or has expired.');
+        }
+    
+        const saltRounds = 10;
+        const hashedPass = bcrypt.hashSync(req.body.password, saltRounds);
+        user.password = hashedPass
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+    
+        await user.save();
+        res.status(200).send('Password has been updated');
+        } catch (err) {
+            res.status(500).send('Server error');
+        }
+  });
 
 // PUT FUNCTIONS
 

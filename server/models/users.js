@@ -31,6 +31,8 @@ const userSchema = new mongoose.Schema({
     processes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Processes' }],
     procedures: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Procedure' }],
     profilePic: { type: String, default: 'default.jpg' },
+    resetPasswordToken: {type: String},
+    resetPasswordExpires: { type: Date }
 
 
 
