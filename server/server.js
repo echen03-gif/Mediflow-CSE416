@@ -442,6 +442,7 @@ app.post("/createProcedure", async (req, res) => {
         procedureID: 0,
         requiredRoomType: req.body.requiredRoomType,
         staffType: req.body.staffType,
+    
     });
 
     res.send(await newProcedure.save());

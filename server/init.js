@@ -98,7 +98,7 @@ function createRoom(name, roomID, status, type){
 
 }
 
-function createProcedure(description, estimatedDuration, name, procedureID, requiredEquipment, requiredRoomType, locationRoom, staffType){
+function createProcedure(description, estimatedDuration, name, procedureID, requiredEquipment, requiredRoomType, locationRoom, staffType, numStaff){
 
     let createProcedure = {
 
@@ -110,7 +110,8 @@ function createProcedure(description, estimatedDuration, name, procedureID, requ
         requiredEquipment: requiredEquipment,
         requiredRoomType: requiredRoomType,
         location: locationRoom,
-        staffType: staffType
+        staffType: staffType,
+        numStaff: numStaff
 
     }
 
@@ -170,16 +171,18 @@ const populate = async () => {
     let heartLungMachineOne = await createEquipment("Heart-Lung Machine One", storageRoom, "Cardiology");
     let heartLungMachineHead = await createEquipmentHead("Heart Lung Machine", 1, "Cardiology", heartLungMachineOne);
 
+    let ctMachineOne = await createEquipment("CT Machine One", storageRoom, "Radiology");
+    let testEquipmentCT = await createEquipmentHead("CT Machine", 1, "Radiology", ctMachineOne);
+
     // PROCEDURES
 
-    let heartSurgeryPreOp = await createProcedure("Patient needs to complete chest x-ray, blood tests, and fasting diet requirements.", 1000, "Heart Surgery PreOP", 0, [], null, null, "Nurse");
-    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 2000, "Heart Surgery OP", 1, [], "Cardiology", heartRoom, "Doctor");
-    let heartSurgeryPostOp = await createProcedure("Patient needs to rest and be monitored", 1000, "Heart Surgery PostOP", 2, [], "ICU", icu, "Nurse");
+    let heartSurgeryPreOp = await createProcedure("Patient needs to complete chest x-ray, blood tests, and fasting diet requirements.", 1000, "Heart Surgery PreOP", 0, [], null, null, "Nurse", 2);
+    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 2000, "Heart Surgery OP", 1, ['Heart Lung Machine'], "Cardiology", heartRoom, "Cardiology", 1);
+    let heartSurgeryPostOp = await createProcedure("Patient needs to rest and be monitored", 1000, "Heart Surgery PostOP", 2, ['CT Machine'], "ICU", icu, "Radiology", 1);
 
     // PROCESSES
 
     let heartSurgery = await createProcess("Heart Surgery",[heartSurgeryPreOp, heartSurgeryOp, heartSurgeryPostOp]);
-
     
     if (db) db.close();
     console.log('Preset Data Inserted into DB');
