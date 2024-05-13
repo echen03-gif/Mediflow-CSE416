@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Typography, TextField, Button, Paper, Box } from '@mui/material';
-import { socket } from '../MainPage'; 
+import { getSocket } from '../socket';
 import axios from 'axios';
 
 
@@ -57,6 +57,10 @@ function ChatScreen() {
 
 
   useEffect(() => {
+
+    const socket = getSocket()
+
+
     socket.on('receiveMessage', (message) => {
       setMessages(messages => [...messages, message]);
     });
@@ -71,6 +75,7 @@ function ChatScreen() {
   const handleMessageSubmit = (e) => {
     e.preventDefault();
     if (newMessage.trim()) {
+      const socket = getSocket()
       socket.emit('sendMessage', { roomID, text: newMessage, sender: loggedInUser, senderId: senderId }); 
       setNewMessage('');
     }

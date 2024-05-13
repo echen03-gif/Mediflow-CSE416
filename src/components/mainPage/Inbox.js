@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, TablePagination, ButtonBase } from '@mui/material';
-import { socket } from '../MainPage.js';
+import { getSocket } from '../socket';
 //import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {useNavigate} from 'react-router-dom';
@@ -24,7 +24,7 @@ function Inbox() {
       const currentUserId = sessionStorage.getItem('user');
 
       setUserId(currentUserId);
-      
+
       if (inboxType === 'general') {
         try {
           const res = await axios.get('https://mediflow-cse416.onrender.com/users', {
@@ -83,6 +83,7 @@ function Inbox() {
       //navigate to specific chatroom id based on Ids concatenated together alphabetically idk if this works but if it does im a genius
       const roomId = [personId, userId].sort().join("-");
       console.log("Joining a room with room id " + roomId);
+      const socket = getSocket()
       socket.emit('joinRoom', roomId);
       navigate(`/main/chatscreen/${roomId}`);
 
