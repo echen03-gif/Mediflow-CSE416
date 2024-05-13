@@ -261,6 +261,7 @@ cron.schedule('* * * * *', async () => {
 
         for (const appointment of upcomingAppointments) {
 
+
             const relevantProcedures = appointment.procedures.filter(procedure => {
                 const startTime = new Date(procedure.scheduledStartTime).getTime();
                 return startTime >= now.getTime() && startTime <= new Date(now.getTime() + 10 * 60 * 1000 + 60000).getTime();
@@ -268,11 +269,18 @@ cron.schedule('* * * * *', async () => {
 
             for (const procedure of relevantProcedures) {
 
+                if (!procedure.notificationsSent) {
+                    procedure.notificationsSent = [];
+                }
+
+
                 //const startTime = addHours(new Date(procedure.scheduledStartTime), 4).getTime();
                 const startTime = new Date(procedure.scheduledStartTime).getTime()
 
                 // Calculate the difference in minutes
-                const diffInMinutes = Math.round((startTime - now.getTime()) / (60 * 1000));
+                const diffInMinutes = Math.round((startTime - now.getTime()) / (60 * 1000));                    console.log(diffInMinutes)
+                console.log(diffInMinutes)
+
 
                 let updated = false;
 
@@ -283,7 +291,7 @@ cron.schedule('* * * * *', async () => {
                         // Send 10-minute notification
                         const message = `Reminder: You have a procedure scheduled in 10 minutes at ${new Date(procedure.scheduledStartTime).toLocaleTimeString()}.`;
                         if (userSocketId) {
-                            io.to(userSocketId).emit('notification', message);
+                            io.to(userSocketId).emit('apptnotification', message);
                             console.log(`[Cron Job] Sent 10-minute reminder to user ${staff._id}`);
                         }
                         procedure.notificationsSent.push('10-min');
@@ -294,7 +302,7 @@ cron.schedule('* * * * *', async () => {
                         // Send 5-minute notification
                         const message = `Reminder: You have a procedure scheduled in 5 minutes at ${new Date(procedure.scheduledStartTime).toLocaleTimeString()}.`;
                         if (userSocketId) {
-                            io.to(userSocketId).emit('notification', message);
+                            io.to(userSocketId).emit('apptnotification', message);
                             console.log(`[Cron Job] Sent 5-minute reminder to user ${staff._id}`);
                         }
                         procedure.notificationsSent.push('5-min');
@@ -305,7 +313,7 @@ cron.schedule('* * * * *', async () => {
                         // Send start notification
                         const message = `Your procedure is scheduled to start now at ${new Date(procedure.scheduledStartTime).toLocaleTimeString()}.`;
                         if (userSocketId) {
-                            io.to(userSocketId).emit('notification', message);
+                            io.to(userSocketId).emit('apptnotification', message);
                             console.log(`[Cron Job] Sent start reminder to user ${staff._id}`);
                         }
                         procedure.notificationsSent.push('start');
@@ -314,7 +322,11 @@ cron.schedule('* * * * *', async () => {
                 }
 
                 if (updated) {
-                    await appointment.save(); // Save only once after all notifications are sent
+                    console.log('updated')
+                    await Appointment.updateOne(
+                        { 'procedures._id': procedure._id },
+                        { $set: { 'procedures.$.notificationsSent': procedure.notificationsSent } }
+                    ); // Save only once after all notifications are sent
                 }
             }
         }
