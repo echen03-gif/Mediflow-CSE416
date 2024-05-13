@@ -171,7 +171,7 @@ function Inventory() {
 							marginBottom: 2,
 						}}
 					>
-						<TextField label="Search" variant="outlined" />
+						<TextField label="Search" variant="outlined" data-testid="search-input" />
 						<FormControl variant="outlined">
 							<TextField
 								id="date"
@@ -184,6 +184,7 @@ function Inventory() {
 								InputLabelProps={{
 									shrink: true,
 								}}
+								inputProps={{ 'data-testid': 'date-input' }}
 							/>
 						</FormControl>
 					</Box>
@@ -192,6 +193,7 @@ function Inventory() {
 						variant="contained"
 						color="primary"
 						onClick={navigateToAddInventory}
+						data-testid="add-inventory-button"
 					>
 						Add Inventory
 					</Button>
@@ -226,7 +228,7 @@ function Inventory() {
 											page * rowsPerPage + rowsPerPage
 										)
 										.map((product) => (
-											<TableRow key={product}>
+											<TableRow key={product} data-testid={`appointment-row-${product}`}>
 												<TableCell
 													component="th"
 													scope="row"
@@ -277,6 +279,7 @@ function Inventory() {
 								page={page}
 								onPageChange={handleChangePage}
 								onRowsPerPageChange={handleChangeRowsPerPage}
+								data-testid="pagination"
 							/>
 						</Box>
 					</TableContainer>
@@ -296,7 +299,7 @@ function Inventory() {
 							marginBottom: 2,
 						}}
 					>
-						<TextField label="Search" variant="outlined" />
+						<TextField label="Search" variant="outlined" data-testid="search-input" />
 						<FormControl variant="outlined">
 							<TextField
 								id="date"
@@ -309,6 +312,7 @@ function Inventory() {
 								InputLabelProps={{
 									shrink: true,
 								}}
+								inputProps={{ 'data-testid': 'date-input' }}
 							/>
 						</FormControl>
 					</Box>
@@ -319,6 +323,7 @@ function Inventory() {
 						variant="contained"
 						color="primary"
 						onClick={navigateToAddInventory}
+						data-testid="add-inventory-button"
 					>
 						Add Inventory
 					</Button>
@@ -354,7 +359,7 @@ function Inventory() {
 											page * rowsPerPage + rowsPerPage
 										)
 										.map((product) => (
-											<TableRow key={product}>
+											<TableRow key={product} data-testid={`equipment-row-${product}`}>
 												<TableCell
 													component="th"
 													scope="row"
@@ -405,6 +410,7 @@ function Inventory() {
 															e.target.style.textDecoration =
 																"none";
 														}}
+														data-testid={`equipment-name-${product}`}
 													>
 														{
 															equipmentDB.find(
@@ -459,6 +465,7 @@ function Inventory() {
 								page={page}
 								onPageChange={handleChangePage}
 								onRowsPerPageChange={handleChangeRowsPerPage}
+								data-testid="pagination"
 							/>
 						</Box>
 					</TableContainer>
@@ -478,7 +485,7 @@ function Inventory() {
 							marginBottom: 2,
 						}}
 					>
-						<TextField label="Search" variant="outlined" />
+						<TextField label="Search" variant="outlined" data-testid="search-input" />
 						<FormControl variant="outlined">
 							<TextField
 								id="date"
@@ -491,6 +498,7 @@ function Inventory() {
 								InputLabelProps={{
 									shrink: true,
 								}}
+								inputProps={{ 'data-testid': 'date-input' }}
 							/>
 						</FormControl>
 					</Box>
@@ -500,6 +508,7 @@ function Inventory() {
 						variant="contained"
 						color="primary"
 						onClick={navigateToAddInventory}
+						data-testid="add-inventory-button"
 					>
 						Add Inventory
 					</Button>
@@ -527,7 +536,7 @@ function Inventory() {
 										page * rowsPerPage + rowsPerPage
 									)
 									.map((product) => (
-										<TableRow key={product.name}>
+										<TableRow key={product.name} data-testid={`inventory-row-${product.name}`}>
 											<TableCell
 												component="th"
 												scope="row"
@@ -558,6 +567,7 @@ function Inventory() {
 														e.target.style.textDecoration =
 															"none";
 													}}
+													data-testid={`product-name-${product.name}`}
 												>
 													{product.name}
 												</Typography>
@@ -587,6 +597,7 @@ function Inventory() {
 								page={page}
 								onPageChange={handleChangePage}
 								onRowsPerPageChange={handleChangeRowsPerPage}
+								data-testid="pagination"
 							/>
 						</Box>
 					</TableContainer>

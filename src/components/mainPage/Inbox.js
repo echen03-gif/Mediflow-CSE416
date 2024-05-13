@@ -20,6 +20,11 @@ function Inbox() {
 
   useEffect(() => {
     const fetchData = async () => {
+
+      const currentUserId = sessionStorage.getItem('user');
+
+      setUserId(currentUserId);
+      
       if (inboxType === 'general') {
         try {
           const res = await axios.get('https://mediflow-cse416.onrender.com/users', {
@@ -27,7 +32,10 @@ function Inbox() {
               'Authorization': 'Bearer ' + sessionStorage.getItem('token')
             }
           });
-          setPeople(res.data);
+          const filteredPeople = res.data.filter(person => person._id !== currentUserId);
+
+          setPeople(filteredPeople);
+          
         } catch (error) {
           console.error('Error fetching general inbox data:', error);
         }
@@ -38,7 +46,6 @@ function Inbox() {
           console.error('Error fetching process inbox data:', error);
         }
       }
-      setUserId(sessionStorage.getItem('user'));
     };
 
     fetchData();
