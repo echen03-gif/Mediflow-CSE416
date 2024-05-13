@@ -9,7 +9,9 @@ module.exports = defineConfig({
   },
 
   e2e: {
-    baseUrl: "https://mediflow-lnmh.onrender.com/",
-
+    baseUrl: "https://mediflow-lnmh.onrender.com",  // Frontend base URL
+    env: {
+      backendUrl: "https://mediflow-cse416.onrender.com"  // Backend base URL
+    },
   },
 });
