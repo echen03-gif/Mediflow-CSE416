@@ -172,12 +172,13 @@ function isRoomAvailable(room, date) {
                 InputLabelProps={{
                   shrink: true,
                 }}
+                inputProps={{ 'data-testid': 'date-input' }}
               />
             </FormControl>
           </Box>
           {
             isAdmin &&
-            <Button variant="contained" color="primary" onClick={navigateToAddRoom}> 
+            <Button variant="contained" color="primary" onClick={navigateToAddRoom} data-testid="add-room-button"> 
               Add Room
             </Button>
           }
@@ -310,7 +311,10 @@ function isRoomAvailable(room, date) {
                               ? "green"
                               : "red",
                             marginRight: "10px",
+                            
                           }}
+                          data-testid={`room-availability-${room._id}`}
+
                         ></div>
                       </TableCell>
                       <TableCell><Typography onClick={(e) => { e.preventDefault(); viewSpecificAppointments(room); }} style={{ cursor: 'pointer', textDecoration: 'none' }} onMouseEnter={(e) => { e.target.style.textDecoration = 'underline'; }} onMouseLeave={(e) => { e.target.style.textDecoration = 'none'; }} >
