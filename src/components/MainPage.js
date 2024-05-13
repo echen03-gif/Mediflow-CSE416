@@ -113,8 +113,28 @@ export default function MainPage() {
       });
     });
 
+    socket.on("apptnotification", (data) => {
+      console.log('appt')
+
+      //display something?
+      toast(data, {
+        position: "bottom-right",
+        autoClose: 10000, 
+        style: {
+            backgroundColor: "#4caf50",
+            color: "white" 
+        },
+        progressStyle: {
+          background: "#ffffff", 
+          height: '5px' 
+        }
+      })
+      
+    })
+
     return () => {
       socket.off('notification');
+      socket.off("apptnotification")
 
     };
 

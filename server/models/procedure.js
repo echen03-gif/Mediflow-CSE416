@@ -10,7 +10,8 @@ const procedureSchema = new mongoose.Schema({
     requiredRoomType: {type: String},
     requiredEquipment: [{type: String}],
     staffType: {type: String},
-    numStaff: {type: Number}
+    numStaff: {type: Number},
+    notificationsSent: { type: [String], default: [] } 
 
 });
 
