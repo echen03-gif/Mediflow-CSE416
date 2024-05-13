@@ -59,13 +59,13 @@ function Profile() {
                 sx={{ width: 80, height: 80, mr: 2 }}
               />
               <Box>
-                <Typography variant="h5">{user.name}</Typography>
-                <Typography variant="subtitle1" color="textSecondary">{user.role}</Typography>
+                <Typography variant="h5" data-testid="user-name">{user.name}</Typography>
+                <Typography variant="subtitle1" color="textSecondary" data-testid="user-role">{user.role}</Typography>
               </Box>
             </Box>
-            <Typography variant="body2" color="textSecondary">Email: {user.email}</Typography>
+            <Typography variant="body2" color="textSecondary" data-testid="user-email">Email: {user.email}</Typography>
             <Typography variant="body2" color="textSecondary">Joined: {new Date(user.joined).toLocaleDateString()}</Typography>
-            <Typography variant="body2" color="textSecondary">Staff ID: {user.staffID}</Typography>
+            <Typography variant="body2" color="textSecondary" data-testid="user.staffID">Staff ID: {user.staffID}</Typography>
           </CardContent>
         </Card>
         <Card>
@@ -74,18 +74,23 @@ function Profile() {
               <Avatar
                 src={`https://mediflow-cse416.onrender.com/uploads/${sessionStorage.getItem('pfp')}`}
                 sx={{ width: 90, height: 90, mb: 2 }}
+                data-testid="profile-avatar"
               />
               <input
                 type="file"
                 onChange={(e) => setFile(e.target.files[0])}
                 accept="image/*"
                 style={{ marginBottom: 20 }}
+                data-testid="file-input"
+
               />
               <Button
                 variant="contained"
                 color="primary"
                 onClick={handleUpload}
                 disabled={!file}
+                data-testid="upload-button"
+
               >
                 Upload Image
               </Button>

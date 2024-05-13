@@ -98,10 +98,10 @@ function Inbox() {
         Chat Inbox
       </Typography>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-        <ButtonBase onClick={() => handleTabChange('general')} sx={{ fontWeight: inboxType === 'general' ? 'bold' : 'normal' }}>
+        <ButtonBase onClick={() => handleTabChange('general')} sx={{ fontWeight: inboxType === 'general' ? 'bold' : 'normal' }} data-testid="general-inbox-tab">
           <Typography variant="button">General Inbox</Typography>
         </ButtonBase>
-        <ButtonBase onClick={() => handleTabChange('process')} sx={{ fontWeight: inboxType === 'process' ? 'bold' : 'normal' }}>
+        <ButtonBase onClick={() => handleTabChange('process')} sx={{ fontWeight: inboxType === 'process' ? 'bold' : 'normal' }} data-testid="process-inbox-tab">
           <Typography variant="button">Process Inbox</Typography>
         </ButtonBase>
       </Box>
@@ -116,7 +116,7 @@ function Inbox() {
           </TableHead>
           <TableBody>
             {peopleList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((person) => (
-              <TableRow key={person._id} style={{ userSelect: 'none' }}>
+              <TableRow key={person._id} style={{ userSelect: 'none' }} data-testid="user-row">
                 <ButtonBase
                   onClick={() => handleRowClick(person._id)}
                   style={{ display: 'contents' }} 
