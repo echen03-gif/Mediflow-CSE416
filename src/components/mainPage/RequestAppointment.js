@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, TextField, MenuItem, Button, Typography, Container, Grid, Stack } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import moment from 'moment-timezone';
 
 
 export default function RequestAppointment() {
@@ -239,6 +240,14 @@ export default function RequestAppointment() {
       console.log(selectedRoom)
       console.log(selectedEquipment)
 
+      console.log(scheduledStartTime);
+      
+      scheduledStartTime = moment.tz(scheduledStartTime, "YYYY-MM-DDTHH:mm:ss.SSS", 'America/New_York').utc().format();
+      scheduledEndTime = moment.tz(scheduledEndTime, "YYYY-MM-DDTHH:mm:ss.SSS", 'America/New_York').utc().format();
+
+      console.log(scheduledStartTime);
+      console.log("Hello");
+
       return {
         procedure: procedureId,
         staff: selectedStaff,
@@ -331,6 +340,7 @@ export default function RequestAppointment() {
   }
 
   const handleChange = (procedureId, field) => (event, newValue) => {
+
     console.log(newValue);
 
     setStaffSelections(prev => {
