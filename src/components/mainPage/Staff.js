@@ -101,6 +101,7 @@ const Staff = () => {
               color="primary"
               onClick={navigateToAddStaff}
               style={{ marginBottom: "20px" }}
+              data-testid="add-staff-button"
             >
               Add Staff
             </Button>
@@ -117,6 +118,7 @@ const Staff = () => {
             autoFocus
             value={search}
             onChange={handleSearch}
+            inputProps={{ 'data-testid': 'staff-search-input' }}
           />
 
           <Grid container justifyContent="flex-end" style={{ marginBottom: "20px" }}>
@@ -125,6 +127,7 @@ const Staff = () => {
               color="primary"
               onClick={() => handleFilterChange("ALL")}
               style={{ margin: "0 5px" }}
+              data-testid="filter-all-button"
             >
               All
             </Button>
@@ -133,6 +136,7 @@ const Staff = () => {
               color="primary"
               onClick={() => handleFilterChange("ON DUTY")}
               style={{ margin: "0 5px" }}
+              data-testid="filter-on-duty-button"
             >
               On Duty
             </Button>
@@ -141,6 +145,7 @@ const Staff = () => {
               color="primary"
               onClick={() => handleFilterChange("NOT AVAILABLE")}
               style={{ margin: "0 5px" }}
+              data-testid="filter-not-available-button"
             >
               Not Available
             </Button>
@@ -154,7 +159,7 @@ const Staff = () => {
               staff.name.toLowerCase().includes(search.toLowerCase())
           )
           .map((staff) => (
-            <Grid item xs={3} key={staff.name}>
+            <Grid item xs={3} key={staff.name} data-testid={`staff-member-${staff.name}`}>
               <Box textAlign="center">
                 <Avatar
                   alt={staff.name}
