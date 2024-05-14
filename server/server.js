@@ -230,11 +230,45 @@ io.on("connection", (socket) => {
         });
       }
 
-      io.in(roomID).emit("receiveMessage", message);
-    }
+        await message.save();
+        
 
-    console.log(`Message sent in room ${roomID}: ${text}`);
-  });
+        const numSocketsInRoom = io.sockets.adapter.rooms.get(roomID)?.size || 0;
+        if(roomID.indexOf("-") > -1 && numSocketsInRoom < 2){
+           //This means tthat the other user is not in the chat room and should be sent a notification
+            //we gotta find the other socket first
+            const userIds = roomID.split("-");
+            const currentUserID = senderId;
+            const otherUserID = userIds.find(id => id !== currentUserID);
+            const otherSocketID = userSocketMap.get(otherUserID);
+            const otherSocket = io.sockets.sockets.get(otherSocketID);
+
+            if(otherSocket){
+                otherSocket.emit('notification', {sender: sender, text: text, roomID: roomID});
+            }
+        } else if (roomID.indexOf("-") === -1){
+            const users = await Users.find({ appointments: roomID });
+            for (let i = 0; i < users.length; i++) {
+                const user = users[i];
+                if(user._id != senderId){
+                    console.log(user._id);
+                    console.log(userSocketMap);
+                    const otherSocketID = userSocketMap.get(user._id.toString());
+                    const otherSocket = io.sockets.sockets.get(otherSocketID);
+                    console.log(otherSocketID);
+                    if(otherSocket){
+                        console.log("sendingNotif")
+                        otherSocket.emit('notification', {sender: sender, text: text, roomID: roomID});
+                    }
+                }
+              }
+          
+        }
+        io.in(roomID).emit("receiveMessage", message);
+        console.log(`Message sent in room ${roomID}: ${text}`);
+    }
+    });
+
 });
 
 const roundToNearestMinute = (date) => {
