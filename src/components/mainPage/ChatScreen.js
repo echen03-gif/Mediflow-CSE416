@@ -39,7 +39,7 @@ function ChatScreen() {
             });
       setRecipient(response.data.name);
       } else {
-        const recipient = await axios.get(`http://localhost:8000/appointment/${roomID}`, {
+        const recipient = await axios.get(`https://mediflow-cse416.onrender.com/${roomID}`, {
           headers: {
               'Authorization': 'Bearer ' + sessionStorage.getItem('token')
           }
