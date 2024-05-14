@@ -119,7 +119,6 @@ function Inbox() {
               <TableRow>
               <TableCell>Profile</TableCell>
               <TableCell>Name</TableCell>
-              <TableCell align="right">Last Message</TableCell>
             </TableRow>
           }
           {inboxType === 'process' &&
@@ -145,7 +144,6 @@ function Inbox() {
           <img src={`https://mediflow-cse416.onrender.com/uploads/${person.profilePic.split('/').pop()}`} alt={person.name} style={{ width: 50, borderRadius: '50%' }} />
         </TableCell>
         <TableCell>{person.name}</TableCell>
-        <TableCell align="right">N/A</TableCell>
       </ButtonBase>
     </TableRow>
   ))

@@ -38,6 +38,13 @@ function ChatScreen() {
                 }
             });
       setRecipient(response.data.name);
+      } else {
+        const recipient = await axios.get(`http://localhost:8000/appointment/${roomID}`, {
+          headers: {
+              'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
+      });
+        setRecipient(recipient.data)
       }
       
       try {
@@ -64,7 +71,7 @@ function ChatScreen() {
 
   useEffect(() => {
 
-    const socket = getSocket()
+    const socket = getSocket();
 
 
     socket.on('receiveMessage', (message) => {
