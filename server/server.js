@@ -360,7 +360,7 @@ app.get("/appointments/:userId", async (req, res) => {
     const user = await Users.findOne({ _id: userId });
     const appointments = user.appointments;
     for(const appointmentId of appointments){
-        const appointment = await Appointment.findOne({_id: appointmentID});
+        const appointment = await Appointment.findOne({_id: appointmentId});
 
         const processName = await Processes.findOne({ _id: appointment.process });
         const patientName = await Users.findOne({_id: appointment.patient });
