@@ -29,7 +29,7 @@ let db = mongoose.connection;
 
 // Create Functions
 
-function createUser(adminBool, email, name, age, gender, password, role, staffID, schedule) {
+function createUser(adminBool, email, name, age, gender, password, role, schedule) {
 
     let createUser = {
         admin: adminBool,
@@ -41,7 +41,6 @@ function createUser(adminBool, email, name, age, gender, password, role, staffID
         password: password,
         processes: [],
         role: role,
-        staffID: staffID,
         schedule: schedule,
     }
 
@@ -81,13 +80,12 @@ function createEquipment(name, locationRoom, type) {
 
 }
 
-function createRoom(name, roomID, status, type) {
+function createRoom(name, status, type) {
 
     let createRoom = {
         created: new Date(),
         equipment: [],
         name: name,
-        roomID: roomID,
         status: status,
         type: type,
         updatedAt: new Date()
@@ -100,7 +98,7 @@ function createRoom(name, roomID, status, type) {
 
 }
 
-function createProcedure(description, estimatedDuration, name, procedureID, requiredEquipment, requiredRoomType, locationRoom, staffType, numStaff) {
+function createProcedure(description, estimatedDuration, name, requiredEquipment, requiredRoomType, locationRoom, staffType, numStaff) {
 
     let createProcedure = {
 
@@ -108,7 +106,6 @@ function createProcedure(description, estimatedDuration, name, procedureID, requ
         description: description,
         estimatedDuration: estimatedDuration,
         name: name,
-        procedureID: procedureID,
         requiredEquipment: requiredEquipment,
         requiredRoomType: requiredRoomType,
         location: locationRoom,
@@ -162,7 +159,7 @@ const hashedPass = bcrypt.hashSync(admin_password, saltRounds);
 const populate = async () => {
 
     // SYS ADMIN
-    let sysAdmin = await createUser(true, "sysAdmin@gmail.com", "SYSTEM ADMIN", 28, "Male", hashedPass, "admin", 0,
+    let sysAdmin = await createUser(true, "sysAdmin@gmail.com", "SYSTEM ADMIN", 28, "Male", hashedPass, "admin",
         {
             Monday: [{ start: "00:00", end: "23:59" }],
             Tuesday: [{ start: "00:00", end: "23:59" }],
@@ -180,22 +177,21 @@ const populate = async () => {
     //     let name = faker.name.findName();
     //     let email = faker.internet.email(); 
     //     let age = faker.datatype.number({ min: 25, max: 60 }); 
-    //     let gender = faker.random.arrayElement(["Male", "Female"]);
-    //     let staffID = faker.datatype.number(1000, 9999); 
+    //     let gender = faker.random.arrayElement(["Male", "Female"]); 
 
     //     await createUser(false, email, name, age, gender, hashedPass, department, staffID, getRandomSchedule());
     // }
 
     // ROOMS
 
-    let storageRoom = await createRoom("Storage Room", 0, "OPEN", "Storage");
-    let heartRoom = await createRoom("Room 101", 1, "OPEN", "Cardiology");
-    let icu = await createRoom("Room 102", 2, "OPEN", "ICU");
+    let storageRoom = await createRoom("Storage Room", "OPEN", "Storage");
+    let heartRoom = await createRoom("Room 101", "OPEN", "Cardiology");
+    let icu = await createRoom("Room 102", "OPEN", "ICU");
     let baseRoomNumber = 103;
     for (let i = 0; i < departments.length; i++) {
         let roomName = `Room ${baseRoomNumber + i}`;
         let department = departments[i];
-        await createRoom(roomName, baseRoomNumber + i, "OPEN", department);
+        await createRoom(roomName, "OPEN", department);
     }
 
     // EQUIPMENT

@@ -590,7 +590,6 @@ app.post("/createUser", async (req, res) => {
     password,
     processes: [],
     role,
-    staffID: req.body.staffID,
     schedule: processedSchedule,
     resetPasswordToken: "",
     resetPasswordExpire: new Date(),
@@ -607,7 +606,6 @@ app.post("/createProcedure", async (req, res) => {
     description: req.body.description,
     estimatedDuration: req.body.timeDuration,
     name: req.body.name,
-    procedureID: 0,
     requiredRoomType: req.body.requiredRoomType,
     staffType: req.body.staffType,
   });
