@@ -172,15 +172,35 @@ const populate = async () => {
 
     // USERS
 
-    // for (let i = 0; i < 5; i++) {
-    //     let department = staff[Math.floor(Math.random() * departments.length)];
-    //     let name = faker.name.findName();
-    //     let email = faker.internet.email(); 
-    //     let age = faker.datatype.number({ min: 25, max: 60 }); 
-    //     let gender = faker.random.arrayElement(["Male", "Female"]); 
+     for (let i = 0; i < 2; i++) {
+         let department = staff[5];
+         let name = faker.name.findName();
+         let email = faker.internet.email(); 
+         let age = faker.datatype.number({ min: 25, max: 60 }); 
+         let gender = faker.random.arrayElement(["Male", "Female"]); 
 
-    //     await createUser(false, email, name, age, gender, hashedPass, department, staffID, getRandomSchedule());
-    // }
+         await createUser(false, email, name, age, gender, hashedPass, department, getRandomSchedule());
+     }
+
+     for (let i = 0; i < 7; i++) {
+        let department = staff[i];
+        let name = faker.name.findName();
+        let email = faker.internet.email(); 
+        let age = faker.datatype.number({ min: 25, max: 60 }); 
+        let gender = faker.random.arrayElement(["Male", "Female"]); 
+
+        await createUser(false, email, name, age, gender, hashedPass, department, getRandomSchedule());
+    }
+    
+    for (let i = 0; i < 3; i++) {
+        let department = staff[7];
+        let name = faker.name.findName();
+        let email = faker.internet.email(); 
+        let age = faker.datatype.number({ min: 25, max: 60 }); 
+        let gender = faker.random.arrayElement(["Male", "Female"]); 
+
+        await createUser(false, email, name, age, gender, hashedPass, department, getRandomSchedule());
+    }
 
     // ROOMS
 

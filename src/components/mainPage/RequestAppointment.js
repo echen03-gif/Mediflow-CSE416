@@ -274,6 +274,24 @@ export default function RequestAppointment() {
       }
     }
 
+    for (let i = 0; i < procedures.length; i++) {
+      let currentStart = moment(procedures[i].scheduledStartTime);
+      let currentEnd = moment(procedures[i].scheduledEndTime);
+    
+      for (let j = 0; j < procedures.length; j++) {
+        if (i !== j) {
+          let otherStart = moment(procedures[j].scheduledStartTime);
+          let otherEnd = moment(procedures[j].scheduledEndTime);
+    
+          if (currentStart.isBefore(otherEnd) && currentEnd.isAfter(otherStart)) {
+            checkAvaliability = false;
+            setNotification(`Invalid! Procedure ${procedureList.find(procedure => procedure._id === procedures[i].procedure).name} overlaps with procedure ${procedureList.find(procedure => procedure._id === procedures[j].procedure).name}`);
+            return;
+          }
+        }
+      }
+    }
+   
     if (!checkAvaliability) {
       setNotification(`There are not enough available staff, room, or equipment at the selected time for ${NonAvaliableProcedures.join(", ")}`);
       return;

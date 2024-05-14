@@ -49,13 +49,15 @@ body {
 }
 
 .btn, .appt-btn {
+  background-color: #001c3a;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 5px 20px;
   font-size: 14px;
   cursor: pointer;
   border-radius: 5px;
   margin: 5px;
+  width: 150px; /* Set a fixed width for all buttons */
   text-align: center; /* Center the text */
 }
 
@@ -76,24 +78,20 @@ body {
 }
 
 .app-btn-container, .btn-container {
-  flex: 1;
+  flex: 1; 
   display: flex;
-  margin-right: 20px; 
+  justify-content: flex-start; 
 }
 
-.btn-container {
-  justify-content: flex-end;
+.app-btn-container button, .btn-container button {
+  flex-grow: 1;
+  margin-right: 10px;
 }
-
-.btn-.app-btn-container {
-  justify-content: flex-start;
-}
-
 .schedule-btn-container {
   display: flex;
   width: 100%
 }
 
 .invisible {
-  display: none;
+  visibility: hidden; /* Use !important to override inline styles */
 }

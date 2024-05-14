@@ -37,7 +37,6 @@ function Inventory() {
 	const [searchQuery, setSearchQuery] = useState('');
 
 	// DB API
-
 	const api = axios.create({
 		baseURL: "https://mediflow-cse416.onrender.com",
 	});
@@ -56,33 +55,88 @@ function Inventory() {
 		}
 	);
 
-	// use api.get instead of axios.get
+	const cacheData = (key, data) => {
+		const cache = {
+			data,
+			timestamp: new Date().getTime(),
+		};
+		localStorage.setItem(key, JSON.stringify(cache));
+	};
+
+	const getCachedData = (key, expiration = 3600000) => { // default expiration is 1 hour
+		const cached = localStorage.getItem(key);
+		if (!cached) return null;
+
+		const { data, timestamp } = JSON.parse(cached);
+		if (new Date().getTime() - timestamp > expiration) {
+			localStorage.removeItem(key);
+			return null;
+		}
+		return data;
+	};
+
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
 				let userId = sessionStorage.getItem('user');
 
-				// Fetch users list
-				const usersResponse = await api.get("/users");
-				setUsersList(usersResponse.data);
+				// Check cache first
+				let users = getCachedData("users");
+				let inventoryHead = getCachedData("inventoryHead");
+				let rooms = getCachedData("rooms");
+				let equipment = getCachedData("equipment");
+				let appointments = getCachedData("appointments");
+				let procedures = getCachedData("procedures");
+				let userRole = getCachedData(`userRole_${userId}`);
 
-				const inventoryHeadResponse = await api.get("/equipmentHead");
-				setInventoryHead(inventoryHeadResponse.data);
+				if (!users) {
+					const usersResponse = await api.get("/users");
+					users = usersResponse.data;
+					cacheData("users", users);
+				}
+				setUsersList(users);
 
-				const roomsResponse = await api.get("/rooms");
-				setRooms(roomsResponse.data);
+				if (!inventoryHead) {
+					const inventoryHeadResponse = await api.get("/equipmentHead");
+					inventoryHead = inventoryHeadResponse.data;
+					cacheData("inventoryHead", inventoryHead);
+				}
+				setInventoryHead(inventoryHead);
 
-				const equipmentResponse = await api.get("/equipment");
-				setEquipmentDB(equipmentResponse.data);
+				if (!rooms) {
+					const roomsResponse = await api.get("/rooms");
+					rooms = roomsResponse.data;
+					cacheData("rooms", rooms);
+				}
+				setRooms(rooms);
 
-				const appointmentsResponse = await api.get("/appointments");
-				setAppointmentList(appointmentsResponse.data);
+				if (!equipment) {
+					const equipmentResponse = await api.get("/equipment");
+					equipment = equipmentResponse.data;
+					cacheData("equipment", equipment);
+				}
+				setEquipmentDB(equipment);
 
-				const proceduresResponse = await api.get('/procedures');
-				setProcedureList(proceduresResponse.data);
+				if (!appointments) {
+					const appointmentsResponse = await api.get("/appointments");
+					appointments = appointmentsResponse.data;
+					cacheData("appointments", appointments);
+				}
+				setAppointmentList(appointments);
 
-				const userResponse = await api.get(`/userID/${userId}`);
-				setIsAdmin(userResponse.data.role === 'admin');
+				if (!procedures) {
+					const proceduresResponse = await api.get('/procedures');
+					procedures = proceduresResponse.data;
+					cacheData("procedures", procedures);
+				}
+				setProcedureList(procedures);
+
+				if (!userRole) {
+					const userResponse = await api.get(`/userID/${userId}`);
+					userRole = userResponse.data.role;
+					cacheData(`userRole_${userId}`, userRole);
+				}
+				setIsAdmin(userRole === 'admin');
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			}
@@ -90,9 +144,6 @@ function Inventory() {
 
 		fetchData();
 	}, []);
-
-
-	// Functions
 
 	const switchInventoryPage = (equipment) => {
 		if (
@@ -107,6 +158,7 @@ function Inventory() {
 				).equipment
 			);
 			setInventoryPage("equipmentViewing");
+			setPage(0);
 		}
 	};
 
@@ -115,35 +167,28 @@ function Inventory() {
 		} else {
 			setAppointmentIds(equipment.appointments);
 			setCurrentEquipment(equipment);
+			setPage(0);
 			setInventoryPage("appointmentViewing");
 		}
 	};
 
-
 	function isProductAvailable(productName, date) {
-
-
 		const equipment = equipmentDB.find(equipment => equipment._id === productName);
-
 		const currentDate = new Date(date);
 
 		const isAvailable = equipment.appointments.some(appointment => {
-
 			let appointmentData = appointmentList.find(appointmentId => appointmentId._id === appointment);
 
 			return appointmentData.procedures.some(procedure => {
 				const start = new Date(procedure.scheduledStartTime);
 				const end = new Date(procedure.scheduledEndTime);
 
-
 				return currentDate >= start && currentDate <= end;
 			});
 		});
 
-
 		return !isAvailable;
 	}
-
 
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
@@ -166,7 +211,6 @@ function Inventory() {
 		setSearchQuery(event.target.value);
 	};
 
-	
 	const filteredInventoryHeadList = inventoryHeadList.filter((item) =>
 		item.name.toLowerCase().includes(searchQuery.toLowerCase())
 	);
@@ -176,7 +220,6 @@ function Inventory() {
 	);
 
 	// Display
-
 	switch (inventoryPage) {
 		case "appointmentViewing":
 			return (
