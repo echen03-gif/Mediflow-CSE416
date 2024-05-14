@@ -213,7 +213,9 @@ export default function RequestAppointment() {
 
         let equipmentHead = equipmentHeadList.find(equipment => equipment.name === equipmentName);
 
-        for (let equipmentId of equipmentHead.equipment) {
+        let fullEquipmentList = equipmentHead.equipment.sort((a, b) => a.appointments.length - b.appointments.length)
+
+        for (let equipmentId of fullEquipmentList) {
 
           let checkEquipment = equipmentList.find(equipmentSearch => equipmentSearch._id === equipmentId);
 
@@ -226,8 +228,8 @@ export default function RequestAppointment() {
       }
 
       let selectedRoom;
-
-      for (let roomSearch of roomsList) {
+      const sortedRoomsList = [...usersList].sort((a, b) => a.appointments.length - b.appointments.length);
+      for (let roomSearch of sortedRoomsList) {
         if (roomSearch.type === procedure.requiredRoomType) {
           if (checkRoomSchedule(roomSearch, scheduledStartTime, scheduledEndTime)) {
             selectedRoom = roomSearch;
