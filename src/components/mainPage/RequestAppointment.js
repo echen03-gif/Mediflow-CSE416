@@ -132,12 +132,8 @@ export default function RequestAppointment() {
     let isInShift = false;
 
     for (let shift of shifts) {
-      const shiftStart = new Date(
-        `${scheduledStartTime.split("T")[0]}T${shift.start}`
-      );
-      const shiftEnd = new Date(
-        `${scheduledStartTime.split("T")[0]}T${shift.end}`
-      );
+      const shiftStart = new Date(`${scheduledStartTime.split('T')[0]}T${shift.start}`);
+      const shiftEnd = new Date(`${scheduledStartTime.split('T')[0]}T${shift.end}`);
 
       if (scheduledStart >= shiftStart && scheduledEnd <= shiftEnd) {
         isInShift = true;
@@ -150,9 +146,8 @@ export default function RequestAppointment() {
     }
 
     for (let appointmentId of user.appointments) {
-      const appointment = appointmentsList.find(
-        (appt) => appt._id === appointmentId
-      );
+
+      const appointment = appointmentsList.find(appt => appt._id === appointmentId);
 
       for (let procedure of appointment.procedures) {
         if (procedure.staff.includes(user._id)) {
@@ -237,19 +232,18 @@ export default function RequestAppointment() {
         let numStaff = procedure.numStaff;
         let equipmentListName = procedure.requiredEquipment;
 
-        let selectedStaff = [];
-        for (let i = 0; i < usersList.length; i++) {
-          if (usersList[i].role === procedure.staffType) {
-            if (
-              checkUserSchedule(
-                usersList[i],
-                scheduledStartTime,
-                scheduledEndTime
-              )
-            ) {
-              selectedStaff.push(usersList[i]);
-            }
+      let selectedStaff = [];
+
+      const sortedUsersList = [...usersList].sort((a, b) => a.appointments.length - b.appointments.length);
+
+      for (let i = 0; i < usersList.length; i++) {
+
+        if (sortedUsersList[i].role === procedure.staffType) {
+
+          if (checkUserSchedule(sortedUsersList[i], scheduledStartTime, scheduledEndTime)) {
+            selectedStaff.push(sortedUsersList[i]);
           }
+        }
 
           if (selectedStaff.length === numStaff) {
             break;
@@ -319,16 +313,27 @@ export default function RequestAppointment() {
           .utc()
           .format();
 
+      if (scheduledEndTime)
         return {
           procedure: procedureId,
           staff: selectedStaff,
           equipment: selectedEquipment,
           scheduledStartTime,
           scheduledEndTime,
-          room: selectedRoom,
+          room: selectedRoom
         };
+    });
+
+    for (let i = 0; i < procedures.length - 1; i++) {
+      let current = moment(procedures[i].scheduledStartTime);
+      let next = moment(procedures[i + 1].scheduledStartTime);
+
+      if (next.isBefore(current)) {
+        checkAvaliability = false;
+        setNotification(`Invalid! Start time of procedure ${procedureList.find(procedure => procedure._id === procedures[i + 1].procedure).name} is before start time of procedure ${procedureList.find(procedure => procedure._id === procedures[i].procedure).name}`);
+        return;
       }
-    );
+    }
 
     if (!checkAvaliability) {
       setNotification(
@@ -431,7 +436,7 @@ export default function RequestAppointment() {
   };
 
   const handleChange = (procedureId, field) => (event, newValue) => {
-    console.log(newValue);
+
 
     setStaffSelections((prev) => {
       const currentSettings = prev[procedureId] || {};
@@ -442,14 +447,21 @@ export default function RequestAppointment() {
       };
 
       if (field === "scheduledStartTime") {
-        const duration =
-          procedureList.find((p) => p._id === procedureId)?.estimatedDuration ||
-          0;
-        const startTime = new Date(newValue);
-        const endTime = new Date(startTime.getTime() + duration * 60000);
-
-        updatedSettings["scheduledEndTime"] = endTime.toISOString();
+        const duration = procedureList.find(p => p._id === procedureId)?.estimatedDuration || 0;
+      
+        const startTime = moment.tz(newValue, "YYYY-MM-DDTHH:mm", 'America/New_York');
+    
+        const endTime = startTime.clone().add(duration, 'minutes');
+    
+        const formattedEndTime = endTime.format('YYYY-MM-DDTHH:mm');
+      
+        console.log(newValue);
+        console.log(formattedEndTime);
+      
+        updatedSettings['scheduledEndTime'] = formattedEndTime;
       }
+      
+      
 
       return {
         ...prev,
@@ -534,13 +546,12 @@ export default function RequestAppointment() {
             </Grid>
           </Grid>
 
-          <Stack spacing={2} sx={{ width: "100%", mt: 4 }}>
-            {process &&
-              process.components.map((procedure) => (
-                <Box key={procedure}>
-                  <Typography variant="h6">
-                    {procedureList.find((item) => item._id === procedure).name}
-                  </Typography>
+          <Stack spacing={2} sx={{ width: '100%', mt: 4 }}>
+            {process && process.components.map(procedure => (
+              <Box key={procedure}>
+                <Typography variant="h6">{procedureList.find(item => item._id === procedure).name}</Typography>
+
+                <Typography variant="h6">Estimated Duration: {procedureList.find(item => item._id === procedure).estimatedDuration} mins</Typography>
 
                   <TextField
                     type="datetime-local"
