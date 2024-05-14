@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import moment from 'moment-timezone';
 
 function Inventory() {
 	const navigate = useNavigate();
@@ -26,11 +27,13 @@ function Inventory() {
 	const [appointmentList, setAppointmentList] = useState([]);
 	const [appointmentIds, setAppointmentIds] = useState([]);
 	const [inventoryHeadList, setInventoryHead] = useState([]);
+	const [procedureList, setProcedureList] = useState([]);
 	const [usersList, setUsersList] = useState([]);
 	const [equipmentList, setEquipmentList] = useState([]);
 	const [equipmentDB, setEquipmentDB] = useState([]);
 	const [roomList, setRooms] = useState([]);
 	const [isAdmin, setIsAdmin] = useState(false);
+	const [currentEquipment, setCurrentEquipment] = useState('');
 
 	// DB API
 
@@ -55,35 +58,38 @@ function Inventory() {
 	// use api.get instead of axios.get
 	useEffect(() => {
 		const fetchData = async () => {
-		  try {
-			let userId = sessionStorage.getItem('user');
-		
-			// Fetch users list
-			const usersResponse = await api.get("/users");
-			setUsersList(usersResponse.data);
-		
-			const inventoryHeadResponse = await api.get("/equipmentHead");
-			setInventoryHead(inventoryHeadResponse.data);
-		
-			const roomsResponse = await api.get("/rooms");
-			setRooms(roomsResponse.data);
-		
-			const equipmentResponse = await api.get("/equipment");
-			setEquipmentDB(equipmentResponse.data);
-		
-			const appointmentsResponse = await api.get("/appointments");
-			setAppointmentList(appointmentsResponse.data);
-		
-			const userResponse = await api.get(`/userID/${userId}`);
-			setIsAdmin(userResponse.data.role === 'admin');
-		  } catch (error) {
-			console.error('Error fetching data:', error);
-		  }
+			try {
+				let userId = sessionStorage.getItem('user');
+
+				// Fetch users list
+				const usersResponse = await api.get("/users");
+				setUsersList(usersResponse.data);
+
+				const inventoryHeadResponse = await api.get("/equipmentHead");
+				setInventoryHead(inventoryHeadResponse.data);
+
+				const roomsResponse = await api.get("/rooms");
+				setRooms(roomsResponse.data);
+
+				const equipmentResponse = await api.get("/equipment");
+				setEquipmentDB(equipmentResponse.data);
+
+				const appointmentsResponse = await api.get("/appointments");
+				setAppointmentList(appointmentsResponse.data);
+
+				const proceduresResponse = await api.get('/procedures');
+				setProcedureList(proceduresResponse.data);
+
+				const userResponse = await api.get(`/userID/${userId}`);
+				setIsAdmin(userResponse.data.role === 'admin');
+			} catch (error) {
+				console.error('Error fetching data:', error);
+			}
 		};
-	  
+
 		fetchData();
-	  }, []);
-	  
+	}, []);
+
 
 	// Functions
 
@@ -107,36 +113,36 @@ function Inventory() {
 		if (equipment.appointments.length === 0) {
 		} else {
 			setAppointmentIds(equipment.appointments);
-
+			setCurrentEquipment(equipment);
 			setInventoryPage("appointmentViewing");
 		}
 	};
 
 
 	function isProductAvailable(productName, date) {
-		
-		
+
+
 		const equipment = equipmentDB.find(equipment => equipment._id === productName);
 
 		const currentDate = new Date(date);
-		
+
 		const isAvailable = equipment.appointments.some(appointment => {
 
 			let appointmentData = appointmentList.find(appointmentId => appointmentId._id === appointment);
-			
+
 			return appointmentData.procedures.some(procedure => {
 				const start = new Date(procedure.scheduledStartTime);
 				const end = new Date(procedure.scheduledEndTime);
 
-				
+
 				return currentDate >= start && currentDate <= end;
 			});
 		});
-		
-	
+
+
 		return !isAvailable;
 	}
-	
+
 
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
@@ -160,8 +166,8 @@ function Inventory() {
 	switch (inventoryPage) {
 		case "appointmentViewing":
 			return (
-				<Box sx={{ flexGrow: 1, padding: 2 }}>
-				<h2>INVENTORY</h2>
+				<Box sx={{ height: '100%', overflow: 'auto' }}>
+					<h2>INVENTORY</h2>
 					<Box
 						sx={{
 							display: "flex",
@@ -174,10 +180,8 @@ function Inventory() {
 							<TextField
 								id="date"
 								label="Date"
-								type="date"
-								defaultValue={
-									selectedDate.toISOString().split("T")[0]
-								}
+								type="datetime-local"
+								defaultValue={`${selectedDate.toISOString().split("T")[0]}T${selectedDate.toTimeString().split(" ")[0].substring(0, 5)}`}
 								onChange={handleDateChange}
 								InputLabelProps={{
 									shrink: true,
@@ -188,25 +192,23 @@ function Inventory() {
 					</Box>
 					{isAdmin &&
 						<Button
-						variant="contained"
-						color="primary"
-						onClick={navigateToAddInventory}
-						data-testid="add-inventory-button"
-					>
-						Add Inventory
-					</Button>
+							variant="contained"
+							color="primary"
+							onClick={navigateToAddInventory}
+							data-testid="add-inventory-button"
+						>
+							Add Inventory
+						</Button>
 					}
-					
+
 					<TableContainer component={Paper} sx={{ height: 500 }}>
 						<Table aria-label="simple table">
 							<TableHead>
 								<TableRow>
 									<TableCell></TableCell>{" "}
-									{/* Added this line */}
-									<TableCell>Appointment</TableCell>
-									<TableCell align="center">
-										Scheduled Dates
-									</TableCell>
+									<TableCell>Patient</TableCell>
+									<TableCell>Procedure</TableCell>
+									<TableCell align="center">Scheduled Time</TableCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>
@@ -221,44 +223,34 @@ function Inventory() {
 									</TableRow>
 								) : (
 									appointmentIds
-										.slice(
-											page * rowsPerPage,
-											page * rowsPerPage + rowsPerPage
+										.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+										.flatMap((appointmentId) =>
+											appointmentList
+												.filter((appointment) => appointment._id === appointmentId)
+												.flatMap((individualAppointment) =>
+													individualAppointment.procedures
+														.filter((procedure) => procedure.equipment.includes(currentEquipment._id))
+														.map((procedure) => (
+															<TableRow key={procedure}>
+																<TableCell
+																	component="th"
+																	scope="row"
+																	style={{ padding: "10px", paddingRight: "0" }}
+																>
+																</TableCell>
+																<TableCell>
+																	{usersList.find((user) => user._id === individualAppointment.patient).name}
+																</TableCell>
+																<TableCell>
+																	{procedureList.find((procedureName) => procedureName._id === procedure.procedure).name}
+																</TableCell>
+																<TableCell align="center">
+																	{moment(procedure.scheduledStartTime).tz('America/New_York').format('M/D hh:mm A') + " - " + moment(procedure.scheduledEndTime).tz('America/New_York').format('M/D hh:mm A')}
+																</TableCell>
+															</TableRow>
+														))
+												)
 										)
-										.map((product) => (
-											<TableRow key={product} data-testid={`appointment-row-${product}`}>
-												<TableCell
-													component="th"
-													scope="row"
-													style={{
-														padding: "10px",
-														paddingRight: "0",
-													}}
-												>
-												</TableCell>
-												<TableCell>
-													{
-														usersList.find(userId => userId._id === appointmentList.find(
-															(appointment) =>
-																appointment._id ===
-																product
-														).patient).name
-													}
-												</TableCell>
-												<TableCell align="center">
-													{
-														appointmentList.find(
-															(appointment) => appointment._id === product
-														).procedures.map(procedure => {
-															const date = new Date(procedure.scheduledStartTime);
-															const endDate = new Date(procedure.scheduledEndTime);
-															return `${date.getMonth() + 1}/${date.getDate()} - ${endDate.getMonth() + 1}/${endDate.getDate()}`;
-														}).join(", ")
-
-													}
-												</TableCell>
-											</TableRow>
-										))
 								)}
 							</TableBody>
 						</Table>
@@ -286,7 +278,7 @@ function Inventory() {
 
 		case "equipmentViewing":
 			return (
-				<Box sx={{ flexGrow: 1, padding: 2 }}>
+				<Box sx={{ height: '100%', overflow: 'auto' }}>
 					<h2>INVENTORY</h2>
 
 					<Box
@@ -301,10 +293,8 @@ function Inventory() {
 							<TextField
 								id="date"
 								label="Date"
-								type="date"
-								defaultValue={
-									selectedDate.toISOString().split("T")[0]
-								}
+								type="datetime-local"
+								defaultValue={`${selectedDate.toISOString().split("T")[0]}T${selectedDate.toTimeString().split(" ")[0].substring(0, 5)}`}
 								onChange={handleDateChange}
 								InputLabelProps={{
 									shrink: true,
@@ -313,25 +303,25 @@ function Inventory() {
 							/>
 						</FormControl>
 					</Box>
-					
+
 					{
-						isAdmin && 
+						isAdmin &&
 						<Button
-						variant="contained"
-						color="primary"
-						onClick={navigateToAddInventory}
-						data-testid="add-inventory-button"
-					>
-						Add Inventory
-					</Button>
+							variant="contained"
+							color="primary"
+							onClick={navigateToAddInventory}
+							data-testid="add-inventory-button"
+						>
+							Add Inventory
+						</Button>
 					}
-					
+
 					<TableContainer component={Paper} sx={{ height: 500 }}>
 						<Table aria-label="simple table">
 							<TableHead>
 								<TableRow>
 									<TableCell></TableCell>{" "}
-									{/* Added this line */}
+								
 									<TableCell>ID</TableCell>
 									<TableCell align="center">
 										Location
@@ -471,7 +461,7 @@ function Inventory() {
 
 		case "default":
 			return (
-				<Box sx={{ flexGrow: 1, padding: 2 }}>
+				<Box sx={{ height: '100%', overflow: 'auto' }}>
 					<h1>Inventory</h1>
 
 					<Box
@@ -486,10 +476,8 @@ function Inventory() {
 							<TextField
 								id="date"
 								label="Date"
-								type="date"
-								defaultValue={
-									selectedDate.toISOString().split("T")[0]
-								}
+								type="datetime-local"
+								defaultValue={`${selectedDate.toISOString().split("T")[0]}T${selectedDate.toTimeString().split(" ")[0].substring(0, 5)}`}
 								onChange={handleDateChange}
 								InputLabelProps={{
 									shrink: true,
@@ -501,15 +489,15 @@ function Inventory() {
 					{
 						isAdmin &&
 						<Button
-						variant="contained"
-						color="primary"
-						onClick={navigateToAddInventory}
-						data-testid="add-inventory-button"
-					>
-						Add Inventory
-					</Button>
+							variant="contained"
+							color="primary"
+							onClick={navigateToAddInventory}
+							data-testid="add-inventory-button"
+						>
+							Add Inventory
+						</Button>
 					}
-					
+
 					<TableContainer component={Paper} sx={{ height: 500 }}>
 						<Table aria-label="simple table">
 							<TableHead>

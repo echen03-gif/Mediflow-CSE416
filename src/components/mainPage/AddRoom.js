@@ -43,7 +43,6 @@ const AddRoom = () => {
     await axios.post("https://mediflow-cse416.onrender.com/createRoom", {
       name: roomNumber,
       type: roomType,
-      roomID: rooms.length + 1,
       status: "Open"
     }).then(console.log("Added room")).then(navigate("/main/rooms"));
   };
