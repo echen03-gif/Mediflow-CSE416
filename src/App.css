@@ -78,9 +78,9 @@ body {
 }
 
 .app-btn-container, .btn-container {
-  flex: 1;  /* Each container takes up half the space */
+  flex: 1; 
   display: flex;
-  justify-content: flex-start; /* Aligns items to the start of the flex container */
+  justify-content: flex-start; 
 }
 
 .app-btn-container button, .btn-container button {

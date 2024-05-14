@@ -88,7 +88,7 @@ const Staff = () => {
 
   // Display
   return (
-    <Box pt={5} sx={{ flexGrow: 1, padding: 2 }}>
+    <Box pt={5} sx={{ height: '92%', overflow: 'auto' }}>
       <Grid container spacing={3}>
         <Grid item xs={12}>
           	<h1>Staff</h1>

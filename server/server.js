@@ -126,8 +126,8 @@ let Communication = require("./models/communication.js");
 let Processes = require("./models/processes.js");
 let Appointment = require("./models/appointment.js");
 let Messages = require("./models/messages.js");
-const equipment = require("./models/equipment.js");
-const equipmentHead = require("./models/equipmentHead.js");
+let equipment = require("./models/equipment.js");
+let equipmentHead = require("./models/equipmentHead.js");
 
 // Define Backend Functions
 
@@ -290,13 +290,13 @@ cron.schedule("* * * * *", async () => {
     const upcomingAppointments = await Appointment.find({
       "procedures.scheduledStartTime": {
         $gte: now,
-        $lte: new Date(now.getTime() + 10 * 60 * 1000 + 60000), // Check up to 10 minutes + 1 minute buffer to ensure we cover the range
+        $lte: new Date(now.getTime() + 10 * 60 * 1000 + 60000),
       },
-      status: "pending", // Only notify for pending appointments
+      status: "pending", 
     })
     .populate({
-        path: "procedures.procedure", // Populate the procedure field within each element of the procedures array
-        model: "Procedure", // Ensure you specify the correct model if it's not automatically inferred
+        path: "procedures.procedure",
+        model: "Procedure", 
       })
     .populate("procedures.staff");
 
@@ -438,7 +438,6 @@ cron.schedule("* * * * *", async () => {
 // GET FUNCTIONS
 
 app.get("/users", async (req, res) => {
-
   let users = await Users.find();
 
   res.send(users);
@@ -452,35 +451,22 @@ app.get("/userID/:userId", async (req, res) => {
   res.send(user);
 });
 
-
-app.get("/appointment/:roomId", async (req, res) => {
-    
-    const { roomId } = req.params;
-
-    let appointment = await Appointment.findOne({ _id: roomId });
-
-    let process = await Processes.findOne({_id: appointment.process});
-
-
-    res.send(process.name);
-});
-
 app.get("/userAppointments/:userId", async (req, res) => {
-    const { userId } = req.params;
+  const { userId } = req.params;
 
-    const appointmentDetails = [];
-    const user = await Users.findOne({ _id: userId });
-    const appointments = user.appointments;
-    for(const appointmentId of appointments){
-        const appointment = await Appointment.findOne({_id: appointmentId});
-        const processName = await Processes.findOne({ _id: appointment.process });
-        const patientName = await Users.findOne({_id: appointment.patient });
+  const appointmentDetails = [];
+  const user = await Users.findOne({ _id: userId });
+  const appointments = user.appointments;
+  for (const appointmentId of appointments) {
+    const appointment = await Appointment.findOne({ _id: appointmentId });
 
-        appointmentDetails.push([appointmentId, processName.name, patientName.name]);
-        
-    }
-    res.send(appointmentDetails);
+    const processName = await Processes.findOne({ _id: appointment.process });
+    const patientName = await Users.findOne({ _id: appointment.patient });
 
+    appointmentDetails.push({ processName, patientName });
+  }
+
+  res.send(user);
 });
 
 app.get("/user/:email", async (req, res) => {
@@ -544,7 +530,6 @@ app.get("/appointments", async (req, res) => {
   res.send(appointments);
 });
 
-
 app.get("/profileappt", async (req, res) => {
   try {
     let appointments = await Appointment.find().populate({
@@ -556,7 +541,6 @@ app.get("/profileappt", async (req, res) => {
     console.error(error);
     res.status(500).send("Error retrieving appointments.");
   }
-
 });
 
 app.get("/appointments/pending", async (req, res) => {

@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
 import axios from 'axios';
 import moment from 'moment-timezone';
+import { useData } from "../DataContext";
 
 export default function Schedule() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -19,6 +20,8 @@ export default function Schedule() {
   const [proceduresList, setProceduresList] = useState([]);
   const [fullCalendar, setFullCalendar] = useState([]);
   const [currentView, setCurrentView] = useState('timeGridWeek');
+  const { isAdmin } = useData();
+  const [pending, setPending] = useState(0);
   const navigate = useNavigate();
 
   // DB API
@@ -53,7 +56,7 @@ export default function Schedule() {
       }
     }).then(res => setAppointmentList(res.data));
 
-    axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
+    axios.get(`https://mediflow-cse416.onrender.com/userAppointments/${userId}`, {
       headers: {
         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
       }
@@ -78,11 +81,27 @@ export default function Schedule() {
     }).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
 
   }, []);
+  const fetchAppointments = async () => {
+    const response = await axios.get(
+      "https://mediflow-cse416.onrender.com/appointments/pending",
+      {
+        headers: {
+          Authorization: "Bearer " + sessionStorage.getItem("token"),
+        },
+      }
+    );
+    console.log("appointments", response.data);
+    setPending(response.data.length);
+  };
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
 
   useEffect(() => {
     if (!userAppointments || !appointmentsList || !usersList) {
       return;
     }
+    console.log(userAppointments)
 
     setFullCalendar(userAppointments.flatMap(appointmentId => {
       let appointmentItem = appointmentsList.find(item => item._id === appointmentId);
@@ -164,45 +183,35 @@ export default function Schedule() {
         }}
       >
         <h1>Schedule</h1>
-        <button
-          style={{
-            backgroundColor: "#1976D2",
-            color: "white",
-            padding: "8px 16px",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-          onClick={handleRequest}
-        >
-          Request Appointment
-        </button>
-
-        <button
-          style={{
-            display: "none",
-            backgroundColor: "#1976D2",
-            color: "white",
-            padding: "8px 16px",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-          onClick={handlePending}
-        >
-          {/* THIS WILL BE FOR ADMIN VIEW LATER */}
-          Pending Appointments
-
-        </button>
+        <div className="schedule-btn-container">
+        <div className="app-btn-container">
+          {" "}
+          <button className="appt-btn" onClick={handleRequest}>
+            Request Appointment
+          </button>
+         
+        </div>
 
         <div class="btn-container">
-          <button class="btn" onClick={() => handleViewChange('dayGridMonth')}>Month View</button>
-          <button class="btn" onClick={() => handleViewChange('timeGridWeek')}>Week View</button>
-          <button class="btn" onClick={() => handleViewChange('listWeek')}>List View</button> 
+          <button class="btn" onClick={() => handleViewChange("dayGridMonth")}>
+            Month View
+          </button>
+          <button class="btn" onClick={() => handleViewChange("timeGridWeek")}>
+            Week View
+          </button>
+          <button class="btn" onClick={() => handleViewChange("listWeek")}>
+            List View
+          </button>
+        </div>
         </div>
         <FullCalendar
           key={currentView}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+          plugins={[
+            dayGridPlugin,
+            timeGridPlugin,
+            interactionPlugin,
+            listPlugin,
+          ]}
           initialView={currentView}
           dateClick={(info) => setSelectedDate(info.date)}
           events={fullCalendar}
@@ -210,55 +219,95 @@ export default function Schedule() {
           height="auto"
           contentHeight="auto"
         />
-
       </div>
-      {selectedEvent && <Dialog
-        open={selectedEvent !== null}
-        onClose={handleClose}
-      >
-        <DialogTitle>{selectedEvent._def.title}</DialogTitle>
-        <DialogContent>
-          <List>
-            <ListItem>
-              <ListItemText primary={"Patient Information"} secondary={"Age: " + selectedEvent._def.extendedProps.patient.age + ", Gender: " + selectedEvent._def.extendedProps.patient.gender} />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Date" secondary={`${formatTime(selectedEvent._def.extendedProps.procedureDetails.scheduledStartTime)} - ${formatTime(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime)}`} />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Purpose/Specifications" secondary={proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).name + " - " + proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).description} />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Other Staff" secondary={
-                (() => {
-                  const currentUserId = sessionStorage.getItem('user');
-                  const filteredStaffNames = selectedEvent._def.extendedProps.procedureDetails.staff
-                    .map(staffId => usersList.find(user => user._id === staffId))
-                    .filter(user => user && user._id !== currentUserId)
-                    .map(user => user.name);
-
-                  if (filteredStaffNames.length === 0) {
-                    return "N/A";
-                  } else {
-                    return filteredStaffNames.join(', ');
+      {selectedEvent && (
+        <Dialog open={selectedEvent !== null} onClose={handleClose}>
+          <DialogTitle>{selectedEvent._def.title}</DialogTitle>
+          <DialogContent>
+            <List>
+              <ListItem>
+                <ListItemText
+                  primary={"Patient Information"}
+                  secondary={
+                    "Age: " +
+                    selectedEvent._def.extendedProps.patient.age +
+                    ", Gender: " +
+                    selectedEvent._def.extendedProps.patient.gender
                   }
-                })()
-              } />
-            </ListItem>
-            <ListItem>
-              <ListItemText
-                primary="Room"
-                secondary={
-                  selectedEvent._def.extendedProps.procedureDetails.room
-                    ? roomsList.find(room => room._id === selectedEvent._def.extendedProps.procedureDetails.room).name
-                    : 'None'
-                }
-              />
-            </ListItem>
-          </List>
-        </DialogContent>
-      </Dialog>
-      }
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Date"
+                  secondary={`${formatTime(
+                    selectedEvent._def.extendedProps.procedureDetails
+                      .scheduledStartTime
+                  )} - ${formatTime(
+                    selectedEvent._def.extendedProps.procedureDetails
+                      .scheduledEndTime
+                  )}`}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Purpose/Specifications"
+                  secondary={
+                    proceduresList.find(
+                      (procedureItem) =>
+                        procedureItem._id ===
+                        selectedEvent._def.extendedProps.procedureDetails
+                          .procedure
+                    ).name +
+                    " - " +
+                    proceduresList.find(
+                      (procedureItem) =>
+                        procedureItem._id ===
+                        selectedEvent._def.extendedProps.procedureDetails
+                          .procedure
+                    ).description
+                  }
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Other Staff"
+                  secondary={(() => {
+                    const currentUserId = sessionStorage.getItem("user");
+                    const filteredStaffNames =
+                      selectedEvent._def.extendedProps.procedureDetails.staff
+                        .map((staffId) =>
+                          usersList.find((user) => user._id === staffId)
+                        )
+                        .filter((user) => user && user._id !== currentUserId)
+                        .map((user) => user.name);
+
+                    if (filteredStaffNames.length === 0) {
+                      return "N/A";
+                    } else {
+                      return filteredStaffNames.join(", ");
+                    }
+                  })()}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Room"
+                  secondary={
+                    selectedEvent._def.extendedProps.procedureDetails.room
+                      ? roomsList.find(
+                          (room) =>
+                            room._id ===
+                            selectedEvent._def.extendedProps.procedureDetails
+                              .room
+                        ).name
+                      : "None"
+                  }
+                />
+              </ListItem>
+            </List>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
