@@ -28,7 +28,7 @@ function Inbox() {
 
       
         try {
-          const res = await axios.get('https://mediflow-cse416.onrender.com/users', {
+          const res = await axios.get('https://mediflow-cse416.onrender.com//users', {
             headers: {
               'Authorization': 'Bearer ' + sessionStorage.getItem('token')
             }
