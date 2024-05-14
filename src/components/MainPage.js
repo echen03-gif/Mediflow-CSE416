@@ -77,6 +77,7 @@ export default function MainPage() {
       const storedUser = sessionStorage.getItem("user");
       const storedName = sessionStorage.getItem("name");
       const storedIsAdmin = sessionStorage.getItem("isAdmin");
+      console.log("isAdmin", storedIsAdmin);
 
       if (!storedToken || !storedUser) {
         // If token or username is not found in sessionStorage, redirect to the login page
