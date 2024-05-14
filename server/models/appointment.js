@@ -18,7 +18,7 @@ const appointmentSchema = new mongoose.Schema({
     type: String,
     enum: ["pending", "accepted", "cancelled", "completed"],
     default: "pending",
-  },
+  }
 });
 
 appointmentSchema.virtual('url').get(function () {
