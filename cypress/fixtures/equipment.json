@@ -1,0 +1,5 @@
+[
+    { "_id": "equipment1", "name": "ExampleEquipment", "location": "room1", "status": "Available", "appointments": ["appointment1"] },
+    { "_id": "equipment2", "name": "AnotherEquipment", "location": "room2", "status": "In Use", "appointments": [] }
+  ]
+  

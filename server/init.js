@@ -208,9 +208,9 @@ const populate = async () => {
 
     // PROCEDURES
 
-    let heartSurgeryPreOp = await createProcedure("Patient needs to complete chest x-ray, blood tests, and fasting diet requirements.", 1000, "Heart Surgery PreOP", 0, [], null, null, "Nurse", 2);
-    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 2000, "Heart Surgery OP", 1, ['Heart Lung Machine'], "Cardiology", heartRoom, "Cardiology", 1);
-    let heartSurgeryPostOp = await createProcedure("Patient needs to rest and be monitored", 1000, "Heart Surgery PostOP", 2, ['CT Machine'], "ICU", icu, "Radiology", 1);
+    let heartSurgeryPreOp = await createProcedure("Patient needs to complete chest x-ray, blood tests, and fasting diet requirements.", 30, "Heart Surgery PreOP", 0, [], null, null, "Nurse", 2);
+    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 60, "Heart Surgery OP", 1, ['Heart Lung Machine'], "Cardiology", heartRoom, "Cardiology", 1);
+    let heartSurgeryPostOp = await createProcedure("Patient needs to rest and be monitored", 60, "Heart Surgery PostOP", 2, ['CT Machine'], "ICU", icu, "Radiology", 1);
 
     // PROCESSES
 

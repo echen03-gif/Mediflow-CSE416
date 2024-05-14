@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, MenuItem, Button, Typography, Container, Grid, Stack } from '@mui/material';
+import { Box, TextField, MenuItem, Button, Typography, Container, Grid, Stack, Alert } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import moment from 'moment-timezone';
 
 
 export default function RequestAppointment() {
@@ -16,6 +17,8 @@ export default function RequestAppointment() {
   const [appointmentsList, setAppointmentList] = useState([]);
   const [procedureList, setProcedureList] = useState([]);
   const [staffSelections, setStaffSelections] = useState({});
+  const [notification, setNotification] = useState('');
+
 
 
   // DB API
@@ -85,21 +88,24 @@ export default function RequestAppointment() {
 
     const weekDay = scheduledStart.toLocaleString('en-us', { weekday: 'long' });
 
-    //const shifts = user.schedule[weekDay];
-    
-    // let isInShift = false;
-    // for (let shift of shifts) {
-    //     const shiftStart = new Date(`${scheduledStartTime.split('T')[0]}T${shift.start}`);
-    //     const shiftEnd = new Date(`${scheduledStartTime.split('T')[0]}T${shift.end}`);
-    //     if (scheduledStart >= shiftStart && scheduledEnd <= shiftEnd) {
-    //         isInShift = true;
-    //         break;
-    //     }
-    // }
+    const shifts = user.schedule[weekDay];
 
-    // if (!isInShift) {
-    //     return false; 
-    // }
+
+    let isInShift = false;
+
+    for (let shift of shifts) {
+      const shiftStart = new Date(`${scheduledStartTime.split('T')[0]}T${shift.start}`);
+      const shiftEnd = new Date(`${scheduledStartTime.split('T')[0]}T${shift.end}`);
+    
+      if (scheduledStart >= shiftStart && scheduledEnd <= shiftEnd) {
+        isInShift = true;
+        break;
+      }
+    }
+    console.log(isInShift);
+    if (!isInShift) {
+      return false;
+    }
 
     for (let appointmentId of user.appointments) {
 
@@ -176,6 +182,7 @@ export default function RequestAppointment() {
     e.preventDefault();
 
     let checkAvaliability = true;
+    let NonAvaliableProcedures = [];
     const procedures = Object.entries(staffSelections).map(([procedureId, { staff, equipment, scheduledStartTime, scheduledEndTime, roomId }]) => {
 
       let procedure = procedureList.find(procedure => procedure._id === procedureId);
@@ -185,7 +192,7 @@ export default function RequestAppointment() {
 
       let selectedStaff = [];
       for (let i = 0; i < usersList.length; i++) {
-      
+
         if (usersList[i].role === procedure.staffType) {
 
           if (checkUserSchedule(usersList[i], scheduledStartTime, scheduledEndTime)) {
@@ -218,26 +225,28 @@ export default function RequestAppointment() {
 
       let selectedRoom;
 
-      for(let roomSearch of roomsList){
-        if(roomSearch.type === procedure.requiredRoomType){
-          if(checkRoomSchedule(roomSearch, scheduledStartTime, scheduledEndTime)){
+      for (let roomSearch of roomsList) {
+        if (roomSearch.type === procedure.requiredRoomType) {
+          if (checkRoomSchedule(roomSearch, scheduledStartTime, scheduledEndTime)) {
             selectedRoom = roomSearch;
             break;
           }
         }
       }
-      
-      if(selectedStaff.length !== numStaff || selectedEquipment.length !== equipmentListName.length ){
+
+      if (selectedStaff.length !== numStaff || selectedEquipment.length !== equipmentListName.length) {
         checkAvaliability = false;
+        NonAvaliableProcedures.push(procedure.name);
+
+      }
+      else if (procedure.requiredRoomType != null && selectedRoom == null) {
+        checkAvaliability = false;
+        NonAvaliableProcedures.push(procedure.name);
+
       }
 
-      if(procedure.requiredRoomType != null && selectedRoom == null){
-        checkAvaliability = false;
-      }
-      
-      console.log(selectedStaff)
-      console.log(selectedRoom)
-      console.log(selectedEquipment)
+      scheduledStartTime = moment.tz(scheduledStartTime, "YYYY-MM-DDTHH:mm:ss.SSS", 'America/New_York').utc().format();
+      scheduledEndTime = moment.tz(scheduledEndTime, "YYYY-MM-DDTHH:mm:ss.SSS", 'America/New_York').utc().format();
 
       return {
         procedure: procedureId,
@@ -249,12 +258,12 @@ export default function RequestAppointment() {
       };
     });
 
-
     if (!checkAvaliability) {
-      alert('Some procedures could not be fully staffed or some rooms are not avaliable. Please adjust your time selections');
-      return; 
+      setNotification(`There are not enough available staff, room, or equipment at the selected time for ${NonAvaliableProcedures.join(", ")}`);
+      return;
     }
 
+    setNotification('');
 
     let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/requestAppointment", {
       patient: patientUser,
@@ -278,7 +287,7 @@ export default function RequestAppointment() {
         uniqueEquipmentIds.add(equipmentId);
       });
 
-      if(room){
+      if (room) {
         uniqueRoomIds.add(room);
       }
 
@@ -331,6 +340,7 @@ export default function RequestAppointment() {
   }
 
   const handleChange = (procedureId, field) => (event, newValue) => {
+
     console.log(newValue);
 
     setStaffSelections(prev => {
@@ -369,6 +379,11 @@ export default function RequestAppointment() {
         <Typography variant="h4" sx={{ mb: 4 }}>
           Add Appointment
         </Typography>
+        {notification && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {notification}
+          </Alert>
+        )}
         <form onSubmit={handleSubmit}>
           <TextField
             select

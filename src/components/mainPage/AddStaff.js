@@ -81,6 +81,8 @@ const AddStaff = () => {
             autoFocus
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
+            data-testid="first-name"
+
           />
           <TextField
             margin="normal"
@@ -92,6 +94,8 @@ const AddStaff = () => {
             autoComplete="lname"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
+            data-testid="last-name"
+
           />
           <TextField
             margin="normal"
@@ -103,6 +107,8 @@ const AddStaff = () => {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            data-testid="email"
+
           />
           <TextField
             margin="normal"
@@ -115,6 +121,8 @@ const AddStaff = () => {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            data-testid="password"
+
           />
           <TextField
             margin="normal"
@@ -129,6 +137,8 @@ const AddStaff = () => {
             }}
             value={dateOfBirth}
             onChange={(e) => setDateOfBirth(e.target.value)}
+            data-testid="date-of-birth"
+
           />
           <FormControl fullWidth margin="normal">
             <InputLabel id="position-label">Position</InputLabel>
@@ -138,6 +148,8 @@ const AddStaff = () => {
               value={position}
               label="Position"
               onChange={(e) => setPosition(e.target.value)}
+              data-testid="position"
+
             >
               <MenuItem value={"Doctor"}>Doctor</MenuItem>
               <MenuItem value={"Nurse"}>Nurse</MenuItem>
@@ -153,6 +165,8 @@ const AddStaff = () => {
                   <Switch
                     checked={shifts[day].isWorking}
                     onChange={(e) => setShifts({ ...shifts, [day]: { ...shifts[day], isWorking: e.target.checked } })}
+                    data-testid={`${day}Switch`}
+
                   />
                 }
                 label="Scheduled To Work"
@@ -175,6 +189,7 @@ const AddStaff = () => {
                     }}
                     value={shifts[day].start}
                     onChange={(e) => setShifts({ ...shifts, [day]: { ...shifts[day], start: e.target.value } })}
+                    data-testid={`${day}ShiftStart`}
                   />
                   <TextField
                     margin="normal"
@@ -192,6 +207,8 @@ const AddStaff = () => {
                     }}
                     value={shifts[day].end}
                     onChange={(e) => setShifts({ ...shifts, [day]: { ...shifts[day], end: e.target.value } })}
+                    data-testid={`${day}ShiftEnd`}
+
                   />
                 </>
               )}
@@ -203,6 +220,8 @@ const AddStaff = () => {
               <Switch
                 checked={isAdmin}
                 onChange={(e) => setIsAdmin(e.target.checked)}
+                data-testid="admin-switch"
+
               />
             }
             label="Admin Privileges"
@@ -212,6 +231,8 @@ const AddStaff = () => {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
+            data-testid="submit-button"
+
           >
             Add Staff
           </Button>

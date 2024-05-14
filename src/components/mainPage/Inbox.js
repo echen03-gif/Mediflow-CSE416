@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, TablePagination, ButtonBase } from '@mui/material';
-import { socket } from '../MainPage.js';
+import { getSocket } from '../socket';
 //import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {useNavigate} from 'react-router-dom';
@@ -20,7 +20,11 @@ function Inbox() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setUserId(sessionStorage.getItem('user'));
+
+      const currentUserId = sessionStorage.getItem('user');
+
+      setUserId(currentUserId);
+
       if (inboxType === 'general') {
         try {
           const res = await axios.get('https://mediflow-cse416.onrender.com/users', {
@@ -28,7 +32,10 @@ function Inbox() {
               'Authorization': 'Bearer ' + sessionStorage.getItem('token')
             }
           });
-          setPeople(res.data);
+          const filteredPeople = res.data.filter(person => person._id !== currentUserId);
+
+          setPeople(filteredPeople);
+          
         } catch (error) {
           console.error('Error fetching general inbox data:', error);
         }
@@ -45,7 +52,7 @@ function Inbox() {
           console.error('Error fetching process inbox data:', error);
         }
       }
-      
+
     };
 
     fetchData();
@@ -83,6 +90,7 @@ function Inbox() {
       //navigate to specific chatroom id based on Ids concatenated together alphabetically idk if this works but if it does im a genius
       const roomId = [personId, userId].sort().join("-");
       console.log("Joining a room with room id " + roomId);
+      const socket = getSocket()
       socket.emit('joinRoom', roomId);
       navigate(`/main/chatscreen/${roomId}`);
 
@@ -93,14 +101,14 @@ function Inbox() {
 
   return (
     <Box sx={{ flexGrow: 1, padding: 2 }}>
-      <Typography variant="h4" gutterBottom>
+      <h1>
         Chat Inbox
-      </Typography>
+      </h1>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-        <ButtonBase onClick={() => handleTabChange('general')} sx={{ fontWeight: inboxType === 'general' ? 'bold' : 'normal' }}>
+        <ButtonBase onClick={() => handleTabChange('general')} sx={{ fontWeight: inboxType === 'general' ? 'bold' : 'normal' }} data-testid="general-inbox-tab">
           <Typography variant="button">General Inbox</Typography>
         </ButtonBase>
-        <ButtonBase onClick={() => handleTabChange('process')} sx={{ fontWeight: inboxType === 'process' ? 'bold' : 'normal' }}>
+        <ButtonBase onClick={() => handleTabChange('process')} sx={{ fontWeight: inboxType === 'process' ? 'bold' : 'normal' }} data-testid="process-inbox-tab">
           <Typography variant="button">Process Inbox</Typography>
         </ButtonBase>
       </Box>
@@ -115,7 +123,7 @@ function Inbox() {
           </TableHead>
           <TableBody>
             {peopleList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((person) => (
-              <TableRow key={person._id} style={{ userSelect: 'none' }}>
+              <TableRow key={person._id} style={{ userSelect: 'none' }} data-testid="user-row">
                 <ButtonBase
                   onClick={() => handleRowClick(person._id)}
                   style={{ display: 'contents' }} 
