@@ -81,6 +81,21 @@ export default function Schedule() {
     }).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
 
   }, []);
+  const fetchAppointments = async () => {
+    const response = await axios.get(
+      "https://mediflow-cse416.onrender.com/appointments/pending",
+      {
+        headers: {
+          Authorization: "Bearer " + sessionStorage.getItem("token"),
+        },
+      }
+    );
+    console.log("appointments", response.data);
+    setPending(response.data.length);
+  };
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
 
   useEffect(() => {
     if (!userAppointments || !appointmentsList || !usersList) {
@@ -178,7 +193,7 @@ export default function Schedule() {
             className={`appt-btn ${!isAdmin ? "invisible" : ""}`}
             onClick={handlePending}
           >
-            Pending Appointments
+            {pending} Pending Appointments
             {/* show number of appointments pending */}
           </button>
         </div>

@@ -289,32 +289,30 @@ export default function AdminAppointmentView() {
                   </ListItem>
                 );
               })}
-              <ListItem>
-                <ListItemText
-                  primary="Room"
-                  secondary={selectedApptDetails.rooms.join(", ")}
-                />
-              </ListItem>
+              {selectedApptDetails && selectedApptDetails.rooms && (
+                <ListItem>
+                  <ListItemText
+                    primary="Room"
+                    secondary={selectedApptDetails.rooms.join(", ")}
+                  />
+                </ListItem>
+              )}
             </List>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    sx={{ marginRight: 1 }}
-                    onClick={() =>
-                      handleUpdateStatus(selectedAppt._id, "accepted")
-                    }
-                  >
-                    Accept
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() =>
-                      handleUpdateStatus(selectedAppt._id, "rejected")
-                    }
-                  >
-                    Reject
-                  </Button>
+            <Button
+              variant="contained"
+              color="success"
+              sx={{ marginRight: 1 }}
+              onClick={() => handleUpdateStatus(selectedAppt._id, "accepted")}
+            >
+              Accept
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={() => handleUpdateStatus(selectedAppt._id, "rejected")}
+            >
+              Reject
+            </Button>
           </DialogContent>
         </Dialog>
       )}
