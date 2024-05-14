@@ -8,7 +8,7 @@
 */
 
 const bcrypt = require('bcrypt');
-const faker = require('faker'); 
+const faker = require('faker');
 
 const departments = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Emergency"];
 let Users = require('./models/users.js');
@@ -29,7 +29,7 @@ let db = mongoose.connection;
 
 // Create Functions
 
-function createUser(adminBool, email, name, age, gender, password, role, staffID, schedule){
+function createUser(adminBool, email, name, age, gender, password, role, staffID, schedule) {
 
     let createUser = {
         admin: adminBool,
@@ -51,7 +51,7 @@ function createUser(adminBool, email, name, age, gender, password, role, staffID
 
 }
 
-function createEquipmentHead(name, quantity, type, equipment){
+function createEquipmentHead(name, quantity, type, equipment) {
 
     let createEquipmentHead = {
         name: name,
@@ -66,7 +66,7 @@ function createEquipmentHead(name, quantity, type, equipment){
 
 }
 
-function createEquipment(name, locationRoom, type){
+function createEquipment(name, locationRoom, type) {
 
     let createEquipment = {
         location: locationRoom,
@@ -81,12 +81,12 @@ function createEquipment(name, locationRoom, type){
 
 }
 
-function createRoom(name, roomID, status, type){
+function createRoom(name, roomID, status, type) {
 
     let createRoom = {
         created: new Date(),
         equipment: [],
-        name: name, 
+        name: name,
         roomID: roomID,
         status: status,
         type: type,
@@ -100,7 +100,7 @@ function createRoom(name, roomID, status, type){
 
 }
 
-function createProcedure(description, estimatedDuration, name, procedureID, requiredEquipment, requiredRoomType, locationRoom, staffType, numStaff){
+function createProcedure(description, estimatedDuration, name, procedureID, requiredEquipment, requiredRoomType, locationRoom, staffType, numStaff) {
 
     let createProcedure = {
 
@@ -123,13 +123,13 @@ function createProcedure(description, estimatedDuration, name, procedureID, requ
 }
 
 
-function createProcess(name, procedures){
+function createProcess(name, procedures) {
 
     let createProcess = {
 
         name: name,
         components: procedures
-        
+
 
     }
 
@@ -143,10 +143,10 @@ function getRandomSchedule() {
     let schedule = {};
 
     days.forEach(day => {
-        let startHour = faker.datatype.number({min: 6, max: 10}); 
-        let endHour = startHour + faker.datatype.number({min: 8, max: 10}); 
+        let startHour = faker.datatype.number({ min: 6, max: 10 });
+        let endHour = startHour + faker.datatype.number({ min: 8, max: 10 });
         schedule[day] = [{
-            start: `${startHour.toString().padStart(2, '0')}:00`, 
+            start: `${startHour.toString().padStart(2, '0')}:00`,
             end: `${endHour.toString().padStart(2, '0')}:00`
         }];
     });
@@ -160,40 +160,40 @@ const saltRounds = 10;
 const hashedPass = bcrypt.hashSync(admin_password, saltRounds);
 
 const populate = async () => {
-    
+
     // SYS ADMIN
     let sysAdmin = await createUser(true, "sysAdmin@gmail.com", "SYSTEM ADMIN", 28, "Male", hashedPass, "admin", 0,
-     {
-        Monday: [{start: "09:00", end: "17:00"}],
-        Tuesday: [{start: "09:00", end: "17:00"}],
-        Wednesday: [{start: "20:00", end: "24:00"}],
-        Thursday: [{start: "06:00", end: "19:00"}],
-        Friday: [{start: "03:00", end: "20:00"}],
-        Saturday: [{start: "15:00", end: "18:00"}],
-        Sunday: [{start: "04:00", end: "15:00"}]
-    });
+        {
+            Monday: [{ start: "00:00", end: "23:59" }],
+            Tuesday: [{ start: "00:00", end: "23:59" }],
+            Wednesday: [{ start: "00:00", end: "23:59" }],
+            Thursday: [{ start: "00:00", end: "23:59" }],
+            Friday: [{ start: "00:00", end: "23:59" }],
+            Saturday: [{ start: "00:00", end: "23:59" }],
+            Sunday: [{ start: "00:00", end: "23:59" }]
+        });
 
     // USERS
 
-    for (let i = 0; i < 10; i++) {
-        let department = departments[Math.floor(Math.random() * departments.length)];
-        let name = faker.name.findName();
-        let email = faker.internet.email(); 
-        let age = faker.datatype.number({ min: 25, max: 60 }); 
-        let gender = faker.random.arrayElement(["Male", "Female"]);
-        let staffID = faker.datatype.number(1000, 9999); 
+    // for (let i = 0; i < 10; i++) {
+    //     let department = departments[Math.floor(Math.random() * departments.length)];
+    //     let name = faker.name.findName();
+    //     let email = faker.internet.email(); 
+    //     let age = faker.datatype.number({ min: 25, max: 60 }); 
+    //     let gender = faker.random.arrayElement(["Male", "Female"]);
+    //     let staffID = faker.datatype.number(1000, 9999); 
 
-        await createUser(false, email, name, age, gender, hashedPass, department, staffID, getRandomSchedule());
-    }
+    //     await createUser(false, email, name, age, gender, hashedPass, department, staffID, getRandomSchedule());
+    // }
 
     // ROOMS
 
     let storageRoom = await createRoom("Storage Room", 0, "OPEN", "Storage");
     let heartRoom = await createRoom("Room 101", 1, "OPEN", "Cardiology");
     let icu = await createRoom("Room 102", 2, "OPEN", "ICU");
-    let baseRoomNumber = 103; 
+    let baseRoomNumber = 103;
     for (let i = 0; i < departments.length; i++) {
-        let roomName = `Room ${baseRoomNumber + i}`; 
+        let roomName = `Room ${baseRoomNumber + i}`;
         let department = departments[i];
         await createRoom(roomName, baseRoomNumber + i, "OPEN", department);
     }
@@ -208,14 +208,14 @@ const populate = async () => {
 
     // PROCEDURES
 
-    let heartSurgeryPreOp = await createProcedure("Patient needs to complete chest x-ray, blood tests, and fasting diet requirements.", 1000, "Heart Surgery PreOP", 0, [], null, null, "Nurse", 2);
-    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 2000, "Heart Surgery OP", 1, ['Heart Lung Machine'], "Cardiology", heartRoom, "Cardiology", 1);
-    let heartSurgeryPostOp = await createProcedure("Patient needs to rest and be monitored", 1000, "Heart Surgery PostOP", 2, ['CT Machine'], "ICU", icu, "Radiology", 1);
+    let heartSurgeryPreOp = await createProcedure("Patient needs to complete chest x-ray, blood tests, and fasting diet requirements.", 30, "Heart Surgery PreOP", 0, [], null, null, "Nurse", 2);
+    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 60, "Heart Surgery OP", 1, ['Heart Lung Machine'], "Cardiology", heartRoom, "Cardiology", 1);
+    let heartSurgeryPostOp = await createProcedure("Patient needs to rest and be monitored", 60, "Heart Surgery PostOP", 2, ['CT Machine'], "ICU", icu, "Radiology", 1);
 
     // PROCESSES
 
-    let heartSurgery = await createProcess("Heart Surgery",[heartSurgeryPreOp, heartSurgeryOp, heartSurgeryPostOp]);
-    
+    let heartSurgery = await createProcess("Heart Surgery", [heartSurgeryPreOp, heartSurgeryOp, heartSurgeryPostOp]);
+
     if (db) db.close();
     console.log('Preset Data Inserted into DB');
 

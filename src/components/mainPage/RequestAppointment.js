@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, MenuItem, Button, Typography, Container, Grid, Stack } from '@mui/material';
+import { Box, TextField, MenuItem, Button, Typography, Container, Grid, Stack, Alert } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import moment from 'moment-timezone';
 
 
 export default function RequestAppointment() {
@@ -16,6 +17,8 @@ export default function RequestAppointment() {
   const [appointmentsList, setAppointmentList] = useState([]);
   const [procedureList, setProcedureList] = useState([]);
   const [staffSelections, setStaffSelections] = useState({});
+  const [notification, setNotification] = useState('');
+
 
 
   // DB API
@@ -86,25 +89,27 @@ export default function RequestAppointment() {
     const weekDay = scheduledStart.toLocaleString('en-us', { weekday: 'long' });
 
     const shifts = user.schedule[weekDay];
-    
-    let isInShift = false;
-    for (let shift of shifts) {
-        const shiftStart = new Date(`${scheduledStartTime.split('T')[0]}T${shift.start}`);
-        const shiftEnd = new Date(`${scheduledStartTime.split('T')[0]}T${shift.end}`);
-        if (scheduledStart >= shiftStart && scheduledEnd <= shiftEnd) {
-            isInShift = true;
-            break;
-        }
-    }
 
+
+    let isInShift = false;
+
+    for (let shift of shifts) {
+      const shiftStart = new Date(`${scheduledStartTime.split('T')[0]}T${shift.start}`);
+      const shiftEnd = new Date(`${scheduledStartTime.split('T')[0]}T${shift.end}`);
+
+      if (scheduledStart >= shiftStart && scheduledEnd <= shiftEnd) {
+        isInShift = true;
+        break;
+      }
+    }
+    console.log(isInShift);
     if (!isInShift) {
-        return false; 
+      return false;
     }
 
     for (let appointmentId of user.appointments) {
 
       const appointment = appointmentsList.find(appt => appt._id === appointmentId);
-
 
       for (let procedure of appointment.procedures) {
 
@@ -176,6 +181,7 @@ export default function RequestAppointment() {
     e.preventDefault();
 
     let checkAvaliability = true;
+    let NonAvaliableProcedures = [];
     const procedures = Object.entries(staffSelections).map(([procedureId, { staff, equipment, scheduledStartTime, scheduledEndTime, roomId }]) => {
 
       let procedure = procedureList.find(procedure => procedure._id === procedureId);
@@ -184,12 +190,15 @@ export default function RequestAppointment() {
       let equipmentListName = procedure.requiredEquipment;
 
       let selectedStaff = [];
-      for (let i = 0; i < usersList.length; i++) {
-      
-        if (usersList[i].role === procedure.staffType) {
 
-          if (checkUserSchedule(usersList[i], scheduledStartTime, scheduledEndTime)) {
-            selectedStaff.push(usersList[i]);
+      const sortedUsersList = [...usersList].sort((a, b) => a.appointments.length - b.appointments.length);
+
+      for (let i = 0; i < usersList.length; i++) {
+
+        if (sortedUsersList[i].role === procedure.staffType) {
+
+          if (checkUserSchedule(sortedUsersList[i], scheduledStartTime, scheduledEndTime)) {
+            selectedStaff.push(sortedUsersList[i]);
           }
         }
 
@@ -204,7 +213,9 @@ export default function RequestAppointment() {
 
         let equipmentHead = equipmentHeadList.find(equipment => equipment.name === equipmentName);
 
-        for (let equipmentId of equipmentHead.equipment) {
+        let fullEquipmentList = equipmentHead.equipment.sort((a, b) => a.appointments.length - b.appointments.length)
+
+        for (let equipmentId of fullEquipmentList) {
 
           let checkEquipment = equipmentList.find(equipmentSearch => equipmentSearch._id === equipmentId);
 
@@ -217,40 +228,58 @@ export default function RequestAppointment() {
       }
 
       let selectedRoom;
-
-      for(let roomSearch of roomsList){
-        if(roomSearch.type === procedure.requiredRoomType){
-          if(checkRoomSchedule(roomSearch, scheduledStartTime, scheduledEndTime)){
+      const sortedRoomsList = [...roomsList].sort((a, b) => a.appointments.length - b.appointments.length);
+      for (let roomSearch of sortedRoomsList) {
+        if (roomSearch.type === procedure.requiredRoomType) {
+          if (checkRoomSchedule(roomSearch, scheduledStartTime, scheduledEndTime)) {
             selectedRoom = roomSearch;
             break;
           }
         }
       }
-      
-      if(selectedStaff.length !== numStaff || selectedEquipment.length !== equipmentListName.length ){
+
+      if (selectedStaff.length !== numStaff || selectedEquipment.length !== equipmentListName.length) {
         checkAvaliability = false;
+        NonAvaliableProcedures.push(procedure.name);
+
+      }
+      else if (procedure.requiredRoomType != null && selectedRoom == null) {
+        checkAvaliability = false;
+        NonAvaliableProcedures.push(procedure.name);
+
       }
 
-      if(procedure.requiredRoomType != null && selectedRoom == null){
-        checkAvaliability = false;
-      }
+      scheduledStartTime = moment.tz(scheduledStartTime, "YYYY-MM-DDTHH:mm:ss.SSS", 'America/New_York').utc().format();
+      scheduledEndTime = moment.tz(scheduledEndTime, "YYYY-MM-DDTHH:mm:ss.SSS", 'America/New_York').utc().format();
 
-      return {
-        procedure: procedureId,
-        staff: selectedStaff,
-        equipment: selectedEquipment,
-        scheduledStartTime,
-        scheduledEndTime,
-        room: selectedRoom
-      };
+      if (scheduledEndTime)
+        return {
+          procedure: procedureId,
+          staff: selectedStaff,
+          equipment: selectedEquipment,
+          scheduledStartTime,
+          scheduledEndTime,
+          room: selectedRoom
+        };
     });
 
+    for (let i = 0; i < procedures.length - 1; i++) {
+      let current = moment(procedures[i].scheduledStartTime);
+      let next = moment(procedures[i + 1].scheduledStartTime);
 
-    if (!checkAvaliability) {
-      alert('Some procedures could not be fully staffed or some rooms are not avaliable. Please adjust your time selections');
-      return; 
+      if (next.isBefore(current)) {
+        checkAvaliability = false;
+        setNotification(`Invalid! Start time of procedure ${procedureList.find(procedure => procedure._id === procedures[i + 1].procedure).name} is before start time of procedure ${procedureList.find(procedure => procedure._id === procedures[i].procedure).name}`);
+        return;
+      }
     }
 
+    if (!checkAvaliability) {
+      setNotification(`There are not enough available staff, room, or equipment at the selected time for ${NonAvaliableProcedures.join(", ")}`);
+      return;
+    }
+
+    setNotification('');
 
     let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/requestAppointment", {
       patient: patientUser,
@@ -274,7 +303,7 @@ export default function RequestAppointment() {
         uniqueEquipmentIds.add(equipmentId);
       });
 
-      if(room){
+      if (room) {
         uniqueRoomIds.add(room);
       }
 
@@ -327,7 +356,7 @@ export default function RequestAppointment() {
   }
 
   const handleChange = (procedureId, field) => (event, newValue) => {
-    console.log(newValue);
+
 
     setStaffSelections(prev => {
 
@@ -340,13 +369,21 @@ export default function RequestAppointment() {
 
 
       if (field === "scheduledStartTime") {
-
         const duration = procedureList.find(p => p._id === procedureId)?.estimatedDuration || 0;
-        const startTime = new Date(newValue);
-        const endTime = new Date(startTime.getTime() + duration * 60000);
-
-        updatedSettings['scheduledEndTime'] = endTime.toISOString();
+      
+        const startTime = moment.tz(newValue, "YYYY-MM-DDTHH:mm", 'America/New_York');
+    
+        const endTime = startTime.clone().add(duration, 'minutes');
+    
+        const formattedEndTime = endTime.format('YYYY-MM-DDTHH:mm');
+      
+        console.log(newValue);
+        console.log(formattedEndTime);
+      
+        updatedSettings['scheduledEndTime'] = formattedEndTime;
       }
+      
+      
 
       return {
         ...prev,
@@ -365,6 +402,11 @@ export default function RequestAppointment() {
         <Typography variant="h4" sx={{ mb: 4 }}>
           Add Appointment
         </Typography>
+        {notification && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {notification}
+          </Alert>
+        )}
         <form onSubmit={handleSubmit}>
           <TextField
             select
@@ -424,6 +466,7 @@ export default function RequestAppointment() {
               <Box key={procedure}>
                 <Typography variant="h6">{procedureList.find(item => item._id === procedure).name}</Typography>
 
+                <Typography variant="h6">Estimated Duration: {procedureList.find(item => item._id === procedure).estimatedDuration} mins</Typography>
 
                 <TextField
                   type="datetime-local"

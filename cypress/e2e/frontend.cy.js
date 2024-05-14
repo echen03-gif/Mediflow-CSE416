@@ -60,6 +60,7 @@ describe('End to End Component Testing', () => {
     cy.contains('Room Availability');
     cy.get('#date').should('be.visible');
     cy.get('.css-sl7ei > .MuiButton-root').should('be.visible');
+
   });
 
   it('changes the date and checks room availability indicators', () => {
@@ -67,6 +68,7 @@ describe('End to End Component Testing', () => {
 
     // Change the date
     const newDate = '2024-06-15T08:30';
+
     cy.get('#date').invoke('val', '').type(newDate);
     cy.get('#date').should('have.value', newDate);
 
@@ -82,6 +84,7 @@ describe('End to End Component Testing', () => {
 
     // Click Add Room button
     cy.get('.css-sl7ei > .MuiButton-root').should('be.visible').click();
+
     cy.url().should('include', '/main/addroom');
   });
 

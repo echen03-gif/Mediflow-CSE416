@@ -41,11 +41,18 @@ function Inbox() {
         }
       } else if (inboxType === 'process') {
         try {
-          setPeople([]);
+          const user = await axios.get(`https://mediflow-cse416.onrender.com/userAppointments/${userId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+                }
+              });
+          console.log(user.data.appointments);
+          setPeople([user.data.appointments]);
         } catch (error) {
           console.error('Error fetching process inbox data:', error);
         }
       }
+
     };
 
     fetchData();
@@ -108,28 +115,59 @@ function Inbox() {
       <TableContainer component={Paper} sx={{ height: 500 }}>
         <Table aria-label="simple table">
           <TableHead>
-            <TableRow>
+            {inboxType === 'general' &&
+              <TableRow>
               <TableCell>Profile</TableCell>
               <TableCell>Name</TableCell>
               <TableCell align="right">Last Message</TableCell>
             </TableRow>
+          }
+          {inboxType === 'process' &&
+              <TableRow>
+              <TableCell>Process</TableCell>
+              <TableCell>Patient</TableCell>
+            </TableRow>
+          }
+            
           </TableHead>
           <TableBody>
-            {peopleList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((person) => (
-              <TableRow key={person._id} style={{ userSelect: 'none' }} data-testid="user-row">
-                <ButtonBase
-                  onClick={() => handleRowClick(person._id)}
-                  style={{ display: 'contents' }} 
-                  disableRipple
-                >
-                  <TableCell>
-                    <img src={`https://mediflow-cse416.onrender.com/uploads/${person.profilePic.split('/').pop()}`} alt={person.name} style={{ width: 50, borderRadius: '50%' }} />
-                  </TableCell>
-                  <TableCell>{person.name}</TableCell>
-                  <TableCell align="right">N/A</TableCell>
-                </ButtonBase>
-              </TableRow>
-            ))}
+          {
+            inboxType === 'general' &&  
+
+            peopleList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((person) => (  // Correct: Using curly braces for the map function
+    <TableRow key={person._id} style={{ userSelect: 'none' }} data-testid="user-row">
+      <ButtonBase
+        onClick={() => handleRowClick(person._id)}
+        style={{ display: 'contents' }} 
+        disableRipple
+      >
+        <TableCell>
+          <img src={`https://mediflow-cse416.onrender.com/uploads/${person.profilePic.split('/').pop()}`} alt={person.name} style={{ width: 50, borderRadius: '50%' }} />
+        </TableCell>
+        <TableCell>{person.name}</TableCell>
+        <TableCell align="right">N/A</TableCell>
+      </ButtonBase>
+    </TableRow>
+  ))
+}
+{
+    inboxType === 'process' &&  
+
+    peopleList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((appointment) => (
+      // Assuming each appointment has properties 'processName' and 'patientName'
+      <TableRow style={{ userSelect: 'none' }} data-testid="appointment-row">
+        <ButtonBase
+          onClick={() => handleRowClick(appointment._id)} // Assuming appointment._id can be used as unique identifier
+          style={{ display: 'contents' }} 
+          disableRipple
+        >
+          <TableCell>{appointment[0]}</TableCell>
+          <TableCell>{appointment[1]}</TableCell>
+        </ButtonBase>
+      </TableRow>
+    ))
+  }
+            
           </TableBody>
         </Table>
       </TableContainer>

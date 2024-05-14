@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
 import axios from 'axios';
+import moment from 'moment-timezone';
 
 export default function Schedule() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -15,6 +18,7 @@ export default function Schedule() {
   const [roomsList, setRooms] = useState([]);
   const [proceduresList, setProceduresList] = useState([]);
   const [fullCalendar, setFullCalendar] = useState([]);
+  const [currentView, setCurrentView] = useState('timeGridWeek');
   const navigate = useNavigate();
 
   // DB API
@@ -87,8 +91,13 @@ export default function Schedule() {
       return appointmentItem.procedures.map(procedure => {
         const patient = usersList.find(patient => patient._id === appointmentItem.patient);
         if (!patient) return null;
-        const start = new Date(procedure.scheduledStartTime);
-        const end = new Date(procedure.scheduledEndTime);
+        
+        //console.log(procedure.scheduledStartTime)
+        
+        const start = moment(procedure.scheduledStartTime).tz('America/New_York').format();
+        const end = moment(procedure.scheduledEndTime).tz('America/New_York').format();
+
+        //console.log(start);
 
         return {
           title: patient.name,
@@ -103,7 +112,6 @@ export default function Schedule() {
       }).filter(item => item !== null);
     }));
   }, [userAppointments, appointmentsList, usersList]);
-
 
   // Functions
 
@@ -125,6 +133,13 @@ export default function Schedule() {
     setSelectedEvent(null);
   };
 
+  const formatTime = (time) => {
+    return moment(time).tz('America/New_York').format('M/D hh:mm A');
+  };
+
+  const handleViewChange = (view) => {
+    setCurrentView(view);
+  };
   // Display
 
   return (
@@ -162,6 +177,7 @@ export default function Schedule() {
         >
           Request Appointment
         </button>
+
         <button
           style={{
             display: "none",
@@ -179,10 +195,15 @@ export default function Schedule() {
 
         </button>
 
+        <div class="btn-container">
+          <button class="btn" onClick={() => handleViewChange('dayGridMonth')}>Month View</button>
+          <button class="btn" onClick={() => handleViewChange('timeGridWeek')}>Week View</button>
+          <button class="btn" onClick={() => handleViewChange('listWeek')}>List View</button> 
+        </div>
         <FullCalendar
-          key={selectedDate}
-          plugins={[timeGridPlugin, interactionPlugin]}
-          initialView="timeGridDay"
+          key={currentView}
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+          initialView={currentView}
           dateClick={(info) => setSelectedDate(info.date)}
           events={fullCalendar}
           eventClick={handleEventClick}
@@ -202,13 +223,10 @@ export default function Schedule() {
               <ListItemText primary={"Patient Information"} secondary={"Age: " + selectedEvent._def.extendedProps.patient.age + ", Gender: " + selectedEvent._def.extendedProps.patient.gender} />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Date" secondary={`${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledStartTime).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })} 
-              ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledStartTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })} - 
-              ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })} 
-              ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`} />
+              <ListItemText primary="Date" secondary={`${formatTime(selectedEvent._def.extendedProps.procedureDetails.scheduledStartTime)} - ${formatTime(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime)}`} />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Purpose/Specifications" secondary={proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).name} />
+              <ListItemText primary="Purpose/Specifications" secondary={proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).name + " - " + proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).description} />
             </ListItem>
             <ListItem>
               <ListItemText primary="Other Staff" secondary={
@@ -228,7 +246,14 @@ export default function Schedule() {
               } />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Room" secondary={roomsList.find(room => room._id === selectedEvent._def.extendedProps.procedureDetails.room).name} />
+              <ListItemText
+                primary="Room"
+                secondary={
+                  selectedEvent._def.extendedProps.procedureDetails.room
+                    ? roomsList.find(room => room._id === selectedEvent._def.extendedProps.procedureDetails.room).name
+                    : 'None'
+                }
+              />
             </ListItem>
           </List>
         </DialogContent>
