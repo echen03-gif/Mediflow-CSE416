@@ -52,6 +52,7 @@ import { initializeSocket, disconnectSocket, getSocket } from './socket';
 export const socket = io("https://mediflow-cse416.onrender.com");
 
 
+
 // Mock array of upcoming patients
 // const upcomingPatients = [
 //   { name: "Patient 1", timeUntilTurn: "15 mins", stage: "Waiting" },
