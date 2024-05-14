@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
@@ -16,6 +18,7 @@ export default function Schedule() {
   const [roomsList, setRooms] = useState([]);
   const [proceduresList, setProceduresList] = useState([]);
   const [fullCalendar, setFullCalendar] = useState([]);
+  const [currentView, setCurrentView] = useState('timeGridWeek');
   const navigate = useNavigate();
 
   // DB API
@@ -88,9 +91,9 @@ export default function Schedule() {
       return appointmentItem.procedures.map(procedure => {
         const patient = usersList.find(patient => patient._id === appointmentItem.patient);
         if (!patient) return null;
-        
+
         console.log(procedure.scheduledStartTime)
-        
+
         const start = moment(procedure.scheduledStartTime).tz('America/New_York').format();
         const end = moment(procedure.scheduledEndTime).tz('America/New_York').format();
 
@@ -109,7 +112,6 @@ export default function Schedule() {
       }).filter(item => item !== null);
     }));
   }, [userAppointments, appointmentsList, usersList]);
-
 
   // Functions
 
@@ -133,8 +135,11 @@ export default function Schedule() {
 
   const formatTime = (time) => {
     return moment(time).tz('America/New_York').format('M/D hh:mm A');
-};
+  };
 
+  const handleViewChange = (view) => {
+    setCurrentView(view);
+  };
   // Display
 
   return (
@@ -172,6 +177,7 @@ export default function Schedule() {
         >
           Request Appointment
         </button>
+
         <button
           style={{
             display: "none",
@@ -189,10 +195,15 @@ export default function Schedule() {
 
         </button>
 
+        <div>
+        <button onClick={() => handleViewChange('dayGridMonth')}>Month View</button>
+        <button onClick={() => handleViewChange('timeGridWeek')}>Week View</button>
+        <button onClick={() => handleViewChange('listWeek')}>List View</button>
+      </div>
         <FullCalendar
-          key={selectedDate}
-          plugins={[timeGridPlugin, interactionPlugin]}
-          initialView="timeGridDay"
+          key={currentView}
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+          initialView={currentView}
           dateClick={(info) => setSelectedDate(info.date)}
           events={fullCalendar}
           eventClick={handleEventClick}
@@ -215,7 +226,7 @@ export default function Schedule() {
               <ListItemText primary="Date" secondary={`${formatTime(selectedEvent._def.extendedProps.procedureDetails.scheduledStartTime)} - ${formatTime(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime)}`} />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Purpose/Specifications" secondary={proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).name} />
+              <ListItemText primary="Purpose/Specifications" secondary={proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).name + " - " + proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).description} />
             </ListItem>
             <ListItem>
               <ListItemText primary="Other Staff" secondary={

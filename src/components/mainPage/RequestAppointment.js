@@ -261,8 +261,6 @@ export default function RequestAppointment() {
         };
     });
 
-    return;
-
     for (let i = 0; i < procedures.length - 1; i++) {
       let current = moment(procedures[i].scheduledStartTime);
       let next = moment(procedures[i + 1].scheduledStartTime);
@@ -369,13 +367,21 @@ export default function RequestAppointment() {
 
 
       if (field === "scheduledStartTime") {
-
         const duration = procedureList.find(p => p._id === procedureId)?.estimatedDuration || 0;
-        const startTime = new Date(newValue);
-        const endTime = new Date(startTime.getTime() + duration * 60000);
-
-        updatedSettings['scheduledEndTime'] = endTime.toISOString();
+      
+        const startTime = moment.tz(newValue, "YYYY-MM-DDTHH:mm", 'America/New_York');
+    
+        const endTime = startTime.clone().add(duration, 'minutes');
+    
+        const formattedEndTime = endTime.format('YYYY-MM-DDTHH:mm');
+      
+        console.log(newValue);
+        console.log(formattedEndTime);
+      
+        updatedSettings['scheduledEndTime'] = formattedEndTime;
       }
+      
+      
 
       return {
         ...prev,
