@@ -21,7 +21,7 @@ app.use(express.static('../public'));
 app.use(cookieParser());
 app.use(
     cors({
-        origin: ["https://mediflow-lnmh.onrender.com", "http://localhost:3000"], 
+        origin: ["https://mediflow-lnmh.onrender.com", "http://localhost"], 
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     })
