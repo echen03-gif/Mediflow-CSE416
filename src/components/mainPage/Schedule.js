@@ -89,12 +89,12 @@ export default function Schedule() {
         const patient = usersList.find(patient => patient._id === appointmentItem.patient);
         if (!patient) return null;
         
-        console.log(procedure.scheduledStartTime)
+        //console.log(procedure.scheduledStartTime)
         
         const start = moment(procedure.scheduledStartTime).tz('America/New_York').format();
         const end = moment(procedure.scheduledEndTime).tz('America/New_York').format();
 
-        console.log(start);
+        //console.log(start);
 
         return {
           title: patient.name,

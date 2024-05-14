@@ -25,12 +25,13 @@ export const DataProvider = ({ children }) => {
   };
 
   const getStatus = (schedule) => {
+    console.log("schedule", schedule)
     const now = new Date();
     const currentDay = now.toLocaleString("default", { weekday: "long" });
     const currentTime = now.getHours() * 60 + now.getMinutes(); // Current time in minutes since midnight
 
     const todaysSchedule = schedule[currentDay];
-    console.log(todaysSchedule, currentDay);
+    //console.log(todaysSchedule, currentDay);
 
     if (!todaysSchedule) {
       return "NOT AVAILABLE";

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useData } from "./DataContext"; // Import useData from where it is defined
+import { useData } from "../DataContext"; // Import useData from where it is defined
 import {
   Grid,
   Typography,

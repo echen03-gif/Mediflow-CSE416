@@ -25,6 +25,7 @@ export default function LoginPage() {
               sessionStorage.setItem('token', res.data.token);
               sessionStorage.setItem('user', res.data.user);
               sessionStorage.setItem("name", res.data.name);
+              sessionStorage.setItem("isAdmin", res.data.isAdmin);
               if(res.data.profilePic){
                 sessionStorage.setItem("pfp", res.data.profilePic.split('/').pop());
               }

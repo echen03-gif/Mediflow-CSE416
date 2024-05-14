@@ -17,7 +17,8 @@
     "nodemailer": "^6.9.13",
     "react": "^18.2.0",
     "sharp": "^0.33.3",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "windows-foreground-love": "^1.0.0"
   },
   "devDependencies": {
     "jest": "^29.7.0",

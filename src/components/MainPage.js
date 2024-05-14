@@ -48,8 +48,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { io } from "socket.io-client";
 import { DataProvider } from "./DataContext";
-export const socket = io("https://mediflow-cse416.onrender.com");
 import { initializeSocket, disconnectSocket, getSocket } from './socket';
+export const socket = io("https://mediflow-cse416.onrender.com");
 
 
 // Mock array of upcoming patients
@@ -79,6 +79,8 @@ export default function MainPage() {
       const storedToken = sessionStorage.getItem('token');
       const storedUser = sessionStorage.getItem('user');
       const storedName = sessionStorage.getItem('name');
+      const storedIsAdmin = sessionStorage.getItem('isAdmin');
+      console.log(storedIsAdmin)
 
 
 
@@ -383,7 +385,7 @@ export default function MainPage() {
                 {isDrawerOpen && "Logout"}
               </Button>
             </ListItem>
-          </List>
+          </ListItem>
         </Drawer>
         <Box
           component="main"
