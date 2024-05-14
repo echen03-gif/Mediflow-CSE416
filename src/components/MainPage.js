@@ -50,6 +50,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { initializeSocket, disconnectSocket, getSocket } from './socket';
 
 
+
 // Mock array of upcoming patients
 // const upcomingPatients = [
 //   { name: "Patient 1", timeUntilTurn: "15 mins", stage: "Waiting" },
