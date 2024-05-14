@@ -199,7 +199,7 @@ const populate = async () => {
     // Heart-Lung Machine
     let heartLungMachineOne = await createEquipment("Heart-Lung Machine One", storageRoom, "Cardiology");
     let heartLungMachineTwo = await createEquipment("Heart-Lung Machine Two", storageRoom, "Cardiology");
-    let heartLungMachineHead = await createEquipmentHead("Heart Lung Machine", 2, "Cardiology", heartLungMachineOne, heartLungMachineTwo);
+    let heartLungMachineHead = await createEquipmentHead("Heart Lung Machine", 2, "Cardiology", [heartLungMachineOne, heartLungMachineTwo]);
 
     // CT Machine
     let ctMachineOne = await createEquipment("CT Machine One", storageRoom, "Radiology");
@@ -209,31 +209,31 @@ const populate = async () => {
 
     let surgicalInstrumentsOne = await createEquipment("Surgical Instruments Set One", storageRoom, "Orthopedics");
     let surgicalInstrumentsTwo = await createEquipment("Surgical Instruments Set Two", storageRoom, "Orthopedics");
-    let surgicalInstrumentsHead = await createEquipmentHead("Surgical Instruments", 2, "Orthopedics", surgicalInstrumentsOne, surgicalInstrumentsTwo);
+    let surgicalInstrumentsHead = await createEquipmentHead("Surgical Instruments", 2, "Orthopedics", [surgicalInstrumentsOne, surgicalInstrumentsTwo]);
 
     let prostheticHipOne = await createEquipment("Prosthetic Hip One", storageRoom, "Orthopedics");
     let prostheticHipTwo = await createEquipment("Prosthetic Hip Two", storageRoom, "Orthopedics");
-    let prostheticHipHead = await createEquipmentHead("Prosthetic Hip", 2, "Orthopedics", prostheticHipOne, prostheticHipTwo);
+    let prostheticHipHead = await createEquipmentHead("Prosthetic Hip", 2, "Orthopedics", [prostheticHipOne, prostheticHipTwo]);
 
 
     let xrayMachineOne = await createEquipment("X-ray Machine One", storageRoom, "Radiology");
     let xrayMachineTwo = await createEquipment("X-ray Machine Two", storageRoom, "Radiology");
-    let xrayMachineHead = await createEquipmentHead("X-ray Machine", 2, "Radiology", xrayMachineOne, xrayMachineTwo);
+    let xrayMachineHead = await createEquipmentHead("X-ray Machine", 2, "Radiology", [xrayMachineOne, xrayMachineTwo]);
 
     // Casting Materials for Fracture Treatment
     let castingMaterialsOne = await createEquipment("Casting Materials One", storageRoom, "Orthopedics");
     let castingMaterialsTwo = await createEquipment("Casting Materials Two", storageRoom, "Orthopedics");
-    let castingMaterialsHead = await createEquipmentHead("Casting Materials", 2, "Orthopedics", castingMaterialsOne, castingMaterialsTwo);
+    let castingMaterialsHead = await createEquipmentHead("Casting Materials", 2, "Orthopedics", [castingMaterialsOne, castingMaterialsTwo]);
 
     // Infusion Pump for Chemotherapy
     let infusionPumpOne = await createEquipment("Infusion Pump One", storageRoom, "Oncology");
     let infusionPumpTwo = await createEquipment("Infusion Pump Two", storageRoom, "Oncology");
-    let infusionPumpHead = await createEquipmentHead("Infusion Pump", 2, "Oncology", infusionPumpOne, infusionPumpTwo);
+    let infusionPumpHead = await createEquipmentHead("Infusion Pump", 2, "Oncology", [infusionPumpOne, infusionPumpTwo]);
 
     // IV Fluids for Chemotherapy
     let ivFluidsOne = await createEquipment("IV Fluids One", storageRoom, "Oncology");
     let ivFluidsTwo = await createEquipment("IV Fluids Two", storageRoom, "Oncology");
-    let ivFluidsHead = await createEquipmentHead("IV Fluids", 2, "Oncology", ivFluidsOne, ivFluidsTwo);
+    let ivFluidsHead = await createEquipmentHead("IV Fluids", 2, "Oncology", [ivFluidsOne, ivFluidsTwo]);
 
 
     // PROCEDURES
