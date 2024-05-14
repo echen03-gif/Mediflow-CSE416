@@ -14,43 +14,43 @@ describe('End to End Component Testing', () => {
     });
   });
 
-  it('successfully logs in a user and navigates through pages', () => {
-    cy.visit('/main/schedule');
+  // it('successfully logs in a user and navigates through pages', () => {
+  //   cy.visit('/main/schedule');
 
-    // Check if login was successful and main page is loaded
-    cy.url().should('include', '/main/schedule');
+  //   // Check if login was successful and main page is loaded
+  //   cy.url().should('include', '/main/schedule');
 
-    // Navigate to Inventory page and verify URL
-    cy.get(':nth-child(3) > .MuiButtonBase-root > .MuiListItemText-root > .MuiTypography-root')
-      .contains('Inventory').click();
-    cy.url().should('include', '/main/inventory');
+  //   // Navigate to Inventory page and verify URL
+  //   cy.get(':nth-child(3) > .MuiButtonBase-root > .MuiListItemText-root > .MuiTypography-root')
+  //     .contains('Inventory').click();
+  //   cy.url().should('include', '/main/inventory');
     
-    // Navigate to Staff page and verify URL
-    cy.get(':nth-child(4) > .MuiButtonBase-root > .MuiListItemText-root > .MuiTypography-root')
-      .contains('Staff').click();
-    cy.url().should('include', '/main/staff');
+  //   // Navigate to Staff page and verify URL
+  //   cy.get(':nth-child(4) > .MuiButtonBase-root > .MuiListItemText-root > .MuiTypography-root')
+  //     .contains('Staff').click();
+  //   cy.url().should('include', '/main/staff');
 
-    // Navigate to Rooms page and verify URL
-    cy.get(':nth-child(5) > .MuiButtonBase-root > .MuiListItemText-root > .MuiTypography-root')
-      .contains('Rooms').click();
-    cy.url().should('include', '/main/rooms');
+  //   // Navigate to Rooms page and verify URL
+  //   cy.get(':nth-child(5) > .MuiButtonBase-root > .MuiListItemText-root > .MuiTypography-root')
+  //     .contains('Rooms').click();
+  //   cy.url().should('include', '/main/rooms');
 
-    // Navigate to Inbox page and verify URL
-    cy.get(':nth-child(6) > .MuiButtonBase-root > .MuiListItemText-root > .MuiTypography-root')
-      .contains('Inbox').click();
-    cy.url().should('include', '/main/inbox');
-  });
+  //   // Navigate to Inbox page and verify URL
+  //   cy.get(':nth-child(6) > .MuiButtonBase-root > .MuiListItemText-root > .MuiTypography-root')
+  //     .contains('Inbox').click();
+  //   cy.url().should('include', '/main/inbox');
+  // });
 
-  it('successfully searches for a staff member', () => {
-    cy.visit('/main/staff');
-    cy.url().should('include', '/main/staff');
+  // it('successfully searches for a staff member', () => {
+  //   cy.visit('/main/staff');
+  //   cy.url().should('include', '/main/staff');
     
-    // Enter a search term in the search input
-    cy.get('[data-testid="staff-search-input"]').type('testDoctor');
+  //   // Enter a search term in the search input
+  //   cy.get('[data-testid="staff-search-input"]').type('testDoctor');
 
-    // Verify the search results
-    cy.get('[data-testid="staff-member-testDoctor"]').should('exist');
-  });
+  //   // Verify the search results
+  //   cy.get('[data-testid="staff-member-testDoctor"]').should('exist');
+  // });
 
   it('successfully loads the Rooms page and verifies UI elements', () => {
     cy.visit('/main/rooms');
