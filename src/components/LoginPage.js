@@ -25,6 +25,7 @@ export default function LoginPage() {
               sessionStorage.setItem('token', res.data.token);
               sessionStorage.setItem('user', res.data.user);
               sessionStorage.setItem("name", res.data.name);
+              sessionStorage.setItem("isAdmin", res.data.isAdmin);
               if(res.data.profilePic){
                 sessionStorage.setItem("pfp", res.data.profilePic.split('/').pop());
               }
@@ -45,13 +46,13 @@ export default function LoginPage() {
   return (
     <Container
       sx={{
-        backgroundColor: '#FAF3F3',
+        backgroundColor: "#FAF3F3",
         padding: 4,
         borderRadius: 1,
         boxShadow: 5,
-        textAlign: 'center',
-        maxWidth: '400px',
-        margin: 'auto',
+        textAlign: "center",
+        maxWidth: "400px",
+        margin: "auto",
       }}
     >
       <Typography variant="h5" sx={{ marginBottom: 4 }}>
@@ -65,7 +66,8 @@ export default function LoginPage() {
           sx={{ marginBottom: 2 }}
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          inputProps={{ 'data-testid': 'username-input' }}
+          inputProps={{ "data-testid": "username-input" }}
+          autoComplete="username"
         />
         <TextField
           label="Password"
@@ -75,7 +77,8 @@ export default function LoginPage() {
           sx={{ marginBottom: 2 }}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          inputProps={{ 'data-testid': 'password-input' }}
+          inputProps={{ "data-testid": "password-input" }}
+          autoComplete="current-password"
         />
         <Button
           type="submit"
@@ -84,9 +87,9 @@ export default function LoginPage() {
           sx={{
             marginTop: 2,
             marginBottom: 1,
-            background: '#FF8241',
-            '&:hover': {
-              background: '#FF5034',
+            background: "#FF8241",
+            "&:hover": {
+              background: "#FF5034",
             },
           }}
           data-testid="login-button"
@@ -94,7 +97,13 @@ export default function LoginPage() {
           Login
         </Button>
       </form>
-      <Button color="secondary" onClick={handleForgotPasswordClick} data-testid="forgot-password-button">Forgot Password</Button>
+      <Button
+        color="secondary"
+        onClick={handleForgotPasswordClick}
+        data-testid="forgot-password-button"
+      >
+        Forgot Password
+      </Button>
       <p id="loginError" data-testid="login-error"></p>
     </Container>
   );
