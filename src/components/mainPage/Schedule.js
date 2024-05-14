@@ -189,13 +189,7 @@ export default function Schedule() {
           <button className="appt-btn" onClick={handleRequest}>
             Request Appointment
           </button>
-          <button
-            className={`appt-btn ${!isAdmin ? "invisible" : ""}`}
-            onClick={handlePending}
-          >
-            {pending} Pending Appointments
-            {/* show number of appointments pending */}
-          </button>
+         
         </div>
 
         <div class="btn-container">
