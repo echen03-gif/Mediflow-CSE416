@@ -209,7 +209,7 @@ io.on("connection", (socket) => {
         await message.save();
 
         const numSocketsInRoom = io.sockets.adapter.rooms.get(roomID)?.size || 0;
-        if(numSocketsInRoom === 2){
+        if(roomID.indexOf("-") > -1 && numSocketsInRoom === 2){
             io.in(roomID).emit("receiveMessage", message);
         } else {
             //This means tthat the other user is not in the chat room and should be sent a notification
@@ -339,7 +339,7 @@ cron.schedule('* * * * *', async () => {
 
 app.get("/users", async (req, res) => {
     let users = await Users.find();
-
+    console.log("hello");
     res.send(users);
 });
 
@@ -353,7 +353,7 @@ app.get("/userID/:userId", async (req, res) => {
 });
 
 app.get("/userAppointments/:userId", async (req, res) => {
-    
+    console.log("I am here");
     const { userId } = req.params;
 
     const appointmentDetails = [];
@@ -365,10 +365,12 @@ app.get("/userAppointments/:userId", async (req, res) => {
         const processName = await Processes.findOne({ _id: appointment.process });
         const patientName = await Users.findOne({_id: appointment.patient });
 
-        appointmentDetails.push({processName, patientName});
+        appointmentDetails.push([appointmentId, processName.name, patientName.name]);
+        
     }
-
-    res.send(user);
+    console.log("appointment details")
+    console.log(appointmentDetails);
+    res.send(appointmentDetails);
 });
 
 app.get("/user/:email", async (req, res) => {

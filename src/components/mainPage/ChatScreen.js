@@ -28,21 +28,27 @@ function ChatScreen() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if(roomID.indexOf("-") > -1){
       const userIds = roomID.split("-");
       const currentUserID = sessionStorage.getItem('user');
       const otherUserID = userIds.find(id => id !== currentUserID);
-        try {
-            const response = await axios.get(`https://mediflow-cse416.onrender.com/userID/${otherUserID}`, {
+      const response = await axios.get(`https://mediflow-cse416.onrender.com/userID/${otherUserID}`, {
                 headers: {
                     'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                 }
             });
+      setRecipient(response.data.name);
+      }
+      
+      try {
+            
+      
             const messagesResponse = await axios.get(`https://mediflow-cse416.onrender.com/messages/${roomID}`, {
               headers: {
                   'Authorization': 'Bearer ' + sessionStorage.getItem('token')
               }
           });
-            setRecipient(response.data.name);
+            
             setMessages(messagesResponse.data);
         } catch (error) {
             // Handle error
