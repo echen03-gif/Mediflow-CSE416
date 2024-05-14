@@ -35,7 +35,6 @@ import PendingAppointment from "./mainPage/AdminAppointmentView";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { DataProvider } from "./DataContext";
 import { initializeSocket, disconnectSocket, getSocket } from "./socket";
 
 // Mock array of upcoming patients
@@ -199,7 +198,6 @@ export default function MainPage() {
 
 
   return (
-    <DataProvider>
       <Box
         sx={{
           display: "flex",
@@ -419,6 +417,5 @@ export default function MainPage() {
         />
 
       </Box>
-    </DataProvider>
   );
 }

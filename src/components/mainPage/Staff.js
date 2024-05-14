@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useData } from "../DataContext"; // Import useData from where it is defined
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Grid,
   Typography,
@@ -12,27 +12,11 @@ import { useNavigate } from "react-router-dom";
 
 const Staff = () => {
   const [search, setSearch] = useState("");
+  const [usersList, setUsers] = useState([]);
   const [filter, setFilter] = useState("ALL");
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
-  // Use context to get users list and admin status
-  const { usersList, isAdmin, api, updateData } = useData(); // Assuming isAdmin and api are part of your context
-
-  // Effect to fetch users if the users list is empty
-  useEffect(() => {
-    if (usersList.length === 0) {
-      api.get("/users").then((res) => {
-        const usersWithStatus = res.data.map((user) => ({
-          ...user,
-          status: getStatus(user.schedule),
-        }));
-        updateData({ usersList: usersWithStatus });
-      });
-    }
-  }, [usersList, api, updateData]);
-
-  // Function to handle search input changes
-  /*
   // DB API
   useEffect(() => {
     const fetchData = async () => {
@@ -65,23 +49,21 @@ const Staff = () => {
     };
 
     fetchData();
-  }, []);*/
+  }, []);
 
   // Functions
   const handleSearch = (event) => {
     setSearch(event.target.value);
   };
 
-  // Navigation to add staff page
   const navigateToAddStaff = () => {
     navigate("/main/addstaff");
   };
 
-  // Function to get status based on schedule
   const getStatus = (schedule) => {
     const now = new Date();
-    const currentDay = now.toLocaleString("default", { weekday: "long" });
-    const currentTime = now.getHours() * 60 + now.getMinutes(); // Current time in minutes since midnight
+    const currentDay = now.toLocaleString('default', { weekday: 'long' });
+    const currentTime = now.getHours() * 60 + now.getMinutes();  // Current time in minutes since midnight
 
     const todaysSchedule = schedule[currentDay];
 
@@ -96,10 +78,10 @@ const Staff = () => {
         return "ON DUTY";
       }
     }
+
     return "NOT AVAILABLE";
   };
 
-  // Function to handle filter changes
   const handleFilterChange = (status) => {
     setFilter(status);
   };
@@ -137,11 +119,8 @@ const Staff = () => {
             onChange={handleSearch}
             inputProps={{ 'data-testid': 'staff-search-input' }}
           />
-          <Grid
-            container
-            justifyContent="flex-end"
-            style={{ marginBottom: "20px" }}
-          >
+
+          <Grid container justifyContent="flex-end" style={{ marginBottom: "20px" }}>
             <Button
               variant="contained"
               color="primary"
@@ -171,6 +150,7 @@ const Staff = () => {
             </Button>
           </Grid>
         </Grid>
+
         {usersList
           .filter(
             (staff) =>
