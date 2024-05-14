@@ -11,7 +11,6 @@ const bcrypt = require('bcrypt');
 const faker = require('faker');
 
 const departments = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Orthopedics"];
-const staff = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Orthopedics", "Nurse"];
 let Users = require('./models/users.js');
 let Procedures = require('./models/procedure.js');
 let Equipment = require('./models/equipment.js');
@@ -19,12 +18,10 @@ let EquipmentHeads = require('./models/equipmentHead.js')
 let Rooms = require('./models/room.js');
 let Communication = require('./models/communication.js');
 let Processes = require('./models/processes.js');
+let Patient = require('./models/Patient.js');
 
 
-const uri = process.env.MEDIFLOWKEY;
 let mongoose = require('mongoose');
-
-mongoose.connect(uri);
 
 let db = mongoose.connection;
 
@@ -49,6 +46,32 @@ function createUser(adminBool, email, name, age, gender, password, role, schedul
 
     return addUser.save();
 
+}
+
+async function createPatient(
+  firstName,
+  lastName,
+  dateOfBirth,
+  gender,
+  contactNumber,
+  email,
+  address,
+  medicalHistory,
+  procedures
+) {
+  const newPatient = new Patient({
+    firstName,
+    lastName,
+    dateOfBirth,
+    gender,
+    contactNumber,
+    email,
+    address,
+    medicalHistory,
+    appointments: procedures,
+  });
+
+  return newPatient.save();
 }
 
 function createEquipmentHead(name, quantity, type, equipment) {
@@ -152,15 +175,68 @@ function getRandomSchedule() {
 }
 
 // Populate
-const admin_password = "sysAdmin"
-const saltRounds = 10;
-const hashedPass = bcrypt.hashSync(admin_password, saltRounds);
-
 const populate = async () => {
+    try {
+        // Connect to database
+        console.log(process.env.MEDIFLOWKEY);
+        await mongoose.connect(process.env.MEDIFLOWKEY);
+        console.log('Connected to MongoDB.');
 
-    // SYS ADMIN
-    let sysAdmin = await createUser(true, "sysAdmin@gmail.com", "SYSTEM ADMIN", 28, "Male", hashedPass, "admin",
-        {
+        // Create Rooms
+        let storageRoom = await createRoom("Storage Room", "OPEN", "Storage");
+        let heartRoom = await createRoom("Room 101", "OPEN", "Cardiology");
+        let icu = await createRoom("ICU", "OPEN", "ICU");
+        let opRoom = await createRoom("Operating Room 201", "OPEN", "Surgery");
+        let maternityRoom = await createRoom("Maternity Room", "OPEN", "Maternity");
+        let generalWard = await createRoom("General Ward", "OPEN", "General");
+
+        let baseRoomNumber = 103;
+        for (let i = 0; i < departments.length; i++) {
+            let roomName = `Room ${baseRoomNumber + i}`;
+            let department = departments[i];
+            await createRoom(roomName, "OPEN", department);
+        }
+
+        // Create Equipment
+        let heartLungMachineOne = await createEquipment("Heart-Lung Machine One", storageRoom._id, "Cardiology");
+        let heartLungMachineTwo = await createEquipment("Heart-Lung Machine Two", storageRoom._id, "Cardiology");
+        let heartLungMachineHead = await createEquipmentHead("Heart Lung Machine", 2, "Cardiology", [heartLungMachineOne._id, heartLungMachineTwo._id]);
+
+        let ctMachineOne = await createEquipment("CT Machine One", storageRoom._id, "Radiology");
+        let ctMachineTwo = await createEquipment("CT Machine Two", storageRoom._id, "Radiology");
+        let ctMachineHead = await createEquipmentHead("CT Machine", 2, "Radiology", [ctMachineOne._id, ctMachineTwo._id]);
+
+        let ultrasoundMachine = await createEquipment("Ultrasound Machine", maternityRoom._id, "Maternity");
+        let mriMachine = await createEquipment("MRI Machine", generalWard._id, "Radiology");
+
+        // Create Procedures and Processes
+        let maternityProcedures = [
+            await createProcedure("Routine prenatal check-up and ultrasound.", 45, "Prenatal Checkup", [ultrasoundMachine._id], "Maternity", "Nurse", 2),
+            await createProcedure("Delivery procedure and postnatal care.", 120, "Delivery", [], "Maternity", "Obstetrician", 3)
+        ];
+        let maternityProcess = await createProcess("Maternity Care", maternityProcedures.map(proc => proc._id));
+
+        let heartSurgeryProcedures = [
+            await createProcedure("Patient needs blood tests monitoring, and fasting diet requirements.", 30, "Heart Surgery PreOP", [], null, "Nurse", 2),
+            await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 60, "Heart Surgery OP", [heartLungMachineHead._id], "Cardiology", "Cardiology", 1),
+            await createProcedure("Patient needs to rest and be monitored", 60, "Heart Surgery PostOP", [ctMachineHead._id], "ICU", "Radiology", 1)
+        ];
+        let heartSurgery = await createProcess("Heart Surgery", heartSurgeryProcedures.map(proc => proc._id));
+        
+        let mriProcedure = await createProcedure("Detailed brain imaging to diagnose conditions.", 90, "Brain MRI Scan", [mriMachine._id], "Radiology", "Radiologist", 1);
+        let heartProcedure = await createProcedure("Open heart surgery for valve replacement.", 180, "Heart Valve Surgery", [], "Cardiology", "Cardiologist", 3, heartRoom._id);
+        let generalSurgery = await createProcedure("Appendectomy to remove an inflamed appendix.", 120, "Appendectomy", [], "Surgery", "Surgeon", 2, opRoom._id);
+        let icuRecovery = await createProcedure("Post-operative recovery and monitoring.", 240, "Post-Op Monitoring", [], "ICU", "Nurse", 2, icu._id);
+
+        let mriProcess = await createProcess("MRI Diagnostic", [mriProcedure._id]);
+        let heartSurgeryProcess = await createProcess("Heart Valve Surgery", [heartProcedure._id, icuRecovery._id]);
+        let appendectomyProcess = await createProcess("Appendectomy Surgery", [generalSurgery._id, icuRecovery._id]);
+
+        // Create SYS ADMIN
+        const admin_password = "sysAdmin";
+        const saltRounds = 10;
+        const hashedPass = bcrypt.hashSync(admin_password, saltRounds);
+        let sysAdmin = await createUser(true, "sysAdmin@gmail.com", "SYSTEM ADMIN", 28, "Male", hashedPass, "admin", {
             Monday: [{ start: "00:00", end: "23:59" }],
             Tuesday: [{ start: "00:00", end: "23:59" }],
             Wednesday: [{ start: "00:00", end: "23:59" }],
@@ -170,110 +246,69 @@ const populate = async () => {
             Sunday: [{ start: "00:00", end: "23:59" }]
         });
 
-    // USERS
+        // Create Patients
+        let patient1 = await createPatient("John", "Doe", new Date(1980, 1, 1), "Male", "1234567890", "john.doe@example.com", {
+            street: "123 Elm St",
+            city: "Springfield",
+            state: "IL",
+            zipCode: "62704"
+        }, [{
+            condition: "Hypertension",
+            diagnosisDate: new Date(2010, 1, 1),
+            notes: "Regular monitoring required"
+        }], [heartSurgery._id]);
+        
+        let patientJane = await createPatient("Jane", "Smith", new Date(1990, 3, 15), "Female", "9876543210", "jane.smith@example.com", {
+            street: "789 Pine St",
+            city: "Springfield",
+            state: "IL",
+            zipCode: "62711"
+        }, [{
+            condition: "Pregnancy",
+            diagnosisDate: new Date(2023, 5, 10),
+            notes: "Routine prenatal visits required"
+        }], [maternityProcess._id]);
 
-    // for (let i = 0; i < 5; i++) {
-    //     let department = staff[Math.floor(Math.random() * departments.length)];
-    //     let name = faker.name.findName();
-    //     let email = faker.internet.email(); 
-    //     let age = faker.datatype.number({ min: 25, max: 60 }); 
-    //     let gender = faker.random.arrayElement(["Male", "Female"]); 
+        let patientTom = await createPatient("Tom", "Harris", new Date(1975, 7, 22), "Male", "1231231230", "tom.harris@example.com", {
+            street: "101 Maple St",
+            city: "Springfield",
+            state: "IL",
+            zipCode: "62712"
+        }, [{
+            condition: "Brain Tumor",
+            diagnosisDate: new Date(2023, 6, 30),
+            notes: "Requires immediate MRI scan"
+        }], [mriProcess._id]);
 
-    //     await createUser(false, email, name, age, gender, hashedPass, department, staffID, getRandomSchedule());
-    // }
+        let patientLisa = await createPatient("Lisa", "White", new Date(1980, 4, 18), "Female", "3213214321", "lisa.white@example.com", {
+            street: "202 Oak St",
+            city: "Springfield",
+            state: "IL",
+            zipCode: "62715"
+        }, [{
+            condition: "Heart Valve Issues",
+            diagnosisDate: new Date(2023, 7, 15),
+            notes: "Scheduled for valve replacement surgery"
+        }], [heartSurgeryProcess._id]);
 
-    // ROOMS
-
-    let storageRoom = await createRoom("Storage Room", "OPEN", "Storage");
-    let heartRoom = await createRoom("Room 101", "OPEN", "Cardiology");
-    let icu = await createRoom("Room 102", "OPEN", "ICU");
-    let baseRoomNumber = 103;
-    for (let i = 0; i < departments.length; i++) {
-        let roomName = `Room ${baseRoomNumber + i}`;
-        let department = departments[i];
-        await createRoom(roomName, "OPEN", department);
+        let patientRob = await createPatient("Rob", "Johnson", new Date(1990, 9, 9), "Male", "431231231", "rob.johnson@example.com", {
+            street: "303 Birch St",
+            city: "Springfield",
+            state: "IL",
+            zipCode: "62716"
+        }, [{
+            condition: "Appendicitis",
+            diagnosisDate: new Date(2023, 8, 1),
+            notes: "Emergency appendectomy needed"
+        }], [appendectomyProcess._id]);
+        console.log('Preset Data Inserted into DB');
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (mongoose.connection.readyState) {
+            mongoose.connection.close();
+        }
     }
-
-    // EQUIPMENT
-
-    // Heart-Lung Machine
-    let heartLungMachineOne = await createEquipment("Heart-Lung Machine One", storageRoom, "Cardiology");
-    let heartLungMachineTwo = await createEquipment("Heart-Lung Machine Two", storageRoom, "Cardiology");
-    let heartLungMachineHead = await createEquipmentHead("Heart Lung Machine", 2, "Cardiology", [heartLungMachineOne, heartLungMachineTwo]);
-
-    // CT Machine
-    let ctMachineOne = await createEquipment("CT Machine One", storageRoom, "Radiology");
-    let ctMachineTwo = await createEquipment("CT Machine Two", storageRoom, "Radiology");
-    let ctMachineHead = await createEquipmentHead("CT Machine", 2, "Radiology", ctMachineOne, ctMachineTwo);
-
-
-    let surgicalInstrumentsOne = await createEquipment("Surgical Instruments Set One", storageRoom, "Orthopedics");
-    let surgicalInstrumentsTwo = await createEquipment("Surgical Instruments Set Two", storageRoom, "Orthopedics");
-    let surgicalInstrumentsHead = await createEquipmentHead("Surgical Instruments", 2, "Orthopedics", [surgicalInstrumentsOne, surgicalInstrumentsTwo]);
-
-    let prostheticHipOne = await createEquipment("Prosthetic Hip One", storageRoom, "Orthopedics");
-    let prostheticHipTwo = await createEquipment("Prosthetic Hip Two", storageRoom, "Orthopedics");
-    let prostheticHipHead = await createEquipmentHead("Prosthetic Hip", 2, "Orthopedics", [prostheticHipOne, prostheticHipTwo]);
-
-
-    let xrayMachineOne = await createEquipment("X-ray Machine One", storageRoom, "Radiology");
-    let xrayMachineTwo = await createEquipment("X-ray Machine Two", storageRoom, "Radiology");
-    let xrayMachineHead = await createEquipmentHead("X-ray Machine", 2, "Radiology", [xrayMachineOne, xrayMachineTwo]);
-
-    // Casting Materials for Fracture Treatment
-    let castingMaterialsOne = await createEquipment("Casting Materials One", storageRoom, "Orthopedics");
-    let castingMaterialsTwo = await createEquipment("Casting Materials Two", storageRoom, "Orthopedics");
-    let castingMaterialsHead = await createEquipmentHead("Casting Materials", 2, "Orthopedics", [castingMaterialsOne, castingMaterialsTwo]);
-
-    // Infusion Pump for Chemotherapy
-    let infusionPumpOne = await createEquipment("Infusion Pump One", storageRoom, "Oncology");
-    let infusionPumpTwo = await createEquipment("Infusion Pump Two", storageRoom, "Oncology");
-    let infusionPumpHead = await createEquipmentHead("Infusion Pump", 2, "Oncology", [infusionPumpOne, infusionPumpTwo]);
-
-    // IV Fluids for Chemotherapy
-    let ivFluidsOne = await createEquipment("IV Fluids One", storageRoom, "Oncology");
-    let ivFluidsTwo = await createEquipment("IV Fluids Two", storageRoom, "Oncology");
-    let ivFluidsHead = await createEquipmentHead("IV Fluids", 2, "Oncology", [ivFluidsOne, ivFluidsTwo]);
-
-
-    // PROCEDURES
-
-    // Heart Surgery
-    let heartSurgeryPreOp = await createProcedure("Patient needs blood tests monitoring, and fasting diet requirements.", 30, "Heart Surgery PreOP", [], null, "Nurse", 2);
-    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 60, "Heart Surgery OP", ['Heart Lung Machine'], "Cardiology", "Cardiology", 1);
-    let heartSurgeryPostOp = await createProcedure("Patient needs to rest and be monitored", 60, "Heart Surgery PostOP", ['CT Machine'], "ICU", "Radiology", 1);
-
-    // Hip Replacement
-    let hipReplacementPreOp = await createProcedure("Patient needs pre-operative blood tests, X-rays, and fasting diet requirements.", 60, "Hip Replacement PreOP", [], null, "Nurse", 3);
-    let hipReplacementOp = await createProcedure("Patient undergoes anesthesia and the surgeon replaces the damaged hip joint with a prosthetic.", 120, "Hip Replacement OP", ['Surgical Instruments', 'Prosthetic Hip'], "Orthopedics", "Orthopedics", 3);
-    let hipReplacementPostOp = await createProcedure("Patient needs to be monitored for complications and start physical therapy.", 90, "Hip Replacement PostOP", ['Physical Therapy Equipment'], "ICU", "Nurse", 2);
-
-    // Fractures
-    let fractureTreatmentPreOp = await createProcedure("Patient needs X-rays and initial assessment.", 45, "Fracture Treatment PreOP", ['X-ray Machine'], "Radiology", "Nurse", 1);
-    let fractureTreatmentOp = await createProcedure("Patient undergoes procedure to set the fracture and apply a cast.", 60, "Fracture Treatment OP", ['Casting Materials'], "Orthopedics", "Orthopedics", 2);
-    let fractureTreatmentPostOp = await createProcedure("Patient needs follow-up X-rays and monitoring for proper healing.", 45, "Fracture Treatment PostOP", ['X-ray Machine'], "Radiology", "Nurse", 1);
-
-    // Chemotherapy
-    let chemoPreOp = await createProcedure("Patient needs blood tests and assessment for chemotherapy suitability.", 45, "Chemotherapy PreOP", [], "Oncology", "Nurse", 2);
-    let chemoOp = await createProcedure("Patient receives chemotherapy infusion.", 120, "Chemotherapy OP", ['Infusion Pump'], "Oncology", "Oncology", 1);
-    let chemoPostOp = await createProcedure("Patient needs monitoring for side effects and hydration therapy.", 60, "Chemotherapy PostOP", ['IV Fluids'], "Oncology", "Nurse", 1);
-
-    // Pediatric Checkup
-    let pedCheckupPreOp = await createProcedure("Patient needs a preliminary health history and development assessment.", 20, "Pediatric Checkup PreOP", [], "Pediatrics", "Nurse", 1);
-    let pedCheckupOp = await createProcedure("Patient undergoes a comprehensive physical examination including growth measurements, immunization updates, and developmental screening.", 40, "Pediatric Checkup OP", [], "Pediatrics", "Pediatrics", 1);
-    let pedCheckupPostOp = await createProcedure("Patient receives follow-up instructions and health education.", 20, "Pediatric Checkup PostOP", [], "Pediatrics", "Nurse", 1);
-
-    // PROCESSES
-
-    let heartSurgery = await createProcess("Heart Surgery", [heartSurgeryPreOp, heartSurgeryOp, heartSurgeryPostOp]);
-    let hipReplacement = await createProcess("Hip Replacement", [hipReplacementPreOp, hipReplacementOp, hipReplacementPostOp]);
-    let fractureTreatment = await createProcess("Fracture Treatment", [fractureTreatmentPreOp, fractureTreatmentOp, fractureTreatmentPostOp]);
-    let chemotherapy = await createProcess("Chemotherapy", [chemoPreOp, chemoOp, chemoPostOp]);
-    let pediatricCheckup = await createProcess("Pediatric Checkup", [pedCheckupPreOp, pedCheckupOp, pedCheckupPostOp]);
-
-    if (db) db.close();
-    console.log('Preset Data Inserted into DB');
-
 }
 
 populate()

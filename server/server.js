@@ -128,6 +128,7 @@ let Appointment = require("./models/appointment.js");
 let Messages = require("./models/messages.js");
 const equipment = require("./models/equipment.js");
 const equipmentHead = require("./models/equipmentHead.js");
+const Patient = require("./models/Patient");
 
 // Define Backend Functions
 
@@ -568,6 +569,27 @@ app.post("/decode", async (req, res) => {
   res.send(cookieHeader);
 });
 
+app.get("/patients", async (req, res) => {
+  try {
+    const patients = await Patient.find();
+    res.send(patients);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+app.get("/patients/:id", async (req, res) => {
+  try {
+    const patient = await Patient.findById(req.params.id);
+    if (!patient) {
+      return res.status(404).send();
+    }
+    res.send(patient);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
 // POST FUNCTIONS
 
 app.post("/createUser", async (req, res) => {
@@ -766,6 +788,16 @@ app.post("/reset/:token", async (req, res) => {
   }
 });
 
+app.post("/patients", async (req, res) => {
+  try {
+    const newPatient = new Patient(req.body);
+    await newPatient.save();
+    res.status(201).send(newPatient);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
 // PUT FUNCTIONS
 
 app.put("/updateAppointmentStatus", async (req, res) => {
@@ -836,6 +868,22 @@ app.put("/changeEquipmentAppointment", async (req, res) => {
   await equipmentUpdate.save();
 
   res.send("Equipment Updated");
+});
+
+app.put("/patients/:id", async (req, res) => {
+  try {
+    const patient = await Patient.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!patient) {
+      return res.status(404).send();
+    }
+    res.send(patient);
+  } catch (error) {
+    res.status(400).send(error);
+  }
 });
 
 module.exports = { app, socketServer };

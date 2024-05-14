@@ -85,6 +85,11 @@ export const DataProvider = ({ children }) => {
       setPeople(res.data);
     });
   }, [api]);
+  
+  useEffect(() => {
+    const storedIsAdmin = sessionStorage.getItem("isAdmin") === "true";
+    setIsAdmin(storedIsAdmin);
+  }, []);
 
   return (
     <DataContext.Provider
@@ -98,6 +103,7 @@ export const DataProvider = ({ children }) => {
         roomList,
         usersList,
         isAdmin,
+        setIsAdmin,
         peopleList,
       }}
     >
