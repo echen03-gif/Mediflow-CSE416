@@ -91,9 +91,8 @@ const Staff = () => {
     <Box pt={5} sx={{ flexGrow: 1, padding: 2 }}>
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <Typography variant="h4" gutterBottom>
-            Staff
-          </Typography>
+          	<h1>Staff</h1>
+
           {
             isAdmin && 
             <Button

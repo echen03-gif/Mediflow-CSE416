@@ -94,9 +94,9 @@ function Inbox() {
 
   return (
     <Box sx={{ flexGrow: 1, padding: 2 }}>
-      <Typography variant="h4" gutterBottom>
+      <h1>
         Chat Inbox
-      </Typography>
+      </h1>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
         <ButtonBase onClick={() => handleTabChange('general')} sx={{ fontWeight: inboxType === 'general' ? 'bold' : 'normal' }} data-testid="general-inbox-tab">
           <Typography variant="button">General Inbox</Typography>
