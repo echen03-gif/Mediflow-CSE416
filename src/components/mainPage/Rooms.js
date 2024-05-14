@@ -22,58 +22,100 @@ function Rooms() {
   const [itemCount, setItemCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // DB API
-    
+  // Caching functions
+  const cacheData = (key, data) => {
+    const cache = {
+      data,
+      timestamp: new Date().getTime(),
+    };
+    localStorage.setItem(key, JSON.stringify(cache));
+  };
+
+  const getCachedData = (key, expiration = 3600000) => { // default expiration is 1 hour
+    const cached = localStorage.getItem(key);
+    if (!cached) return null;
+
+    const { data, timestamp } = JSON.parse(cached);
+    if (new Date().getTime() - timestamp > expiration) {
+      localStorage.removeItem(key);
+      return null;
+    }
+    return data;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         let userId = sessionStorage.getItem('user');
 
-        const roomsResponse = await axios.get('https://mediflow-cse416.onrender.com/rooms', {
-          headers: {
-            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-          }
-        });
-        setRooms(roomsResponse.data);
-        setItemCount(roomsResponse.data.length);
-        console.log('Found rooms');
+        // Check cache first
+        let rooms = getCachedData("rooms");
+        let users = getCachedData("users");
+        let appointments = getCachedData("appointments");
+        let procedures = getCachedData("procedures");
+        let userRole = getCachedData(`userRole_${userId}`);
 
-        const usersResponse = await axios.get('https://mediflow-cse416.onrender.com/users', {
-          headers: {
-            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-          }
-        });
-        setUsersList(usersResponse.data);
-        console.log('Found users');
+        if (!rooms) {
+          const roomsResponse = await axios.get('https://mediflow-cse416.onrender.com/rooms', {
+            headers: {
+              'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+            }
+          });
+          rooms = roomsResponse.data;
+          cacheData("rooms", rooms);
+        }
+        setRooms(rooms);
+        setItemCount(rooms.length);
 
-        const appointmentsResponse = await axios.get('https://mediflow-cse416.onrender.com/appointments', {
-          headers: {
-            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-          }
-        });
-        setAppointmentList(appointmentsResponse.data);
-        console.log('Found appointments');
+        if (!users) {
+          const usersResponse = await axios.get('https://mediflow-cse416.onrender.com/users', {
+            headers: {
+              'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+            }
+          });
+          users = usersResponse.data;
+          cacheData("users", users);
+        }
+        setUsersList(users);
 
-        const proceduresResponse = await axios.get('https://mediflow-cse416.onrender.com/procedures', {
-          headers: {
-            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-          }
-        });
-        setProcedureList(proceduresResponse.data);
-        console.log('Found appointments');
+        if (!appointments) {
+          const appointmentsResponse = await axios.get('https://mediflow-cse416.onrender.com/appointments', {
+            headers: {
+              'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+            }
+          });
+          appointments = appointmentsResponse.data;
+          cacheData("appointments", appointments);
+        }
+        setAppointmentList(appointments);
 
-        const userResponse = await axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
-          headers: {
-            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-          }
-        });
-        setIsAdmin(userResponse.data.role === 'admin');
-        console.log(isAdmin);
+        if (!procedures) {
+          const proceduresResponse = await axios.get('https://mediflow-cse416.onrender.com/procedures', {
+            headers: {
+              'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+            }
+          });
+          procedures = proceduresResponse.data;
+          cacheData("procedures", procedures);
+        }
+        setProcedureList(procedures);
+
+        if (!userRole) {
+          const userResponse = await axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
+            headers: {
+              'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+            }
+          });
+          userRole = userResponse.data.role;
+          cacheData(`userRole_${userId}`, userRole);
+        }
+        setIsAdmin(userRole === 'admin');
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
     };
-    setLoading(false);
 
     fetchData();
   }, []);
@@ -113,6 +155,7 @@ function Rooms() {
      
     } else {
       setCurrentRoom(room);
+      setPage(0);
       setAppointmentIds(room.appointments);
       setItemCount(room.appointments.length); 
       setRoomPage('appointmentViewing');
