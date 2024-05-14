@@ -71,7 +71,11 @@ function Profile() {
             Time:{" "}
             {new Date(
               selectedProcedure.scheduledStartTime
-            ).toLocaleTimeString()}
+            ).toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            })}
           </Typography>
           <Typography variant="subtitle2" align="center" sx={{ mb: 2 }}>
             Status: {selectedAppointment.status}
@@ -140,16 +144,10 @@ function Profile() {
       );
       console.log("res", response.data);
       console.log("userId", userId)
-      const filteredAppointments = response.data.filter(
-        (appointment) =>
-          appointment.patient.toString() === userId ||
-          (appointment.procedures &&
-            appointment.procedures.some(
-              (procedure) =>
-                procedure &&
-                procedure.staff &&
-                procedure.staff.some((staff) => staff && staff._id === userId)
-            ))
+      const filteredAppointments = response.data.filter(appointment => 
+        appointment.patient.toString() === userId || 
+        appointment.procedures.some(procedure => 
+          procedure.staff.some(staff => staff.toString() === userId))
       );
       setAppointments(filteredAppointments);
       console.log("appts:",filteredAppointments);
@@ -164,6 +162,28 @@ function Profile() {
   };
 
   const paginatedAppointments = appointments.slice((page - 1) * 5, page * 5);
+
+  const listItems = paginatedAppointments.flatMap((appointment) =>
+  appointment.procedures.flatMap((procedure) => {
+    if (procedure.staff.some((staff) => staff.toString() === user._id)) {
+      return (
+        <ListItem
+          button
+          key={`${appointment._id}-${procedure._id}`}
+          onClick={() => handleOpenModal(appointment, procedure)}
+        >
+          <ListItemText
+            primary={`Procedure: ${procedure.procedure.name} on ${new Date(
+              procedure.scheduledStartTime
+            ).toLocaleDateString()}`}
+            secondary={`Status: ${appointment.status}`}
+          />
+        </ListItem>
+      );
+    }
+    return null;
+  })
+).filter(Boolean);
 
   if (!user) {
     return <div>Loading...</div>;
@@ -267,34 +287,14 @@ function Profile() {
               Appointments
             </Typography>
             <List dense>
-              {paginatedAppointments.map((appointment) =>
-                appointment.procedures.map((procedure) => {
-                  if (
-                    procedure.staff.some(
-                      (staff) => staff.toString() === user._id
-                    )
-                  ) {
-                    return (
-                      <ListItem
-                        button
-                        key={`${appointment._id}-${procedure._id}`}
-                        onClick={() => handleOpenModal(appointment, procedure)}
-                      >
-                        <ListItemText
-                          primary={`Procedure: ${
-                            procedure.procedure.name
-                          } on ${new Date(
-                            procedure.scheduledStartTime
-                          ).toLocaleDateString()}`}
-                          secondary={`Status: ${appointment.status}`}
-                        />
-                      </ListItem>
-                    );
-                  }
-                  return null;
-                })
-              )}
-            </List>
+                {listItems.length > 0 ? (
+                  listItems
+                ) : (
+                  <ListItem style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                    <ListItemText primary="No Appointments" primaryTypographyProps={{ textAlign: 'center' }} />
+                  </ListItem>
+                )}
+              </List>
 
             <Modal
               open={openModal}
