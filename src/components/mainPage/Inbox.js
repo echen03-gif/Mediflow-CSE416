@@ -150,7 +150,23 @@ function Inbox() {
     </TableRow>
   ))
 }
+{
+    inboxType === 'process' &&  
 
+    peopleList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((appointment) => (
+      // Assuming each appointment has properties 'processName' and 'patientName'
+      <TableRow style={{ userSelect: 'none' }} data-testid="appointment-row">
+        <ButtonBase
+          onClick={() => handleRowClick(appointment._id)} // Assuming appointment._id can be used as unique identifier
+          style={{ display: 'contents' }} 
+          disableRipple
+        >
+          <TableCell>{appointment[0]}</TableCell>
+          <TableCell>{appointment[1]}</TableCell>
+        </ButtonBase>
+      </TableRow>
+    ))
+  }
             
           </TableBody>
         </Table>
