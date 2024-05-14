@@ -9,18 +9,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import {
-  Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Toolbar,
-  Typography,
-  Avatar,
-  IconButton,
-  Button,
-  AppBar,
+  Box,Drawer,ListItem,ListItemButton,ListItemText,Toolbar,Typography,Avatar,IconButton,Button,AppBar,Dialog, DialogActions, DialogContent, DialogTitle
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import EventNoteIcon from "@mui/icons-material/EventNote"; // for Schedule
@@ -46,10 +35,8 @@ import PendingAppointment from "./mainPage/AdminAppointmentView";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { io } from "socket.io-client";
 import { DataProvider } from "./DataContext";
 import { initializeSocket, disconnectSocket, getSocket } from "./socket";
-export const socket = io("https://mediflow-cse416.onrender.com");
 
 // Mock array of upcoming patients
 // const upcomingPatients = [
@@ -63,6 +50,8 @@ export default function MainPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true); // initially true if you want it open by default
   const navigate = useNavigate();
   const location = useLocation();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProcedure, setSelectedProcedure] = useState(null);
 
   const activeRouteStyle = {
     backgroundColor: "#FF8C00",
@@ -116,20 +105,27 @@ export default function MainPage() {
           }
         );
       });
-
+      
       socket.on("apptnotification", (data) => {
-        console.log("Appointment notification:", data);
-        toast(data, {
+        console.log('Appointment notification:', data);
+        const handleClick = () => {
+          setSelectedProcedure(data.procedure);
+          setIsModalOpen(true);
+        };
+      
+        toast(<div onClick={handleClick}>{data.message}</div>, {
+          hideProgressBar: true,
           position: "bottom-right",
           autoClose: 10000,
           style: {
+            cursor: 'pointer',
             backgroundColor: "#4caf50",
-            color: "white",
+            color: "white"
           },
           progressStyle: {
             background: "#ffffff",
-            height: "5px",
-          },
+            height: '5px'
+          }
         });
       });
     }
@@ -169,6 +165,38 @@ export default function MainPage() {
     setIsDrawerOpen(!isDrawerOpen);
     setDrawerWidth(isDrawerOpen ? 65 : 200);
   };
+
+  const ProcedureModal = ({ procedure, open, onClose }) => {
+
+    const startTime = new Date(procedure?.scheduledStartTime).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    
+    const endTime = new Date(procedure?.scheduledEndTime).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    
+    return (
+      <Dialog open={open} onClose={onClose}>
+        <DialogTitle>Procedure Details</DialogTitle>
+        <DialogContent>
+          <Typography variant="h6">{procedure?.name}</Typography>
+          <Typography variant="body1">{procedure?.description}</Typography>
+          <Typography variant="body2">Start: {startTime}</Typography>
+          <Typography variant="body2">End: {endTime}</Typography>
+          <Typography variant="body2">{procedure?.room}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
 
   return (
     <DataProvider>
@@ -383,6 +411,13 @@ export default function MainPage() {
             />
           </Toolbar>
         </AppBar>
+
+        <ProcedureModal 
+        procedure={selectedProcedure} 
+        open={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
+        />
+
       </Box>
     </DataProvider>
   );
