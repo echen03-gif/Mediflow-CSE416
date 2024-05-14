@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
-
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, FormControl, Button } from '@mui/material';
 import { useNavigate } from "react-router-dom";
+import moment from 'moment-timezone';
 
 function Rooms() {
   const [page, setPage] = useState(0);
@@ -11,13 +11,16 @@ function Rooms() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [roomList, setRooms] = useState([]);
+  const [currentRoom, setCurrentRoom] = useState('');
   const [appointmentList, setAppointmentList] = useState([]);
+  const [procedureList, setProcedureList] = useState([]);
   const [appointmentIds, setAppointmentIds] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [roomPage, setRoomPage] = useState('default');
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [availabilityCache, setAvailabilityCache] = useState({});
+  const [itemCount, setItemCount] = useState(0); // New state variable
 
   // DB API
 
@@ -32,6 +35,7 @@ function Rooms() {
           }
         });
         setRooms(roomsResponse.data);
+        setItemCount(roomsResponse.data.length); // Set initial item count for rooms
         console.log('Found rooms');
 
         const usersResponse = await axios.get('https://mediflow-cse416.onrender.com/users', {
@@ -48,6 +52,14 @@ function Rooms() {
           }
         });
         setAppointmentList(appointmentsResponse.data);
+        console.log('Found appointments');
+
+        const proceduresResponse = await axios.get('https://mediflow-cse416.onrender.com/procedures', {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
+        });
+        setProcedureList(proceduresResponse.data);
         console.log('Found appointments');
 
         const userResponse = await axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
@@ -67,16 +79,15 @@ function Rooms() {
   }, []);
 
   useEffect(() => {
-    const newCache = {...availabilityCache};
+    const newCache = { ...availabilityCache };
     roomList.forEach(room => {
       const roomKey = `${room._id}-${selectedDate.toISOString().split("T")[0]}`;
-      if (newCache[roomKey] === undefined) { 
+      if (newCache[roomKey] === undefined) {
         newCache[roomKey] = isRoomAvailable(room, selectedDate);
       }
     });
     setAvailabilityCache(newCache);
-  }, [roomList, appointmentList, selectedDate]); 
-  
+  }, [roomList, appointmentList, selectedDate]);
 
   // Functions
 
@@ -98,254 +109,238 @@ function Rooms() {
   };
 
   const viewSpecificAppointments = (room) => {
-
     if (room.appointments.length === 0) {
-
+      // No appointments to view
     } else {
-
-      setAppointmentIds(room.appointments)
-
-      setRoomPage('appointmentViewing')
-
+      setCurrentRoom(room);
+      setAppointmentIds(room.appointments);
+      setItemCount(room.appointments.length); // Update item count for appointments
+      setRoomPage('appointmentViewing');
     }
-  }
+  };
 
-function isRoomAvailable(room, date) {
-  const dateKey = date.toISOString().split("T")[0]; 
-  const roomKey = `${room._id}-${dateKey}`;
-  
-  
-  if (availabilityCache[roomKey] !== undefined) {
-    return availabilityCache[roomKey];
-  }
-  
-  if (appointmentList.length > 0) {
-    const currentDate = date.getTime(); 
+  function isRoomAvailable(room, date) {
+    const dateKey = date.toISOString().split("T")[0];
+    const roomKey = `${room._id}-${dateKey}`;
 
-    const isAvailable = !room.appointments.some(appointmentId => {
-      const appointmentData = appointmentList.find(appointment => appointment._id === appointmentId);
-      return appointmentData && appointmentData.procedures.some(procedure => {
-        const start = new Date(procedure.scheduledStartTime).getTime();
-        const end = new Date(procedure.scheduledEndTime).getTime();
-        return currentDate >= start && currentDate <= end;
+    if (availabilityCache[roomKey] !== undefined) {
+      return availabilityCache[roomKey];
+    }
+
+    if (appointmentList.length > 0) {
+      const currentDate = date.getTime();
+
+      const isAvailable = !room.appointments.some(appointmentId => {
+        const appointmentData = appointmentList.find(appointment => appointment._id === appointmentId);
+        return appointmentData && appointmentData.procedures.some(procedure => {
+          const start = new Date(procedure.scheduledStartTime).getTime();
+          const end = new Date(procedure.scheduledEndTime).getTime();
+          return currentDate >= start && currentDate <= end;
+        });
       });
-    });
 
-    
-    setAvailabilityCache(prev => ({...prev, [roomKey]: isAvailable}));
-
-    return isAvailable;
+      setAvailabilityCache(prev => ({ ...prev, [roomKey]: isAvailable }));
+      return isAvailable;
+    }
+    return true;
   }
-  return true; 
-}
-
 
   // Display
 
   if (loading) {
-    return <Typography>Loading...</Typography>; 
-  } 
-  else{
-  switch (roomPage) {
+    return <Typography>Loading...</Typography>;
+  } else {
+    switch (roomPage) {
+      case 'appointmentViewing':
+        return (
+          <Box sx={{ height: '100%', overflow: 'auto' }}>
+            <Typography variant="h4" gutterBottom>
+              Room Availability
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 2,
+              }}
+            >
+              <TextField label="Search" variant="outlined" />
+              <FormControl variant="outlined">
+                <TextField
+                  id="date"
+                  label="Date"
+                  type="datetime-local"
+                  defaultValue={selectedDate.toISOString().split("T")[0]}
+                  onChange={handleDateChange}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{ 'data-testid': 'date-input' }}
+                />
+              </FormControl>
+            </Box>
+            {
+              isAdmin &&
+              <Button variant="contained" color="primary" onClick={navigateToAddRoom} data-testid="add-room-button">
+                Add Room
+              </Button>
+            }
 
-    case 'appointmentViewing':
-      return (
-        <Box sx={{ flexGrow: 1, padding: 2 }}>
-          <Typography variant="h4" gutterBottom>
-            Room Availability
-          </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: 2,
-            }}
-          >
-            <TextField label="Search" variant="outlined" />
-            <FormControl variant="outlined">
-              <TextField
-                id="date"
-                label="Date"
-                type="date"
-                defaultValue={selectedDate.toISOString().split("T")[0]}
-                onChange={handleDateChange}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                inputProps={{ 'data-testid': 'date-input' }}
-              />
-            </FormControl>
+            <TableContainer component={Paper} sx={{ height: 500 }}>
+              <Table aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell></TableCell>{" "}
+                    <TableCell>Patient</TableCell>
+                    <TableCell>Procedure</TableCell>
+                    <TableCell align="center">Scheduled Time</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {appointmentIds
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .flatMap((appointmentId) =>
+                      appointmentList
+                        .filter((appointment) => appointment._id === appointmentId)
+                        .flatMap((individualAppointment) =>
+                          individualAppointment.procedures
+                            .filter((procedure) => procedure.room === currentRoom._id)
+                            .map((procedure) => (
+                              <TableRow key={procedure}>
+                                <TableCell
+                                  component="th"
+                                  scope="row"
+                                  style={{ padding: "10px", paddingRight: "0" }}
+                                >
+                                </TableCell>
+                                <TableCell>
+                                  {usersList.find((user) => user._id === individualAppointment.patient).name}
+                                </TableCell>
+                                <TableCell>
+                                  {procedureList.find((procedureName) => procedureName._id === procedure.procedure).name}
+                                </TableCell>
+                                <TableCell align="center">
+                                  {moment(procedure.scheduledStartTime).tz('America/New_York').format('M/D hh:mm A') + " - " + moment(procedure.scheduledEndTime).tz('America/New_York').format('M/D hh:mm A')}
+                                </TableCell>
+                              </TableRow>
+                            ))
+                        )
+                    )}
+                </TableBody>
+              </Table>
+              <Box sx={{ display: "flex", justifyContent: "center", padding: 2 }}>
+                <TablePagination
+                  rowsPerPageOptions={[10]}
+                  component="div"
+                  count={itemCount} // Update the count dynamically
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </Box>
+            </TableContainer>
           </Box>
-          {
-            isAdmin &&
-            <Button variant="contained" color="primary" onClick={navigateToAddRoom} data-testid="add-room-button"> 
-              Add Room
-            </Button>
-          }
+        );
 
-          <TableContainer component={Paper} sx={{ height: 500 }}>
-            <Table aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell></TableCell>{" "}
-                
-                  <TableCell>Appointment</TableCell>
-                  <TableCell align="center">
-                    Scheduled Dates
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {appointmentIds
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((room) => (
-                    <TableRow key={room.roomNumber}>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        style={{ padding: "10px", paddingRight: "0" }}
-                      >
-                      </TableCell>
-                      <TableCell>
-                        {
-                          usersList.find(userId => userId._id === appointmentList.find(
-                            (appointment) =>
-                              appointment._id ===
-                              room
-                          ).patient).name
-                        }
-                      </TableCell>
-                      <TableCell align="center">
-                        {
-                          appointmentList.find(
-                            (appointment) => appointment._id === room
-                          ).procedures.map(procedure => {
-                            const date = new Date(procedure.scheduledStartTime);
-                            const endDate = new Date(procedure.scheduledEndTime);
-                            return `${date.getMonth() + 1}/${date.getDate()} - ${endDate.getMonth() + 1}/${endDate.getDate()}`;
-                          }).join(", ")
+      case 'default':
+        return (
+          <Box sx={{ height: '100%', overflow: 'auto' }}>
+            <Typography variant="h4" gutterBottom>
+              Room Availability
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 2,
+              }}
+            >
+              <TextField label="Search" variant="outlined" />
+              <FormControl variant="outlined">
+                <TextField
+                  id="date"
+                  label="Date"
+                  type="datetime-local"
+                  defaultValue={selectedDate.toISOString().split("T")[0]}
+                  onChange={handleDateChange}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </FormControl>
+            </Box>
+            {
+              isAdmin &&
+              <Button variant="contained" color="primary" onClick={navigateToAddRoom}>
+                Add Room
+              </Button>
+            }
 
-                        }
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
+            <TableContainer component={Paper} sx={{ overflow: 'auto' }}>
+              <Table aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell></TableCell>
+                    <TableCell>Room #</TableCell>
+                    <TableCell align="right">Room Type</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {roomList
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((room) => (
+                      <TableRow key={room.roomNumber}>
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          style={{ padding: "10px", paddingRight: "0" }}
+                        >
+                          <div
+                            style={{
+                              width: "15px",
+                              height: "30px",
+                              backgroundColor: isRoomAvailable(
+                                room,
+                                selectedDate
+                              )
+                                ? "green"
+                                : "red",
+                              marginRight: "10px",
+
+                            }}
+                            data-testid={`room-availability-${room._id}`}
+
+                          ></div>
+                        </TableCell>
+                        <TableCell>
+                          <Typography onClick={(e) => { e.preventDefault(); viewSpecificAppointments(room); }} style={{ cursor: 'pointer', textDecoration: 'none' }} onMouseEnter={(e) => { e.target.style.textDecoration = 'underline'; }} onMouseLeave={(e) => { e.target.style.textDecoration = 'none'; }}>
+                            {room.name}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">{room.type}</TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
             <Box sx={{ display: "flex", justifyContent: "center", padding: 2 }}>
               <TablePagination
                 rowsPerPageOptions={[10]}
                 component="div"
-                count={roomList.length}
+                count={itemCount}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </Box>
-          </TableContainer>
-        </Box>
-      );
-
-
-    case 'default':
-      return (
-        <Box sx={{ flexGrow: 1, padding: 2 }}>
-          <Typography variant="h4" gutterBottom>
-            Room Availability
-          </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: 2,
-            }}
-          >
-            <TextField label="Search" variant="outlined" />
-            <FormControl variant="outlined">
-              <TextField
-                id="date"
-                label="Date"
-                type="date"
-                defaultValue={selectedDate.toISOString().split("T")[0]}
-                onChange={handleDateChange}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            </FormControl>
           </Box>
-          {
-            isAdmin &&
-            <Button variant="contained" color="primary" onClick={navigateToAddRoom}> 
-              Add Room
-            </Button>
-          }
-
-          <TableContainer component={Paper} sx={{ height: 500 }}>
-            <Table aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell></TableCell> 
-                  <TableCell>Room #</TableCell>
-                  <TableCell align="right">Room Type</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {roomList
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((room) => (
-                    <TableRow key={room.roomNumber}>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        style={{ padding: "10px", paddingRight: "0" }}
-                      >
-                        <div
-                          style={{
-                            width: "15px",
-                            height: "30px",
-                            backgroundColor: isRoomAvailable(
-                              room,
-                              selectedDate
-                            )
-                              ? "green"
-                              : "red",
-                            marginRight: "10px",
-                            
-                          }}
-                          data-testid={`room-availability-${room._id}`}
-
-                        ></div>
-                      </TableCell>
-                      <TableCell><Typography onClick={(e) => { e.preventDefault(); viewSpecificAppointments(room); }} style={{ cursor: 'pointer', textDecoration: 'none' }} onMouseEnter={(e) => { e.target.style.textDecoration = 'underline'; }} onMouseLeave={(e) => { e.target.style.textDecoration = 'none'; }} >
-                        {room.name}
-                      </Typography>
-                      </TableCell>
-                      <TableCell align="right">{room.type}</TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-
-          </TableContainer>
-          <Box sx={{ display: "flex", justifyContent: "center", padding: 2 }}>
-              <TablePagination
-                rowsPerPageOptions={[10]}
-                component="div"
-                count={roomList.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            </Box>
-          
-        </Box>
-      );
-    default:
-      return;
-  }
+        );
+      default:
+        return;
+    }
   }
 }
-export default Rooms;
 
+export default Rooms;
