@@ -34,6 +34,7 @@ function Inventory() {
 	const [roomList, setRooms] = useState([]);
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [currentEquipment, setCurrentEquipment] = useState('');
+	const [searchQuery, setSearchQuery] = useState('');
 
 	// DB API
 
@@ -161,6 +162,19 @@ function Inventory() {
 		navigate("/main/addinventory");
 	};
 
+	const handleSearchChange = (event) => {
+		setSearchQuery(event.target.value);
+	};
+
+	
+	const filteredInventoryHeadList = inventoryHeadList.filter((item) =>
+		item.name.toLowerCase().includes(searchQuery.toLowerCase())
+	);
+
+	const filteredEquipmentList = equipmentList.filter((item) =>
+		equipmentDB.find((equipment) => equipment._id === item).name.toLowerCase().includes(searchQuery.toLowerCase())
+	);
+
 	// Display
 
 	switch (inventoryPage) {
@@ -175,7 +189,7 @@ function Inventory() {
 							marginBottom: 2,
 						}}
 					>
-						<TextField label="Search" variant="outlined" data-testid="search-input" />
+						<TextField label="Search" variant="outlined" data-testid="search-input" value={searchQuery} onChange={handleSearchChange} />
 						<FormControl variant="outlined">
 							<TextField
 								id="date"
@@ -288,7 +302,7 @@ function Inventory() {
 							marginBottom: 2,
 						}}
 					>
-						<TextField label="Search" variant="outlined" data-testid="search-input" />
+						<TextField label="Search" variant="outlined" data-testid="search-input" value={searchQuery} onChange={handleSearchChange} />
 						<FormControl variant="outlined">
 							<TextField
 								id="date"
@@ -330,7 +344,7 @@ function Inventory() {
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{equipmentList.length === 0 ? (
+								{filteredEquipmentList.length === 0 ? (
 									<TableRow>
 										<TableCell
 											colSpan={4}
@@ -340,7 +354,7 @@ function Inventory() {
 										</TableCell>
 									</TableRow>
 								) : (
-									equipmentList
+									filteredEquipmentList
 										.slice(
 											page * rowsPerPage,
 											page * rowsPerPage + rowsPerPage
@@ -471,7 +485,7 @@ function Inventory() {
 							marginBottom: 2,
 						}}
 					>
-						<TextField label="Search" variant="outlined" data-testid="search-input" />
+						<TextField label="Search" variant="outlined" data-testid="search-input" value={searchQuery} onChange={handleSearchChange} />
 						<FormControl variant="outlined">
 							<TextField
 								id="date"
@@ -503,18 +517,18 @@ function Inventory() {
 							<TableHead>
 								<TableRow>
 									<TableCell></TableCell>{" "}
-									{/* Added this line */}
-									<TableCell>Product</TableCell>
+									
+									<TableCell>Equipment</TableCell>
 									<TableCell align="center">
 										Quantity
 									</TableCell>
 									<TableCell align="center">
 										Category
 									</TableCell>
-								</TableRow>
+									</TableRow>
 							</TableHead>
 							<TableBody>
-								{inventoryHeadList
+								{filteredInventoryHeadList
 									.slice(
 										page * rowsPerPage,
 										page * rowsPerPage + rowsPerPage

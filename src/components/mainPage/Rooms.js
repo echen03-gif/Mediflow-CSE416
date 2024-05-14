@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, FormControl, Button } from '@mui/material';
 import { useNavigate } from "react-router-dom";
@@ -20,10 +19,11 @@ function Rooms() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [availabilityCache, setAvailabilityCache] = useState({});
-  const [itemCount, setItemCount] = useState(0); // New state variable
+  const [itemCount, setItemCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // DB API
-
+    
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -35,7 +35,7 @@ function Rooms() {
           }
         });
         setRooms(roomsResponse.data);
-        setItemCount(roomsResponse.data.length); // Set initial item count for rooms
+        setItemCount(roomsResponse.data.length);
         console.log('Found rooms');
 
         const usersResponse = await axios.get('https://mediflow-cse416.onrender.com/users', {
@@ -119,6 +119,10 @@ function Rooms() {
     }
   };
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
   function isRoomAvailable(room, date) {
     const dateKey = date.toISOString().split("T")[0];
     const roomKey = `${room._id}-${dateKey}`;
@@ -145,6 +149,11 @@ function Rooms() {
     return true;
   }
 
+  // Filtered list based on search query
+  const filteredRoomList = roomList.filter((room) =>
+    room.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // Display
 
   if (loading) {
@@ -164,7 +173,7 @@ function Rooms() {
                 marginBottom: 2,
               }}
             >
-              <TextField label="Search" variant="outlined" />
+              <TextField label="Search" variant="outlined" value={searchQuery} onChange={handleSearchChange} />
               <FormControl variant="outlined">
                 <TextField
                   id="date"
@@ -256,7 +265,7 @@ function Rooms() {
                 marginBottom: 2,
               }}
             >
-              <TextField label="Search" variant="outlined" />
+              <TextField label="Search" variant="outlined" value={searchQuery} onChange={handleSearchChange} />
               <FormControl variant="outlined">
                 <TextField
                   id="date"
@@ -287,7 +296,7 @@ function Rooms() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {roomList
+                  {filteredRoomList
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((room) => (
                       <TableRow key={room.roomNumber}>

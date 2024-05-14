@@ -6,10 +6,9 @@
 
 
 */
-const uri =
-  "mongodb+srv://luigi:5ppeMdA9V4u417Bk@mediflow.ivvvqti.mongodb.net/?retryWrites=true&w=majority&appName=Mediflow";
-const bcrypt = require("bcrypt");
-const faker = require("faker");
+
+const bcrypt = require('bcrypt');
+const faker = require('faker');
 
 const departments = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Orthopedics"];
 const staff = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Orthopedics", "Nurse"];
@@ -20,194 +19,136 @@ let EquipmentHeads = require('./models/equipmentHead.js')
 let Rooms = require('./models/room.js');
 let Communication = require('./models/communication.js');
 let Processes = require('./models/processes.js');
-let Appointments = require('./models/appointment.js')
 
 
-let mongoose = require("mongoose");
+const uri = process.env.MEDIFLOWKEY;
+let mongoose = require('mongoose');
+
+mongoose.connect(uri);
 
 let db = mongoose.connection;
 
 // Create Functions
 
-function createUser(
-  adminBool,
-  email,
-  name,
-  age,
-  gender,
-  password,
-  role,
-  schedule
-) {
-  let createUser = {
-    admin: adminBool,
-    email: email,
-    joined: new Date(),
-    name: name,
-    age: age,
-    gender: gender,
-    password: password,
-    processes: [],
-    role: role,
-    schedule: schedule,
-  };
+function createUser(adminBool, email, name, age, gender, password, role, schedule) {
 
-  let addUser = new Users(createUser);
+    let createUser = {
+        admin: adminBool,
+        email: email,
+        joined: new Date(),
+        name: name,
+        age: age,
+        gender: gender,
+        password: password,
+        processes: [],
+        role: role,
+        schedule: schedule,
+    }
 
-  return addUser.save();
+    let addUser = new Users(createUser)
+
+    return addUser.save();
+
 }
 
-async function createEquipmentHead(name, quantity, type, equipmentIds) {
-  // Check if the equipment head already exists
-  const existingEquipmentHead = await EquipmentHeads.findOne({ name: name });
-  if (existingEquipmentHead) {
-    console.log(`EquipmentHead ${name} already exists.`);
-    return existingEquipmentHead;
-  }
+function createEquipmentHead(name, quantity, type, equipment) {
 
-  let newEquipmentHead = new EquipmentHeads({
-    name: name,
-    quantity: quantity,
-    type: type,
-    equipment: equipmentIds, // Pass the array of ObjectIds directly
-  });
+    let createEquipmentHead = {
+        name: name,
+        quantity: quantity,
+        equipment: [equipment],
+        type: type,
+    }
 
-  return newEquipmentHead.save();
+    let addEquipmentHead = new EquipmentHeads(createEquipmentHead);
+
+    return addEquipmentHead.save();
+
 }
 
-async function createEquipment(name, locationRoom, type) {
-  // Check if the equipment already exists
-  const existingEquipment = await Equipment.findOne({
-    name: name,
-    location: locationRoom,
-  });
-  if (existingEquipment) {
-    console.log(`Equipment ${name} already exists in room ${locationRoom}.`);
-    return existingEquipment; // Return the existing equipment instead of creating a new one
-  }
+function createEquipment(name, locationRoom, type) {
 
-  let createEquipment = {
-    location: locationRoom,
-    name: name,
-    status: "Functional",
-    type: type,
-  };
+    let createEquipment = {
+        location: locationRoom,
+        name: name,
+        status: "Functional",
+        type: type
+    }
 
-  let addEquipment = new Equipment(createEquipment);
+    let addEquipment = new Equipment(createEquipment);
 
-  return addEquipment.save();
+    return addEquipment.save();
+
 }
 
-async function createRoom(name, status, type) {
-  // Check if the room already exists
-  const existingRoom = await Rooms.findOne({ name: name });
-  if (existingRoom) {
-    console.log(`Room ${name} already exists.`);
-    return existingRoom; // Return the existing room instead of creating a new one
-  }
+function createRoom(name, status, type) {
 
-  let createRoom = {
-    created: new Date(),
-    equipment: [],
-    name: name,
-    status: status,
-    type: type,
-    updatedAt: new Date(),
-  };
+    let createRoom = {
+        created: new Date(),
+        equipment: [],
+        name: name,
+        status: status,
+        type: type,
+        updatedAt: new Date()
 
-  let addRoom = new Rooms(createRoom);
+    }
 
-  return addRoom.save();
+    let addRoom = new Rooms(createRoom);
+
+    return addRoom.save();
+
 }
 
-function createProcedure(
-  description,
-  estimatedDuration,
-  name,
-  requiredEquipment,
-  requiredRoomType,
-  staffType,
-  numStaff
-) {
-  let createProcedure = {
-    created: new Date(),
-    description: description,
-    estimatedDuration: estimatedDuration,
-    name: name,
-    requiredEquipment: requiredEquipment,
-    requiredRoomType: requiredRoomType,
-    staffType: staffType,
-    numStaff: numStaff,
-  };
+function createProcedure(description, estimatedDuration, name, requiredEquipment, requiredRoomType, staffType, numStaff) {
 
-  let addProcedure = new Procedures(createProcedure);
+    let createProcedure = {
 
-  return addProcedure.save();
+        created: new Date(),
+        description: description,
+        estimatedDuration: estimatedDuration,
+        name: name,
+        requiredEquipment: requiredEquipment,
+        requiredRoomType: requiredRoomType,
+        staffType: staffType,
+        numStaff: numStaff
+
+    }
+
+    let addProcedure = new Procedures(createProcedure);
+
+    return addProcedure.save();
 }
+
 
 function createProcess(name, procedures) {
-  let createProcess = {
-    name: name,
-    components: procedures,
-  };
 
-  let addProcess = new Processes(createProcess);
+    let createProcess = {
 
-  return addProcess.save();
+        name: name,
+        components: procedures
+
+
+    }
+
+    let addProcess = new Processes(createProcess);
+
+    return addProcess.save();
 }
 
 function getRandomSchedule() {
-  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-  let schedule = {};
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+    let schedule = {};
 
-  days.forEach((day) => {
-    let startHour = faker.datatype.number({ min: 6, max: 10 });
-    let endHour = startHour + faker.datatype.number({ min: 8, max: 10 });
-    schedule[day] = [
-      {
-        start: `${startHour.toString().padStart(2, "0")}:00`,
-        end: `${endHour.toString().padStart(2, "0")}:00`,
-      },
-    ];
-  });
+    days.forEach(day => {
+        let startHour = faker.datatype.number({ min: 6, max: 10 });
+        let endHour = startHour + faker.datatype.number({ min: 8, max: 10 });
+        schedule[day] = [{
+            start: `${startHour.toString().padStart(2, '0')}:00`,
+            end: `${endHour.toString().padStart(2, '0')}:00`
+        }];
+    });
 
-  return schedule;
-}
-
-async function createAppointment(patientId, procedureIds, processId, roomIds) {
-  const existingAppointment = await Appointments.findOne({
-    patient: patientId,
-    "procedures.procedure": { $all: procedureIds },
-    process: processId,
-    // can add more criteria to define uniqueness
-  });
-
-  if (existingAppointment) {
-    console.log(
-      `Appointment already exists for patient ID ${patientId} with process ID ${processId}.`
-    );
-    return existingAppointment;
-  }
-  const newAppointment = new Appointments({
-    created: new Date(),
-    patient: patientId,
-    procedures: procedureIds.map((procId) => ({
-      procedure: procId,
-      room: roomIds[0],
-      scheduledStartTime: new Date(),
-      scheduledEndTime: new Date(new Date().getTime() + 2 * 60 * 60 * 1000), // 2 hours later
-    })),
-    process: processId,
-    status: "pending",
-  });
-  //console.log("created appointment: ", newAppointment);
-
-  try {
-    const savedAppointment = await newAppointment.save();
-    console.log("Appointment saved:");
-  } catch (error) {
-    console.error("Error saving appointment:", error);
-  }
+    return schedule;
 }
 
 // Populate
@@ -216,295 +157,127 @@ const saltRounds = 10;
 const hashedPass = bcrypt.hashSync(admin_password, saltRounds);
 
 const populate = async () => {
-  try {
-    // Connect to database
-    await mongoose.connect(uri);
-    console.log("Connected to MongoDB.");
 
-    // Create Rooms
+    // SYS ADMIN
+    let sysAdmin = await createUser(true, "sysAdmin@gmail.com", "SYSTEM ADMIN", 28, "Male", hashedPass, "admin",
+        {
+            Monday: [{ start: "00:00", end: "23:59" }],
+            Tuesday: [{ start: "00:00", end: "23:59" }],
+            Wednesday: [{ start: "00:00", end: "23:59" }],
+            Thursday: [{ start: "00:00", end: "23:59" }],
+            Friday: [{ start: "00:00", end: "23:59" }],
+            Saturday: [{ start: "00:00", end: "23:59" }],
+            Sunday: [{ start: "00:00", end: "23:59" }]
+        });
+
+    // USERS
+
+    // for (let i = 0; i < 5; i++) {
+    //     let department = staff[Math.floor(Math.random() * departments.length)];
+    //     let name = faker.name.findName();
+    //     let email = faker.internet.email(); 
+    //     let age = faker.datatype.number({ min: 25, max: 60 }); 
+    //     let gender = faker.random.arrayElement(["Male", "Female"]); 
+
+    //     await createUser(false, email, name, age, gender, hashedPass, department, staffID, getRandomSchedule());
+    // }
+
+    // ROOMS
+
     let storageRoom = await createRoom("Storage Room", "OPEN", "Storage");
     let heartRoom = await createRoom("Room 101", "OPEN", "Cardiology");
-    let icu = await createRoom("ICU", "OPEN", "ICU");
-    let opRoom = await createRoom("Operating Room 201", "OPEN", "Surgery");
-    let maternityRoom = await createRoom("Maternity Room", "OPEN", "Maternity");
-    let generalWard = await createRoom("General Ward", "OPEN", "General");
-
+    let icu = await createRoom("Room 102", "OPEN", "ICU");
     let baseRoomNumber = 103;
     for (let i = 0; i < departments.length; i++) {
-      let roomName = `Room ${baseRoomNumber + i}`;
-      let department = departments[i];
-      await createRoom(roomName, "OPEN", department);
+        let roomName = `Room ${baseRoomNumber + i}`;
+        let department = departments[i];
+        await createRoom(roomName, "OPEN", department);
     }
 
-    // Create Equipment
-    let heartLungMachineOne = await createEquipment(
-      "Heart-Lung Machine One",
-      storageRoom._id,
-      "Cardiology"
-    );
-    let heartLungMachineTwo = await createEquipment(
-      "Heart-Lung Machine Two",
-      storageRoom._id,
-      "Cardiology"
-    );
-    let equipmentIds = [heartLungMachineOne._id, heartLungMachineTwo._id];
-    let heartLungMachineHead = await createEquipmentHead(
-      "Heart Lung Machine",
-      2,
-      "Cardiology",
-      equipmentIds
-    );
+    // EQUIPMENT
 
-    let ctMachineOne = await createEquipment(
-      "CT Machine One",
-      storageRoom._id,
-      "Radiology"
-    );
-    let ctMachineTwo = await createEquipment(
-      "CT Machine Two",
-      storageRoom._id,
-      "Radiology"
-    );
-    let ctMachineHead = await createEquipmentHead(
-      "CT Machine",
-      2,
-      "Radiology",
-      [ctMachineOne._id, ctMachineTwo._id]
-    );
+    // Heart-Lung Machine
+    let heartLungMachineOne = await createEquipment("Heart-Lung Machine One", storageRoom, "Cardiology");
+    let heartLungMachineTwo = await createEquipment("Heart-Lung Machine Two", storageRoom, "Cardiology");
+    let heartLungMachineHead = await createEquipmentHead("Heart Lung Machine", 2, "Cardiology", heartLungMachineOne, heartLungMachineTwo);
 
-    let ultrasoundMachine = await createEquipment(
-      "Ultrasound Machine",
-      maternityRoom._id,
-      "Maternity"
-    );
-    let mriMachine = await createEquipment(
-      "MRI Machine",
-      generalWard._id,
-      "Radiology"
-    );
+    // CT Machine
+    let ctMachineOne = await createEquipment("CT Machine One", storageRoom, "Radiology");
+    let ctMachineTwo = await createEquipment("CT Machine Two", storageRoom, "Radiology");
+    let ctMachineHead = await createEquipmentHead("CT Machine", 2, "Radiology", ctMachineOne, ctMachineTwo);
 
-    // Create Procedures and Processes
-    let maternityProcedures = [
-      await createProcedure(
-        "Routine prenatal check-up and ultrasound.",
-        45,
-        "Prenatal Checkup",
-        [ultrasoundMachine._id],
-        "Maternity",
-        "Nurse",
-        2
-      ),
-      await createProcedure(
-        "Delivery procedure and postnatal care.",
-        120,
-        "Delivery",
-        [],
-        "Maternity",
-        "Obstetrician",
-        3
-      ),
-    ];
-    let maternityProcess = await createProcess(
-      "Maternity Care",
-      maternityProcedures.map((proc) => proc._id)
-    );
 
-    let heartSurgeryProcedures = [
-      await createProcedure(
-        "Patient needs blood tests monitoring, and fasting diet requirements.",
-        30,
-        "Heart Surgery PreOP",
-        [],
-        null,
-        "Nurse",
-        2
-      ),
-      await createProcedure(
-        "Patient needs to undergo anesthesia in which the performing doctor will execute the surgery",
-        60,
-        "Heart Surgery OP",
-        [heartLungMachineHead._id],
-        "Cardiology",
-        "Cardiology",
-        1
-      ),
-      await createProcedure(
-        "Patient needs to rest and be monitored",
-        60,
-        "Heart Surgery PostOP",
-        [ctMachineHead._id],
-        "ICU",
-        "Radiology",
-        1
-      ),
-    ];
-    let heartSurgery = await createProcess(
-      "Heart Surgery",
-      heartSurgeryProcedures.map((proc) => proc._id)
-    );
+    let surgicalInstrumentsOne = await createEquipment("Surgical Instruments Set One", storageRoom, "Orthopedics");
+    let surgicalInstrumentsTwo = await createEquipment("Surgical Instruments Set Two", storageRoom, "Orthopedics");
+    let surgicalInstrumentsHead = await createEquipmentHead("Surgical Instruments", 2, "Orthopedics", surgicalInstrumentsOne, surgicalInstrumentsTwo);
 
-    let mriProcedure = await createProcedure(
-      "Detailed brain imaging to diagnose conditions.",
-      90,
-      "Brain MRI Scan",
-      [mriMachine._id],
-      "Radiology",
-      "Radiologist",
-      1
-    );
-    let heartProcedure = await createProcedure(
-      "Open heart surgery for valve replacement.",
-      180,
-      "Heart Valve Surgery",
-      [],
-      "Cardiology",
-      "Cardiologist",
-      3,
-      heartRoom._id
-    );
-    let generalSurgery = await createProcedure(
-      "Appendectomy to remove an inflamed appendix.",
-      120,
-      "Appendectomy",
-      [],
-      "Surgery",
-      "Surgeon",
-      2,
-      opRoom._id
-    );
-    let icuRecovery = await createProcedure(
-      "Post-operative recovery and monitoring.",
-      240,
-      "Post-Op Monitoring",
-      [],
-      "ICU",
-      "Nurse",
-      2,
-      icu._id
-    );
+    let prostheticHipOne = await createEquipment("Prosthetic Hip One", storageRoom, "Orthopedics");
+    let prostheticHipTwo = await createEquipment("Prosthetic Hip Two", storageRoom, "Orthopedics");
+    let prostheticHipHead = await createEquipmentHead("Prosthetic Hip", 2, "Orthopedics", prostheticHipOne, prostheticHipTwo);
 
-    let mriProcess = await createProcess("MRI Diagnostic", [mriProcedure._id]);
-    let heartSurgeryProcess = await createProcess("Heart Valve Surgery", [
-      heartProcedure._id,
-      icuRecovery._id,
-    ]);
-    let appendectomyProcess = await createProcess("Appendectomy Surgery", [
-      generalSurgery._id,
-      icuRecovery._id,
-    ]);
 
-    // Create SYS ADMIN
-    const admin_password = "sysAdmin";
-    const saltRounds = 10;
-    const hashedPass = bcrypt.hashSync(admin_password, saltRounds);
-    let sysAdmin = await createUser(
-      true,
-      "sysAdmin@gmail.com",
-      "SYSTEM ADMIN",
-      28,
-      "Male",
-      hashedPass,
-      "admin",
-      {
-        Monday: [{ start: "00:00", end: "23:59" }],
-        Tuesday: [{ start: "00:00", end: "23:59" }],
-        Wednesday: [{ start: "00:00", end: "23:59" }],
-        Thursday: [{ start: "00:00", end: "23:59" }],
-        Friday: [{ start: "00:00", end: "23:59" }],
-        Saturday: [{ start: "00:00", end: "23:59" }],
-        Sunday: [{ start: "00:00", end: "23:59" }],
-      }
-    );
+    let xrayMachineOne = await createEquipment("X-ray Machine One", storageRoom, "Radiology");
+    let xrayMachineTwo = await createEquipment("X-ray Machine Two", storageRoom, "Radiology");
+    let xrayMachineHead = await createEquipmentHead("X-ray Machine", 2, "Radiology", xrayMachineOne, xrayMachineTwo);
 
-    // Create Patients
-    let patient1 = await createUser(
-        false, "john.doe@example.com", "John Doe", 30, "Male", "securePassword", "patient"
-      );
-      
-      let patientJane = await createUser(
-        false, "jane.smith@example.com", "Jane Smith", 28, "Female", "securePassword", "patient"
-      );
-      
-      let patientTom = await createUser(
-        false, "tom.harris@example.com", "Tom Harris", 35, "Male", "securePassword", "patient"
-      );
-      
-      let patientLisa = await createUser(
-        false, "lisa.white@example.com", "Lisa White", 40, "Female", "securePassword", "patient"
-      );
-      
-      let patientRob = await createUser(
-        false, "rob.johnson@example.com", "Rob Johnson", 25, "Male", "securePassword", "patient"
-      );
+    // Casting Materials for Fracture Treatment
+    let castingMaterialsOne = await createEquipment("Casting Materials One", storageRoom, "Orthopedics");
+    let castingMaterialsTwo = await createEquipment("Casting Materials Two", storageRoom, "Orthopedics");
+    let castingMaterialsHead = await createEquipmentHead("Casting Materials", 2, "Orthopedics", castingMaterialsOne, castingMaterialsTwo);
 
-    // Create appointments for patients
-    for (let procedure of heartSurgeryProcedures) {
-      let procedureIds = [procedure._id];
-      let roomIds = [icu._id]; // Example room, adjust based on actual room used for the procedure
-      await createAppointment(
-        patient1._id,
-        procedureIds,
-        heartSurgery._id,
-        roomIds
-      );
-    }
+    // Infusion Pump for Chemotherapy
+    let infusionPumpOne = await createEquipment("Infusion Pump One", storageRoom, "Oncology");
+    let infusionPumpTwo = await createEquipment("Infusion Pump Two", storageRoom, "Oncology");
+    let infusionPumpHead = await createEquipmentHead("Infusion Pump", 2, "Oncology", infusionPumpOne, infusionPumpTwo);
 
-    // Repeat for other patients and their respective procedures
-    for (let procedure of maternityProcedures) {
-      let procedureIds = [procedure._id];
-      let roomIds = [maternityRoom._id]; // Example room for maternity procedures
-      await createAppointment(
-        patientJane._id,
-        procedureIds,
-        maternityProcess._id,
-        roomIds
-      );
-    }
+    // IV Fluids for Chemotherapy
+    let ivFluidsOne = await createEquipment("IV Fluids One", storageRoom, "Oncology");
+    let ivFluidsTwo = await createEquipment("IV Fluids Two", storageRoom, "Oncology");
+    let ivFluidsHead = await createEquipmentHead("IV Fluids", 2, "Oncology", ivFluidsOne, ivFluidsTwo);
 
-    for (let procedure of [mriProcedure]) {
-      let procedureIds = [procedure._id];
-      let roomIds = [generalWard._id]; // Example room for MRI
-      await createAppointment(
-        patientTom._id,
-        procedureIds,
-        mriProcess._id,
-        roomIds
-      );
-    }
 
-    for (let procedure of [heartProcedure, icuRecovery]) {
-      let procedureIds = [procedure._id];
-      let roomIds = [heartRoom._id]; // Example room for heart valve surgery
-      await createAppointment(
-        patientLisa._id,
-        procedureIds,
-        heartSurgeryProcess._id,
-        roomIds
-      );
-    }
+    // PROCEDURES
 
-    for (let procedure of [generalSurgery, icuRecovery]) {
-      let procedureIds = [procedure._id];
-      let roomIds = [opRoom._id]; // Example room for surgery
-      await createAppointment(
-        patientRob._id,
-        procedureIds,
-        appendectomyProcess._id,
-        roomIds
-      );
-    }
+    // Heart Surgery
+    let heartSurgeryPreOp = await createProcedure("Patient needs blood tests monitoring, and fasting diet requirements.", 30, "Heart Surgery PreOP", [], null, "Nurse", 2);
+    let heartSurgeryOp = await createProcedure("Patient needs to undergo anesthesia in which the performing doctor will execute the surgery", 60, "Heart Surgery OP", ['Heart Lung Machine'], "Cardiology", "Cardiology", 1);
+    let heartSurgeryPostOp = await createProcedure("Patient needs to rest and be monitored", 60, "Heart Surgery PostOP", ['CT Machine'], "ICU", "Radiology", 1);
 
-    console.log("Preset Data Inserted into DB");
-  } catch (error) {
-    console.log(error);
-  } finally {
-    if (mongoose.connection.readyState) {
-      mongoose.connection.close();
-    }
-  }
-};
+    // Hip Replacement
+    let hipReplacementPreOp = await createProcedure("Patient needs pre-operative blood tests, X-rays, and fasting diet requirements.", 60, "Hip Replacement PreOP", [], null, "Nurse", 3);
+    let hipReplacementOp = await createProcedure("Patient undergoes anesthesia and the surgeon replaces the damaged hip joint with a prosthetic.", 120, "Hip Replacement OP", ['Surgical Instruments', 'Prosthetic Hip'], "Orthopedics", "Orthopedics", 3);
+    let hipReplacementPostOp = await createProcedure("Patient needs to be monitored for complications and start physical therapy.", 90, "Hip Replacement PostOP", ['Physical Therapy Equipment'], "ICU", "Nurse", 2);
 
-populate().catch((err) => {
-  console.log("ERROR: " + err);
-  if (db) db.close();
-});
+    // Fractures
+    let fractureTreatmentPreOp = await createProcedure("Patient needs X-rays and initial assessment.", 45, "Fracture Treatment PreOP", ['X-ray Machine'], "Radiology", "Nurse", 1);
+    let fractureTreatmentOp = await createProcedure("Patient undergoes procedure to set the fracture and apply a cast.", 60, "Fracture Treatment OP", ['Casting Materials'], "Orthopedics", "Orthopedics", 2);
+    let fractureTreatmentPostOp = await createProcedure("Patient needs follow-up X-rays and monitoring for proper healing.", 45, "Fracture Treatment PostOP", ['X-ray Machine'], "Radiology", "Nurse", 1);
+
+    // Chemotherapy
+    let chemoPreOp = await createProcedure("Patient needs blood tests and assessment for chemotherapy suitability.", 45, "Chemotherapy PreOP", [], "Oncology", "Nurse", 2);
+    let chemoOp = await createProcedure("Patient receives chemotherapy infusion.", 120, "Chemotherapy OP", ['Infusion Pump'], "Oncology", "Oncology", 1);
+    let chemoPostOp = await createProcedure("Patient needs monitoring for side effects and hydration therapy.", 60, "Chemotherapy PostOP", ['IV Fluids'], "Oncology", "Nurse", 1);
+
+    // Pediatric Checkup
+    let pedCheckupPreOp = await createProcedure("Patient needs a preliminary health history and development assessment.", 20, "Pediatric Checkup PreOP", [], "Pediatrics", "Nurse", 1);
+    let pedCheckupOp = await createProcedure("Patient undergoes a comprehensive physical examination including growth measurements, immunization updates, and developmental screening.", 40, "Pediatric Checkup OP", [], "Pediatrics", "Pediatrics", 1);
+    let pedCheckupPostOp = await createProcedure("Patient receives follow-up instructions and health education.", 20, "Pediatric Checkup PostOP", [], "Pediatrics", "Nurse", 1);
+
+    // PROCESSES
+
+    let heartSurgery = await createProcess("Heart Surgery", [heartSurgeryPreOp, heartSurgeryOp, heartSurgeryPostOp]);
+    let hipReplacement = await createProcess("Hip Replacement", [hipReplacementPreOp, hipReplacementOp, hipReplacementPostOp]);
+    let fractureTreatment = await createProcess("Fracture Treatment", [fractureTreatmentPreOp, fractureTreatmentOp, fractureTreatmentPostOp]);
+    let chemotherapy = await createProcess("Chemotherapy", [chemoPreOp, chemoOp, chemoPostOp]);
+    let pediatricCheckup = await createProcess("Pediatric Checkup", [pedCheckupPreOp, pedCheckupOp, pedCheckupPostOp]);
+
+    if (db) db.close();
+    console.log('Preset Data Inserted into DB');
+
+}
+
+populate()
+    .catch((err) => {
+        console.log('ERROR: ' + err);
+        if (db) db.close();
+    });
