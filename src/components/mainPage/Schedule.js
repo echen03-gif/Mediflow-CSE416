@@ -195,11 +195,11 @@ export default function Schedule() {
 
         </button>
 
-        <div>
-        <button onClick={() => handleViewChange('dayGridMonth')}>Month View</button>
-        <button onClick={() => handleViewChange('timeGridWeek')}>Week View</button>
-        <button onClick={() => handleViewChange('listWeek')}>List View</button>
-      </div>
+        <div class="btn-container">
+          <button class="btn" onClick={() => handleViewChange('dayGridMonth')}>Month View</button>
+          <button class="btn" onClick={() => handleViewChange('timeGridWeek')}>Week View</button>
+          <button class="btn" onClick={() => handleViewChange('listWeek')}>List View</button> 
+        </div>
         <FullCalendar
           key={currentView}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
