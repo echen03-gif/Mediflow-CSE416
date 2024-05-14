@@ -20,6 +20,20 @@ export const DataProvider = ({ children }) => {
     },
   }), []);
 
+  const useApi = async (endpoint, method = "GET", body = null) => {
+    try {
+      const response = await api({
+        method,
+        url: endpoint,
+        data: body,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("API call failed:", error);
+      throw error;
+    }
+  };
+
   const updateData = (newData) => {
     setData((prevData) => ({ ...prevData, ...newData }));
   };
@@ -58,7 +72,6 @@ export const DataProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    let userId = sessionStorage.getItem("user");
     api.get("/equipmentHead").then((res) => setInventoryHead(res.data));
     api.get("/rooms").then((res) => setRooms(res.data));
     api.get("/equipment").then((res) => setEquipmentDB(res.data));
@@ -71,11 +84,6 @@ export const DataProvider = ({ children }) => {
       setUsers(usersWithStatus);
       setPeople(res.data);
     });
-
-    api.get(`/userID/${userId}`).then((res) => {
-      setIsAdmin(res.data.role === "admin");
-      console.log("found user role");
-    });
   }, [api]);
 
   return (
@@ -83,6 +91,7 @@ export const DataProvider = ({ children }) => {
       value={{
         data,
         updateData,
+        useApi,
         appointmentList,
         inventoryHeadList,
         equipmentDB,

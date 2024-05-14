@@ -148,6 +148,7 @@ function Profile() {
         appointment.patient.toString() === userId || 
         appointment.procedures.some(procedure => 
           procedure.staff.some(staff => staff.toString() === userId))
+
       );
       setAppointments(filteredAppointments);
       console.log("appts:",filteredAppointments);
