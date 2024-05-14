@@ -6,7 +6,6 @@ const procedureSchema = new mongoose.Schema({
     description: {type: String},
     estimatedDuration: {type: Number},
     name: {type: String},
-    procedureID: {type: Number},
     requiredRoomType: {type: String},
     requiredEquipment: [{type: String}],
     staffType: {type: String},

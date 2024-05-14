@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema({
     password: {type: String},
     appointments: [{type: mongoose.Schema.Types.ObjectId, ref:'Appointments'}],
     role: {type: String},
-    staffID: {type: Number},
     schedule: {
         Monday: [shiftSchema],
         Tuesday: [shiftSchema],
