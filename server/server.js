@@ -126,8 +126,8 @@ let Communication = require("./models/communication.js");
 let Processes = require("./models/processes.js");
 let Appointment = require("./models/appointment.js");
 let Messages = require("./models/messages.js");
-const equipment = require("./models/equipment.js");
-const equipmentHead = require("./models/equipmentHead.js");
+let equipment = require("./models/equipment.js");
+let equipmentHead = require("./models/equipmentHead.js");
 
 // Define Backend Functions
 
@@ -256,13 +256,13 @@ cron.schedule("* * * * *", async () => {
     const upcomingAppointments = await Appointment.find({
       "procedures.scheduledStartTime": {
         $gte: now,
-        $lte: new Date(now.getTime() + 10 * 60 * 1000 + 60000), // Check up to 10 minutes + 1 minute buffer to ensure we cover the range
+        $lte: new Date(now.getTime() + 10 * 60 * 1000 + 60000),
       },
-      status: "pending", // Only notify for pending appointments
+      status: "pending", 
     })
     .populate({
-        path: "procedures.procedure", // Populate the procedure field within each element of the procedures array
-        model: "Procedure", // Ensure you specify the correct model if it's not automatically inferred
+        path: "procedures.procedure",
+        model: "Procedure", 
       })
     .populate("procedures.staff");
 
