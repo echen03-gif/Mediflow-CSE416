@@ -36,6 +36,7 @@ import PendingAppointment from "./mainPage/AdminAppointmentView";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { initializeSocket, disconnectSocket, getSocket } from "./socket";
+import { DataProvider } from "./DataContext";
 
 // Mock array of upcoming patients
 // const upcomingPatients = [
@@ -104,27 +105,27 @@ export default function MainPage() {
           }
         );
       });
-      
+
       socket.on("apptnotification", (data) => {
-        console.log('Appointment notification:', data);
+        console.log("Appointment notification:", data);
         const handleClick = () => {
           setSelectedProcedure(data.procedure);
           setIsModalOpen(true);
         };
-      
+
         toast(<div onClick={handleClick}>{data.message}</div>, {
           hideProgressBar: true,
           position: "bottom-right",
           autoClose: 10000,
           style: {
-            cursor: 'pointer',
+            cursor: "pointer",
             backgroundColor: "#4caf50",
-            color: "white"
+            color: "white",
           },
           progressStyle: {
             background: "#ffffff",
-            height: '5px'
-          }
+            height: "5px",
+          },
         });
       });
     }
@@ -166,19 +167,23 @@ export default function MainPage() {
   };
 
   const ProcedureModal = ({ procedure, open, onClose }) => {
+    const startTime = new Date(
+      procedure?.scheduledStartTime
+    ).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
 
-    const startTime = new Date(procedure?.scheduledStartTime).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-    
-    const endTime = new Date(procedure?.scheduledEndTime).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-    
+    const endTime = new Date(procedure?.scheduledEndTime).toLocaleTimeString(
+      "en-US",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }
+    );
+
     return (
       <Dialog open={open} onClose={onClose}>
         <DialogTitle>Procedure Details</DialogTitle>
@@ -196,8 +201,8 @@ export default function MainPage() {
     );
   };
 
-
   return (
+    <DataProvider>
       <Box
         sx={{
           display: "flex",
@@ -417,12 +422,12 @@ export default function MainPage() {
           </Toolbar>
         </AppBar>
 
-        <ProcedureModal 
-        procedure={selectedProcedure} 
-        open={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
+        <ProcedureModal
+          procedure={selectedProcedure}
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
         />
-
       </Box>
+    </DataProvider>
   );
 }
