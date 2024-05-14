@@ -4,7 +4,7 @@ let socket = null;
 
 export const initializeSocket = (user, name) => {
   if (!socket) {
-    socket = io("https://mediflow-cse416.onrender.com");
+    socket = io("https://mediflow-cse416.onrender.com/");
     socket.emit('userConnected', user, name);
     console.log('Socket initialized and user connected:', user);
   }
