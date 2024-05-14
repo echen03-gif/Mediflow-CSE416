@@ -289,7 +289,7 @@ cron.schedule('* * * * *', async () => {
 
                     if (diffInMinutes === 10 && !procedure.notificationsSent.includes('10-min')) {
                         // Send 10-minute notification
-                        const message = `Reminder: You have a procedure scheduled in 10 minutes at ${new Date(procedure.scheduledStartTime).toLocaleTimeString()}.`;
+                        const message = `Reminder: You have a procedure scheduled in 10 minutes: ${procedure.name}.`;
                         if (userSocketId) {
                             io.to(userSocketId).emit('apptnotification', message);
                             console.log(`[Cron Job] Sent 10-minute reminder to user ${staff._id}`);
@@ -300,7 +300,7 @@ cron.schedule('* * * * *', async () => {
 
                     if (diffInMinutes === 5 && !procedure.notificationsSent.includes('5-min')) {
                         // Send 5-minute notification
-                        const message = `Reminder: You have a procedure scheduled in 5 minutes at ${new Date(procedure.scheduledStartTime).toLocaleTimeString()}.`;
+                        const message = `Reminder: You have a procedure scheduled in 5 minutes: ${procedure.name}.`;
                         if (userSocketId) {
                             io.to(userSocketId).emit('apptnotification', message);
                             console.log(`[Cron Job] Sent 5-minute reminder to user ${staff._id}`);
@@ -311,7 +311,7 @@ cron.schedule('* * * * *', async () => {
 
                     if (diffInMinutes === 0 && !procedure.notificationsSent.includes('start')) {
                         // Send start notification
-                        const message = `Your procedure is scheduled to start now at ${new Date(procedure.scheduledStartTime).toLocaleTimeString()}.`;
+                        const message = `Your procedure is scheduled to start now: ${procedure.name}.`;
                         if (userSocketId) {
                             io.to(userSocketId).emit('apptnotification', message);
                             console.log(`[Cron Job] Sent start reminder to user ${staff._id}`);
@@ -411,6 +411,21 @@ app.get("/appointments", async (req, res) => {
     let appointments = await Appointment.find();
 
     res.send(appointments);
+});
+
+
+app.get('/profileappt', async (req, res) => {
+    try {
+        let appointments = await Appointment.find()
+            .populate({
+                path: 'procedures.procedure', // Ensure this path matches the schema path
+                model: 'Procedure'
+            });
+        res.send(appointments);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error retrieving appointments.");
+    }
 });
 
 app.get("/appointments/pending", async (req, res) => {
