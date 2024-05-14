@@ -268,6 +268,7 @@ io.on("connection", (socket) => {
         }
         io.in(roomID).emit("receiveMessage", message);
         console.log(`Message sent in room ${roomID}: ${text}`);
+    }
     });
 
 });
