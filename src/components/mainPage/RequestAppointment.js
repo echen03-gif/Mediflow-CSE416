@@ -96,7 +96,7 @@ export default function RequestAppointment() {
     for (let shift of shifts) {
       const shiftStart = new Date(`${scheduledStartTime.split('T')[0]}T${shift.start}`);
       const shiftEnd = new Date(`${scheduledStartTime.split('T')[0]}T${shift.end}`);
-    
+
       if (scheduledStart >= shiftStart && scheduledEnd <= shiftEnd) {
         isInShift = true;
         break;
@@ -110,7 +110,6 @@ export default function RequestAppointment() {
     for (let appointmentId of user.appointments) {
 
       const appointment = appointmentsList.find(appt => appt._id === appointmentId);
-
 
       for (let procedure of appointment.procedures) {
 
@@ -191,12 +190,15 @@ export default function RequestAppointment() {
       let equipmentListName = procedure.requiredEquipment;
 
       let selectedStaff = [];
+
+      const sortedUsersList = [...usersList].sort((a, b) => a.appointments.length - b.appointments.length);
+
       for (let i = 0; i < usersList.length; i++) {
 
-        if (usersList[i].role === procedure.staffType) {
+        if (sortedUsersList[i].role === procedure.staffType) {
 
-          if (checkUserSchedule(usersList[i], scheduledStartTime, scheduledEndTime)) {
-            selectedStaff.push(usersList[i]);
+          if (checkUserSchedule(sortedUsersList[i], scheduledStartTime, scheduledEndTime)) {
+            selectedStaff.push(sortedUsersList[i]);
           }
         }
 
@@ -248,15 +250,29 @@ export default function RequestAppointment() {
       scheduledStartTime = moment.tz(scheduledStartTime, "YYYY-MM-DDTHH:mm:ss.SSS", 'America/New_York').utc().format();
       scheduledEndTime = moment.tz(scheduledEndTime, "YYYY-MM-DDTHH:mm:ss.SSS", 'America/New_York').utc().format();
 
-      return {
-        procedure: procedureId,
-        staff: selectedStaff,
-        equipment: selectedEquipment,
-        scheduledStartTime,
-        scheduledEndTime,
-        room: selectedRoom
-      };
+      if (scheduledEndTime)
+        return {
+          procedure: procedureId,
+          staff: selectedStaff,
+          equipment: selectedEquipment,
+          scheduledStartTime,
+          scheduledEndTime,
+          room: selectedRoom
+        };
     });
+
+    return;
+
+    for (let i = 0; i < procedures.length - 1; i++) {
+      let current = moment(procedures[i].scheduledStartTime);
+      let next = moment(procedures[i + 1].scheduledStartTime);
+
+      if (next.isBefore(current)) {
+        checkAvaliability = false;
+        setNotification(`Invalid! Start time of procedure ${procedureList.find(procedure => procedure._id === procedures[i + 1].procedure).name} is before start time of procedure ${procedureList.find(procedure => procedure._id === procedures[i].procedure).name}`);
+        return;
+      }
+    }
 
     if (!checkAvaliability) {
       setNotification(`There are not enough available staff, room, or equipment at the selected time for ${NonAvaliableProcedures.join(", ")}`);
@@ -341,7 +357,6 @@ export default function RequestAppointment() {
 
   const handleChange = (procedureId, field) => (event, newValue) => {
 
-    console.log(newValue);
 
     setStaffSelections(prev => {
 
@@ -443,6 +458,7 @@ export default function RequestAppointment() {
               <Box key={procedure}>
                 <Typography variant="h6">{procedureList.find(item => item._id === procedure).name}</Typography>
 
+                <Typography variant="h6">Estimated Duration: {procedureList.find(item => item._id === procedure).estimatedDuration} mins</Typography>
 
                 <TextField
                   type="datetime-local"
