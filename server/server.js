@@ -355,7 +355,7 @@ app.get("/userID/:userId", async (req, res) => {
     res.send(user);
 });
 
-app.get("/appointments/:userId", async (req, res) => {
+app.get("/userAppointments/:userId", async (req, res) => {
     
     const { userId } = req.params;
 
