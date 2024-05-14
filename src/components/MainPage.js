@@ -76,8 +76,8 @@ export default function MainPage() {
       const storedToken = sessionStorage.getItem("token");
       const storedUser = sessionStorage.getItem("user");
       const storedName = sessionStorage.getItem("name");
-      const storedIsAdmin = sessionStorage.getItem("isAdmin");
-      console.log("isAdmin", storedIsAdmin);
+      //const storedIsAdmin = sessionStorage.getItem("isAdmin");
+      //console.log("isAdmin", storedIsAdmin);
 
       if (!storedToken || !storedUser) {
         // If token or username is not found in sessionStorage, redirect to the login page
@@ -286,30 +286,23 @@ export default function MainPage() {
           <ListItem
             disablePadding
             sx={{
+              marginTop: "auto",
               display: "flex",
+              justifyContent: "center",
+              width: isDrawerOpen ? "200px" : "50px",
+              padding: isDrawerOpen ? "16px 5px" : "0px",
               flexDirection: "column",
               height: "100%",
             }}
           >
-            <ListItem
-              disablePadding
-              sx={{
-                marginTop: "auto",
-                display: "flex",
-                justifyContent: "center",
-                width: isDrawerOpen ? "200px" : "50px",
-                padding: isDrawerOpen ? "16px 5px" : "0px",
-              }}
+            <Button
+              startIcon={<LogoutIcon />}
+              variant="contained"
+              color="primary"
+              onClick={handleLogout}
             >
-              <Button
-                startIcon={<LogoutIcon />}
-                variant="contained"
-                color="primary"
-                onClick={handleLogout}
-              >
-                {isDrawerOpen && "Logout"}
-              </Button>
-            </ListItem>
+              {isDrawerOpen && "Logout"}
+            </Button>
           </ListItem>
         </Drawer>
 

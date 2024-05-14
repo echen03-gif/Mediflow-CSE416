@@ -148,7 +148,7 @@ function Profile() {
               (procedure) =>
                 procedure &&
                 procedure.staff &&
-                procedure.staff.some((staff) => staff && staff._id === userId)
+                procedure.staff.some((staff) => staff && staff.toString() === userId)
             ))
       );
       setAppointments(filteredAppointments);
