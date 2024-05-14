@@ -165,7 +165,7 @@ function Profile() {
 
   const listItems = paginatedAppointments.flatMap((appointment) =>
   appointment.procedures.flatMap((procedure) => {
-    if (procedure.staff.some((staff) => staff.toString() === user._id)) {
+    if (procedure.staff && procedure.staff.some((staff) => staff.toString() === user._id)) {
       return (
         <ListItem
           button
