@@ -11,23 +11,17 @@ const uri =
 const bcrypt = require("bcrypt");
 const faker = require("faker");
 
-const departments = [
-  "Cardiology",
-  "Radiology",
-  "Oncology",
-  "Neurology",
-  "Pediatrics",
-  "Orthopedics",
-];
-let Users = require("./models/users.js");
-let Procedures = require("./models/procedure.js");
-let Equipment = require("./models/equipment.js");
-let EquipmentHeads = require("./models/equipmentHead.js");
-let Rooms = require("./models/room.js");
-let Communication = require("./models/communication.js");
-let Processes = require("./models/processes.js");
-let Patient = require("./models/Patient.js");
-let Appointments = require("./models/appointment.js");
+const departments = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Orthopedics"];
+const staff = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Orthopedics", "Nurse"];
+let Users = require('./models/users.js');
+let Procedures = require('./models/procedure.js');
+let Equipment = require('./models/equipment.js');
+let EquipmentHeads = require('./models/equipmentHead.js')
+let Rooms = require('./models/room.js');
+let Communication = require('./models/communication.js');
+let Processes = require('./models/processes.js');
+let Appointments = require('./models/appointment.js')
+
 
 let mongoose = require("mongoose");
 
@@ -61,39 +55,6 @@ function createUser(
   let addUser = new Users(createUser);
 
   return addUser.save();
-}
-
-async function createPatient(
-  firstName,
-  lastName,
-  dateOfBirth,
-  gender,
-  contactNumber,
-  email,
-  address,
-  medicalHistory,
-  procedures
-) {
-  // Check if the patient already exists
-  const existingPatient = await Patient.findOne({ email: email });
-  if (existingPatient) {
-    console.log(`Patient with email ${email} already exists.`);
-    return existingPatient; // Return the existing patient instead of creating a new one
-  }
-
-  const newPatient = new Patient({
-    firstName,
-    lastName,
-    dateOfBirth,
-    gender,
-    contactNumber,
-    email,
-    address,
-    medicalHistory,
-    appointments: procedures,
-  });
-
-  return newPatient.save();
 }
 
 async function createEquipmentHead(name, quantity, type, equipmentIds) {
@@ -250,6 +211,10 @@ async function createAppointment(patientId, procedureIds, processId, roomIds) {
 }
 
 // Populate
+const admin_password = "sysAdmin"
+const saltRounds = 10;
+const hashedPass = bcrypt.hashSync(admin_password, saltRounds);
+
 const populate = async () => {
   try {
     // Connect to database
@@ -452,120 +417,25 @@ const populate = async () => {
     );
 
     // Create Patients
-    let patient1 = await createPatient(
-      "John",
-      "Doe",
-      new Date(1980, 1, 1),
-      "Male",
-      "1234567890",
-      "john.doe@example.com",
-      {
-        street: "123 Elm St",
-        city: "Springfield",
-        state: "IL",
-        zipCode: "62704",
-      },
-      [
-        {
-          condition: "Hypertension",
-          diagnosisDate: new Date(2010, 1, 1),
-          notes: "Regular monitoring required",
-        },
-      ],
-      [heartSurgery._id]
-    );
-
-    let patientJane = await createPatient(
-      "Jane",
-      "Smith",
-      new Date(1990, 3, 15),
-      "Female",
-      "9876543210",
-      "jane.smith@example.com",
-      {
-        street: "789 Pine St",
-        city: "Springfield",
-        state: "IL",
-        zipCode: "62711",
-      },
-      [
-        {
-          condition: "Pregnancy",
-          diagnosisDate: new Date(2023, 5, 10),
-          notes: "Routine prenatal visits required",
-        },
-      ],
-      [maternityProcess._id]
-    );
-
-    let patientTom = await createPatient(
-      "Tom",
-      "Harris",
-      new Date(1975, 7, 22),
-      "Male",
-      "1231231230",
-      "tom.harris@example.com",
-      {
-        street: "101 Maple St",
-        city: "Springfield",
-        state: "IL",
-        zipCode: "62712",
-      },
-      [
-        {
-          condition: "Brain Tumor",
-          diagnosisDate: new Date(2023, 6, 30),
-          notes: "Requires immediate MRI scan",
-        },
-      ],
-      [mriProcess._id]
-    );
-
-    let patientLisa = await createPatient(
-      "Lisa",
-      "White",
-      new Date(1980, 4, 18),
-      "Female",
-      "3213214321",
-      "lisa.white@example.com",
-      {
-        street: "202 Oak St",
-        city: "Springfield",
-        state: "IL",
-        zipCode: "62715",
-      },
-      [
-        {
-          condition: "Heart Valve Issues",
-          diagnosisDate: new Date(2023, 7, 15),
-          notes: "Scheduled for valve replacement surgery",
-        },
-      ],
-      [heartSurgeryProcess._id]
-    );
-
-    let patientRob = await createPatient(
-      "Rob",
-      "Johnson",
-      new Date(1990, 9, 9),
-      "Male",
-      "431231231",
-      "rob.johnson@example.com",
-      {
-        street: "303 Birch St",
-        city: "Springfield",
-        state: "IL",
-        zipCode: "62716",
-      },
-      [
-        {
-          condition: "Appendicitis",
-          diagnosisDate: new Date(2023, 8, 1),
-          notes: "Emergency appendectomy needed",
-        },
-      ],
-      [appendectomyProcess._id]
-    );
+    let patient1 = await createUser(
+        false, "john.doe@example.com", "John Doe", 30, "Male", "securePassword", "patient"
+      );
+      
+      let patientJane = await createUser(
+        false, "jane.smith@example.com", "Jane Smith", 28, "Female", "securePassword", "patient"
+      );
+      
+      let patientTom = await createUser(
+        false, "tom.harris@example.com", "Tom Harris", 35, "Male", "securePassword", "patient"
+      );
+      
+      let patientLisa = await createUser(
+        false, "lisa.white@example.com", "Lisa White", 40, "Female", "securePassword", "patient"
+      );
+      
+      let patientRob = await createUser(
+        false, "rob.johnson@example.com", "Rob Johnson", 25, "Male", "securePassword", "patient"
+      );
 
     // Create appointments for patients
     for (let procedure of heartSurgeryProcedures) {
@@ -579,7 +449,6 @@ const populate = async () => {
       );
     }
 
-    console.log("starting appointments");
     // Repeat for other patients and their respective procedures
     for (let procedure of maternityProcedures) {
       let procedureIds = [procedure._id];
