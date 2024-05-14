@@ -228,7 +228,7 @@ export default function RequestAppointment() {
       }
 
       let selectedRoom;
-      const sortedRoomsList = [...usersList].sort((a, b) => a.appointments.length - b.appointments.length);
+      const sortedRoomsList = [...roomsList].sort((a, b) => a.appointments.length - b.appointments.length);
       for (let roomSearch of sortedRoomsList) {
         if (roomSearch.type === procedure.requiredRoomType) {
           if (checkRoomSchedule(roomSearch, scheduledStartTime, scheduledEndTime)) {
