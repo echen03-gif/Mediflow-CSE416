@@ -9,7 +9,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import {
-  Box,Drawer,ListItem,ListItemButton,ListItemText,Toolbar,Typography,Avatar,IconButton,Button,AppBar,Dialog, DialogActions, DialogContent, DialogTitle
+  Box,List,Drawer,ListItem,ListItemButton,ListItemText,Toolbar,Typography,Avatar,IconButton,Button,AppBar,Dialog, DialogActions, DialogContent, DialogTitle
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import EventNoteIcon from "@mui/icons-material/EventNote"; // for Schedule
@@ -222,6 +222,13 @@ export default function MainPage() {
             },
           }}
         >
+          <List
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+        }}
+      >
           <ListItem>
             <Box
               sx={{
@@ -317,8 +324,7 @@ export default function MainPage() {
               justifyContent: "center",
               width: isDrawerOpen ? "200px" : "50px",
               padding: isDrawerOpen ? "16px 5px" : "0px",
-              flexDirection: "column",
-              height: "100%",
+ 
             }}
           >
             <Button
@@ -330,6 +336,7 @@ export default function MainPage() {
               {isDrawerOpen && "Logout"}
             </Button>
           </ListItem>
+          </List>
         </Drawer>
 
         {/* Main Content */}
