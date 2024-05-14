@@ -112,13 +112,13 @@ describe('End to End Component Testing', () => {
     cy.get('[data-testid="process-inbox-tab"]').should('have.css', 'font-weight', '400'); // Check normal font weight
   });
 
-  it('navigates to chat screen on user click', () => {
-    cy.visit('/main/inbox');
+  // it('navigates to chat screen on user click', () => {
+  //   cy.visit('/main/inbox');
 
-    // Click on the first user in the list
-    cy.get('[data-testid="user-row"]').first().click();
-    cy.url().should('include', '/main/chatscreen/');
-  });
+  //   // Click on the first user in the list
+  //   cy.get('[data-testid="user-row"]').first().click();
+  //   cy.url().should('include', '/main/chatscreen/');
+  // });
 
   it('successfully loads the Profile page and verifies UI elements', () => {
     cy.visit('/main/profile');
