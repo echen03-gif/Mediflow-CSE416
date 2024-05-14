@@ -110,11 +110,11 @@ function Rooms() {
 
   const viewSpecificAppointments = (room) => {
     if (room.appointments.length === 0) {
-      // No appointments to view
+     
     } else {
       setCurrentRoom(room);
       setAppointmentIds(room.appointments);
-      setItemCount(room.appointments.length); // Update item count for appointments
+      setItemCount(room.appointments.length); 
       setRoomPage('appointmentViewing');
     }
   };
@@ -170,7 +170,7 @@ function Rooms() {
                   id="date"
                   label="Date"
                   type="datetime-local"
-                  defaultValue={selectedDate.toISOString().split("T")[0]}
+                  defaultValue={`${selectedDate.toISOString().split("T")[0]}T${selectedDate.toTimeString().split(" ")[0].substring(0, 5)}`}
                   onChange={handleDateChange}
                   InputLabelProps={{
                     shrink: true,
@@ -232,7 +232,7 @@ function Rooms() {
                 <TablePagination
                   rowsPerPageOptions={[10]}
                   component="div"
-                  count={itemCount} // Update the count dynamically
+                  count={itemCount} 
                   rowsPerPage={rowsPerPage}
                   page={page}
                   onPageChange={handleChangePage}
@@ -262,7 +262,7 @@ function Rooms() {
                   id="date"
                   label="Date"
                   type="datetime-local"
-                  defaultValue={selectedDate.toISOString().split("T")[0]}
+                  defaultValue={`${selectedDate.toISOString().split("T")[0]}T${selectedDate.toTimeString().split(" ")[0].substring(0, 5)}`}
                   onChange={handleDateChange}
                   InputLabelProps={{
                     shrink: true,
