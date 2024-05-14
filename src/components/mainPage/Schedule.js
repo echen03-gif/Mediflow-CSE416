@@ -21,6 +21,7 @@ export default function Schedule() {
   const [fullCalendar, setFullCalendar] = useState([]);
   const [currentView, setCurrentView] = useState('timeGridWeek');
   const { isAdmin } = useData();
+  const [pending, setPending] = useState(0);
   const navigate = useNavigate();
 
   // DB API
