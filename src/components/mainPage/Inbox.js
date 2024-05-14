@@ -16,6 +16,7 @@ function Inbox() {
   const [peopleList, setPeople] = useState([]);
   const [inboxType, setInboxType] = useState('general');
   const [userId, setUserId] = useState('');
+  const [apptList, setApptList] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,7 +26,7 @@ function Inbox() {
 
       setUserId(currentUserId);
 
-      if (inboxType === 'general') {
+      
         try {
           const res = await axios.get('https://mediflow-cse416.onrender.com/users', {
             headers: {
@@ -33,27 +34,22 @@ function Inbox() {
             }
           });
           const filteredPeople = res.data.filter(person => person._id !== currentUserId);
-
+          console.log(filteredPeople)
           setPeople(filteredPeople);
-          
-        } catch (error) {
-          console.error('Error fetching general inbox data:', error);
-        }
-      } else if (inboxType === 'process') {
-        try {
-          const user = await axios.get(`https://mediflow-cse416.onrender.com/userAppointments/${userId}`, {
+          const user = await axios.get(`http://localhost:8000/userAppointments/${currentUserId}`, {
                 headers: {
                     'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                 }
               });
-          console.log(user.data.appointments);
-          setPeople([user.data.appointments]);
+          console.log(user.data);
+          setApptList(user.data);
+          
         } catch (error) {
-          console.error('Error fetching process inbox data:', error);
+          console.error('Error fetching general inbox data:', error);
         }
-      }
+      
 
-    };
+  };
 
     fetchData();
   }, [inboxType]);
@@ -95,7 +91,11 @@ function Inbox() {
       navigate(`/main/chatscreen/${roomId}`);
 
     } else if (inboxType === 'process') {
-
+      const roomId = personId; //person Id in this case is the Id of the appointment
+      console.log("Joining a room with room id " + roomId);
+      const socket = getSocket();
+      socket.emit('joinRoom', roomId);
+      navigate(`/main/chatscreen/${roomId}`);
     }
   };
 
@@ -119,7 +119,6 @@ function Inbox() {
               <TableRow>
               <TableCell>Profile</TableCell>
               <TableCell>Name</TableCell>
-              <TableCell align="right">Last Message</TableCell>
             </TableRow>
           }
           {inboxType === 'process' &&
@@ -145,29 +144,24 @@ function Inbox() {
           <img src={`https://mediflow-cse416.onrender.com/uploads/${person.profilePic.split('/').pop()}`} alt={person.name} style={{ width: 50, borderRadius: '50%' }} />
         </TableCell>
         <TableCell>{person.name}</TableCell>
-        <TableCell align="right">N/A</TableCell>
       </ButtonBase>
     </TableRow>
   ))
 }
-{
-    inboxType === 'process' &&  
-
-    peopleList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((appointment) => (
-      // Assuming each appointment has properties 'processName' and 'patientName'
-      <TableRow style={{ userSelect: 'none' }} data-testid="appointment-row">
-        <ButtonBase
-          onClick={() => handleRowClick(appointment._id)} // Assuming appointment._id can be used as unique identifier
-          style={{ display: 'contents' }} 
-          disableRipple
-        >
-          <TableCell>{appointment[0]}</TableCell>
-          <TableCell>{appointment[1]}</TableCell>
-        </ButtonBase>
-      </TableRow>
-    ))
-  }
-            
+{inboxType === 'process' &&  
+  apptList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((person) => (  // Correct: Using curly braces for the map function
+  <TableRow key={person[0]} style={{ userSelect: 'none' }} data-testid="user-row">
+    <ButtonBase
+      onClick={() => handleRowClick(person[0])}
+      style={{ display: 'contents' }} 
+      disableRipple
+    >
+      <TableCell>{person[1]}</TableCell>
+      <TableCell>{person[2]}</TableCell>
+    </ButtonBase>
+  </TableRow>
+))
+} 
           </TableBody>
         </Table>
       </TableContainer>

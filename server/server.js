@@ -230,11 +230,46 @@ io.on("connection", (socket) => {
         });
       }
 
-      io.in(roomID).emit("receiveMessage", message);
-    }
+        await message.save();
+        
 
-    console.log(`Message sent in room ${roomID}: ${text}`);
-  });
+        const numSocketsInRoom = io.sockets.adapter.rooms.get(roomID)?.size || 0;
+        if(roomID.indexOf("-") > -1 && numSocketsInRoom < 2){
+           //This means tthat the other user is not in the chat room and should be sent a notification
+            //we gotta find the other socket first
+            const userIds = roomID.split("-");
+            const currentUserID = senderId;
+            const otherUserID = userIds.find(id => id !== currentUserID);
+            const otherSocketID = userSocketMap.get(otherUserID);
+            const otherSocket = io.sockets.sockets.get(otherSocketID);
+
+            console.log(otherSocketID)
+            console.log(text)
+            if(otherSocket){
+                otherSocket.emit('notification', {sender: sender, text: text, roomID: roomID});
+            }
+        } else if (roomID.indexOf("-") === -1){
+            const users = await Users.find({ appointments: roomID });
+            for (let i = 0; i < users.length; i++) {
+                const user = users[i];
+                if(user._id != senderId){
+                    console.log(user._id);
+                    console.log(userSocketMap);
+                    const otherSocketID = userSocketMap.get(user._id.toString());
+                    const otherSocket = io.sockets.sockets.get(otherSocketID);
+                    console.log(otherSocketID);
+                    if(otherSocket){
+                        console.log("sendingNotif")
+                        otherSocket.emit('notification', {sender: sender, text: text, roomID: roomID});
+                    }
+                }
+              }
+          
+        }
+        io.in(roomID).emit("receiveMessage", message);
+        console.log(`Message sent in room ${roomID}: ${text}`);
+    });
+
 });
 
 const roundToNearestMinute = (date) => {
@@ -404,6 +439,7 @@ cron.schedule("* * * * *", async () => {
 // GET FUNCTIONS
 
 app.get("/users", async (req, res) => {
+
   let users = await Users.find();
 
   res.send(users);
@@ -417,22 +453,35 @@ app.get("/userID/:userId", async (req, res) => {
   res.send(user);
 });
 
+
+app.get("/appointment/:roomId", async (req, res) => {
+    
+    const { roomId } = req.params;
+
+    let appointment = await Appointment.findOne({ _id: roomId });
+
+    let process = await Processes.findOne({_id: appointment.process});
+
+
+    res.send(process.name);
+});
+
 app.get("/userAppointments/:userId", async (req, res) => {
-  const { userId } = req.params;
+    const { userId } = req.params;
 
-  const appointmentDetails = [];
-  const user = await Users.findOne({ _id: userId });
-  const appointments = user.appointments;
-  for (const appointmentId of appointments) {
-    const appointment = await Appointment.findOne({ _id: appointmentId });
+    const appointmentDetails = [];
+    const user = await Users.findOne({ _id: userId });
+    const appointments = user.appointments;
+    for(const appointmentId of appointments){
+        const appointment = await Appointment.findOne({_id: appointmentId});
+        const processName = await Processes.findOne({ _id: appointment.process });
+        const patientName = await Users.findOne({_id: appointment.patient });
 
-    const processName = await Processes.findOne({ _id: appointment.process });
-    const patientName = await Users.findOne({ _id: appointment.patient });
+        appointmentDetails.push([appointmentId, processName.name, patientName.name]);
+        
+    }
+    res.send(appointmentDetails);
 
-    appointmentDetails.push({ processName, patientName });
-  }
-
-  res.send(user);
 });
 
 app.get("/user/:email", async (req, res) => {
@@ -496,6 +545,7 @@ app.get("/appointments", async (req, res) => {
   res.send(appointments);
 });
 
+
 app.get("/profileappt", async (req, res) => {
   try {
     let appointments = await Appointment.find().populate({
@@ -507,6 +557,7 @@ app.get("/profileappt", async (req, res) => {
     console.error(error);
     res.status(500).send("Error retrieving appointments.");
   }
+
 });
 
 app.get("/appointments/pending", async (req, res) => {
