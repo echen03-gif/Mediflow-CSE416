@@ -59,14 +59,14 @@ describe('End to End Component Testing', () => {
     cy.url().should('include', '/main/rooms');
     cy.contains('Room Availability');
     cy.get('#date').should('be.visible');
-    cy.get('.css-gcpdnc > .MuiButton-root').should('be.visible');
+    cy.get('.css-sl7ei > .MuiButton-root').should('be.visible');
   });
 
   it('changes the date and checks room availability indicators', () => {
     cy.visit('/main/rooms');
 
     // Change the date
-    const newDate = '2024-06-15';
+    const newDate = '2024-06-15T08:30';
     cy.get('#date').invoke('val', '').type(newDate);
     cy.get('#date').should('have.value', newDate);
 
@@ -81,7 +81,7 @@ describe('End to End Component Testing', () => {
     cy.visit('/main/rooms');
 
     // Click Add Room button
-    cy.get('.css-gcpdnc > .MuiButton-root').should('be.visible').click();
+    cy.get('.css-sl7ei > .MuiButton-root').should('be.visible').click();
     cy.url().should('include', '/main/addroom');
   });
 
