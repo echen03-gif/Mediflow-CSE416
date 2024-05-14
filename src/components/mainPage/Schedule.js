@@ -5,6 +5,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
 import axios from 'axios';
+import moment from 'moment-timezone';
 
 export default function Schedule() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -12,14 +13,15 @@ export default function Schedule() {
   const [userAppointments, setUserAppointments] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [appointmentsList, setAppointmentList] = useState([]);
+  const [roomsList, setRooms] = useState([]);
   const [proceduresList, setProceduresList] = useState([]);
   const [fullCalendar, setFullCalendar] = useState([]);
   const navigate = useNavigate();
 
   // DB API
 
-  const checkSession = () => {
-    axios.get("https://mediflow-cse416.onrender.com/check-session",
+  /* const checkSession = () => {
+    axios.get("http://localhost:8000/check-session",
       {
         headers: {
           'Authorization': 'Bearer ' + sessionStorage.getItem('token')
@@ -37,7 +39,7 @@ export default function Schedule() {
       .catch(error => {
         console.log("Error checking session", error);
       });
-  }
+  } */
 
   useEffect(() => {
     let userId = sessionStorage.getItem('user');
@@ -66,36 +68,53 @@ export default function Schedule() {
       }
     }).then(res => { setProceduresList(res.data) });
 
+    axios.get('https://mediflow-cse416.onrender.com/rooms', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setRooms(res.data) }).then(console.log('found rooms'));
+
   }, []);
 
   useEffect(() => {
+    if (!userAppointments || !appointmentsList || !usersList) {
+      return;
+    }
 
     setFullCalendar(userAppointments.flatMap(appointmentId => {
-
       let appointmentItem = appointmentsList.find(item => item._id === appointmentId);
-
       if (!appointmentItem) return [];
-      return appointmentItem.procedures.map(procedure => ({
 
-        title: usersList.find(patient => patient._id === appointmentItem.patient).name,
-        start: procedure.scheduledStartTime,
-        end: procedure.scheduledEndTime,
-        extendedProps: {
-          patient: usersList.find(patient => patient._id === appointmentItem.patient),
-          appointmentDetais: appointmentItem,
-          procedureDetails: procedure
-        }
+      return appointmentItem.procedures.map(procedure => {
+        const patient = usersList.find(patient => patient._id === appointmentItem.patient);
+        if (!patient) return null;
+        
+        console.log(procedure.scheduledStartTime)
+        
+        const start = moment(procedure.scheduledStartTime).tz('America/New_York').format();
+        const end = moment(procedure.scheduledEndTime).tz('America/New_York').format();
 
-      }));
+        console.log(start);
+
+        return {
+          title: patient.name,
+          start: start,
+          end: end,
+          extendedProps: {
+            patient: patient,
+            appointmentDetais: appointmentItem,
+            procedureDetails: procedure
+          }
+        };
+      }).filter(item => item !== null);
     }));
+  }, [userAppointments, appointmentsList, usersList]);
 
-
-  }, [appointmentsList]);
 
   // Functions
 
   const handleRequest = () => {
-    checkSession()
+    //checkSession()
     navigate('/main/request');
   }
 
@@ -103,7 +122,7 @@ export default function Schedule() {
     //checkSession();
     navigate("/main/pending");
   }
-  
+
   const handleEventClick = (info) => {
     setSelectedEvent(info.event);
   };
@@ -112,7 +131,9 @@ export default function Schedule() {
     setSelectedEvent(null);
   };
 
-  console.log(selectedEvent);
+  const formatTime = (time) => {
+    return moment(time).tz('America/New_York').format('M/D hh:mm A');
+};
 
   // Display
 
@@ -121,7 +142,7 @@ export default function Schedule() {
       style={{
         display: "flex",
         height: "93%",
-        overflowY: "hidden",
+        overflowY: "auto",
         padding: 0,
         margin: 0,
         boxSizing: "border-box",
@@ -132,12 +153,12 @@ export default function Schedule() {
       <div
         style={{
           flex: 1,
-          overflow: "hidden",
+          overflow: "auto",
           paddingRight: "24px",
           paddingTop: "30px",
         }}
       >
-        <h2>SCHEDULE</h2>
+        <h1>Schedule</h1>
         <button
           style={{
             backgroundColor: "#1976D2",
@@ -175,7 +196,10 @@ export default function Schedule() {
           dateClick={(info) => setSelectedDate(info.date)}
           events={fullCalendar}
           eventClick={handleEventClick}
+          height="auto"
+          contentHeight="auto"
         />
+
       </div>
       {selectedEvent && <Dialog
         open={selectedEvent !== null}
@@ -188,19 +212,37 @@ export default function Schedule() {
               <ListItemText primary={"Patient Information"} secondary={"Age: " + selectedEvent._def.extendedProps.patient.age + ", Gender: " + selectedEvent._def.extendedProps.patient.gender} />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Date" secondary={`${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledStartTime).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })} 
-              ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledStartTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })} - 
-              ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })} 
-              ${new Date(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`} />
+              <ListItemText primary="Date" secondary={`${formatTime(selectedEvent._def.extendedProps.procedureDetails.scheduledStartTime)} - ${formatTime(selectedEvent._def.extendedProps.procedureDetails.scheduledEndTime)}`} />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Purpose/Specifications" secondary = {proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).name} />
+              <ListItemText primary="Purpose/Specifications" secondary={proceduresList.find(procedureItem => procedureItem._id === selectedEvent._def.extendedProps.procedureDetails.procedure).name} />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Other Staff" secondary="Nurse 1, Nurse 2" />
+              <ListItemText primary="Other Staff" secondary={
+                (() => {
+                  const currentUserId = sessionStorage.getItem('user');
+                  const filteredStaffNames = selectedEvent._def.extendedProps.procedureDetails.staff
+                    .map(staffId => usersList.find(user => user._id === staffId))
+                    .filter(user => user && user._id !== currentUserId)
+                    .map(user => user.name);
+
+                  if (filteredStaffNames.length === 0) {
+                    return "N/A";
+                  } else {
+                    return filteredStaffNames.join(', ');
+                  }
+                })()
+              } />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Room" secondary="Room 1" />
+              <ListItemText
+                primary="Room"
+                secondary={
+                  selectedEvent._def.extendedProps.procedureDetails.room
+                    ? roomsList.find(room => room._id === selectedEvent._def.extendedProps.procedureDetails.room).name
+                    : 'None'
+                }
+              />
             </ListItem>
           </List>
         </DialogContent>

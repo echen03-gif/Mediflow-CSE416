@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, MenuItem, Button, Typography, Container, Grid, Autocomplete, Stack } from '@mui/material';
+import { Box, TextField, MenuItem, Button, Typography, Container, Grid, Stack, Alert } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import moment from 'moment-timezone';
+
 
 export default function RequestAppointment() {
   const navigate = useNavigate();
@@ -11,11 +13,16 @@ export default function RequestAppointment() {
   const [roomsList, setRooms] = useState([]);
   const [processList, setProcessList] = useState([]);
   const [equipmentList, setEquipmentList] = useState([]);
+  const [equipmentHeadList, setEquipmentHeadList] = useState([]);
+  const [appointmentsList, setAppointmentList] = useState([]);
   const [procedureList, setProcedureList] = useState([]);
   const [staffSelections, setStaffSelections] = useState({});
-  
+  const [notification, setNotification] = useState('');
+
+
 
   // DB API
+
 
   useEffect(() => {
 
@@ -49,6 +56,18 @@ export default function RequestAppointment() {
       }
     }).then(res => { setEquipmentList(res.data) });
 
+    axios.get('https://mediflow-cse416.onrender.com/equipmentHead', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setEquipmentHeadList(res.data) });
+
+    axios.get('https://mediflow-cse416.onrender.com/appointments', {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(res => { setAppointmentList(res.data) });
+
   }, []);
 
   useEffect(() => {
@@ -63,18 +82,188 @@ export default function RequestAppointment() {
 
   // Functions
 
+  const checkUserSchedule = (user, scheduledStartTime, scheduledEndTime) => {
+    const scheduledStart = new Date(scheduledStartTime);
+    const scheduledEnd = new Date(scheduledEndTime);
+
+    const weekDay = scheduledStart.toLocaleString('en-us', { weekday: 'long' });
+
+    const shifts = user.schedule[weekDay];
+
+
+    let isInShift = false;
+
+    for (let shift of shifts) {
+      const shiftStart = new Date(`${scheduledStartTime.split('T')[0]}T${shift.start}`);
+      const shiftEnd = new Date(`${scheduledStartTime.split('T')[0]}T${shift.end}`);
+    
+      if (scheduledStart >= shiftStart && scheduledEnd <= shiftEnd) {
+        isInShift = true;
+        break;
+      }
+    }
+    console.log(isInShift);
+    if (!isInShift) {
+      return false;
+    }
+
+    for (let appointmentId of user.appointments) {
+
+      const appointment = appointmentsList.find(appt => appt._id === appointmentId);
+
+
+      for (let procedure of appointment.procedures) {
+
+        if (procedure.staff.includes(user._id)) {
+          const apptStart = new Date(procedure.scheduledStartTime);
+          const apptEnd = new Date(procedure.scheduledEndTime);
+
+
+          if ((apptStart < scheduledEnd) && (apptEnd > scheduledStart)) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
+  };
+
+  const checkEquipmentSchedule = (equipment, scheduledStartTime, scheduledEndTime) => {
+    const scheduledStart = new Date(scheduledStartTime);
+    const scheduledEnd = new Date(scheduledEndTime);
+
+    for (let appointmentId of equipment.appointments) {
+
+      const appointment = appointmentsList.find(appt => appt._id === appointmentId);
+
+      for (let procedure of appointment.procedures) {
+
+        if (procedure.equipment.includes(equipment._id)) {
+          const apptStart = new Date(procedure.scheduledStartTime);
+          const apptEnd = new Date(procedure.scheduledEndTime);
+
+
+          if ((apptStart < scheduledEnd) && (apptEnd > scheduledStart)) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
+  };
+
+  const checkRoomSchedule = (room, scheduledStartTime, scheduledEndTime) => {
+    const scheduledStart = new Date(scheduledStartTime);
+    const scheduledEnd = new Date(scheduledEndTime);
+
+    for (let appointmentId of room.appointments) {
+
+      const appointment = appointmentsList.find(appt => appt._id === appointmentId);
+
+      for (let procedure of appointment.procedures) {
+
+        if (procedure.room === room._id) {
+          const apptStart = new Date(procedure.scheduledStartTime);
+          const apptEnd = new Date(procedure.scheduledEndTime);
+
+
+          if ((apptStart < scheduledEnd) && (apptEnd > scheduledStart)) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const procedures = Object.entries(staffSelections).map(([procedureId, { staff, equipment, scheduledStartTime, scheduledEndTime, roomId }]) => ({
-      procedure: procedureId,
-      staff,
-      equipment,
-      scheduledStartTime,
-      scheduledEndTime,
-      room: roomId
-    }));
+    let checkAvaliability = true;
+    let NonAvaliableProcedures = [];
+    const procedures = Object.entries(staffSelections).map(([procedureId, { staff, equipment, scheduledStartTime, scheduledEndTime, roomId }]) => {
 
+      let procedure = procedureList.find(procedure => procedure._id === procedureId);
+
+      let numStaff = procedure.numStaff;
+      let equipmentListName = procedure.requiredEquipment;
+
+      let selectedStaff = [];
+      for (let i = 0; i < usersList.length; i++) {
+
+        if (usersList[i].role === procedure.staffType) {
+
+          if (checkUserSchedule(usersList[i], scheduledStartTime, scheduledEndTime)) {
+            selectedStaff.push(usersList[i]);
+          }
+        }
+
+        if (selectedStaff.length === numStaff) {
+          break;
+        }
+      }
+
+      let selectedEquipment = [];
+
+      for (let equipmentName of equipmentListName) {
+
+        let equipmentHead = equipmentHeadList.find(equipment => equipment.name === equipmentName);
+
+        for (let equipmentId of equipmentHead.equipment) {
+
+          let checkEquipment = equipmentList.find(equipmentSearch => equipmentSearch._id === equipmentId);
+
+          if (checkEquipmentSchedule(checkEquipment, scheduledStartTime, scheduledEndTime) && checkEquipment.type === procedure.staffType) {
+            selectedEquipment.push(checkEquipment);
+            break;
+          }
+        }
+
+      }
+
+      let selectedRoom;
+
+      for (let roomSearch of roomsList) {
+        if (roomSearch.type === procedure.requiredRoomType) {
+          if (checkRoomSchedule(roomSearch, scheduledStartTime, scheduledEndTime)) {
+            selectedRoom = roomSearch;
+            break;
+          }
+        }
+      }
+
+      if (selectedStaff.length !== numStaff || selectedEquipment.length !== equipmentListName.length) {
+        checkAvaliability = false;
+        NonAvaliableProcedures.push(procedure.name);
+
+      }
+      else if (procedure.requiredRoomType != null && selectedRoom == null) {
+        checkAvaliability = false;
+        NonAvaliableProcedures.push(procedure.name);
+
+      }
+
+      scheduledStartTime = moment.tz(scheduledStartTime, "YYYY-MM-DDTHH:mm:ss.SSS", 'America/New_York').utc().format();
+      scheduledEndTime = moment.tz(scheduledEndTime, "YYYY-MM-DDTHH:mm:ss.SSS", 'America/New_York').utc().format();
+
+      return {
+        procedure: procedureId,
+        staff: selectedStaff,
+        equipment: selectedEquipment,
+        scheduledStartTime,
+        scheduledEndTime,
+        room: selectedRoom
+      };
+    });
+
+    if (!checkAvaliability) {
+      setNotification(`There are not enough available staff, room, or equipment at the selected time for ${NonAvaliableProcedures.join(", ")}`);
+      return;
+    }
+
+    setNotification('');
 
     let newAppointment = await axios.post("https://mediflow-cse416.onrender.com/requestAppointment", {
       patient: patientUser,
@@ -88,14 +277,20 @@ export default function RequestAppointment() {
 
     const uniqueStaffIds = new Set();
     const uniqueEquipmentIds = new Set();
+    const uniqueRoomIds = new Set();
 
-    procedures.forEach(({ staff, equipment }) => {
+    procedures.forEach(({ staff, equipment, room }) => {
       staff.forEach(staffId => {
         uniqueStaffIds.add(staffId);
       });
       equipment.forEach(equipmentId => {
         uniqueEquipmentIds.add(equipmentId);
       });
+
+      if (room) {
+        uniqueRoomIds.add(room);
+      }
+
     });
 
     await Promise.all([
@@ -123,18 +318,18 @@ export default function RequestAppointment() {
     ]);
 
 
-    await Promise.all(procedures.map(({ room }) => {
+    await Promise.all(Array.from(uniqueRoomIds).map(room => {
+      console.log(room);
       return axios.put("https://mediflow-cse416.onrender.com/changeRoomAppointment", {
-        roomName: room,
+        roomObject: room,
         appointment: newAppointment.data,
-
       }, {
         headers: {
           'Authorization': 'Bearer ' + sessionStorage.getItem('token')
         }
       });
+    }));
 
-    }))
 
     navigate("/main/schedule");
   };
@@ -145,14 +340,36 @@ export default function RequestAppointment() {
   }
 
   const handleChange = (procedureId, field) => (event, newValue) => {
-    setStaffSelections(prev => ({
-      ...prev,
-      [procedureId]: {
-        ...prev[procedureId],
-        [field]: newValue?.map ? newValue.map(item => item) : newValue
+
+    console.log(newValue);
+
+    setStaffSelections(prev => {
+
+      const currentSettings = prev[procedureId] || {};
+
+      const updatedSettings = {
+        ...currentSettings,
+        [field]: newValue?.map ? newValue.map(item => item) : newValue,
+      };
+
+
+      if (field === "scheduledStartTime") {
+
+        const duration = procedureList.find(p => p._id === procedureId)?.estimatedDuration || 0;
+        const startTime = new Date(newValue);
+        const endTime = new Date(startTime.getTime() + duration * 60000);
+
+        updatedSettings['scheduledEndTime'] = endTime.toISOString();
       }
-    }));
+
+      return {
+        ...prev,
+        [procedureId]: updatedSettings
+      };
+    });
+
   };
+
 
   // Display
 
@@ -162,6 +379,11 @@ export default function RequestAppointment() {
         <Typography variant="h4" sx={{ mb: 4 }}>
           Add Appointment
         </Typography>
+        {notification && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {notification}
+          </Alert>
+        )}
         <form onSubmit={handleSubmit}>
           <TextField
             select
@@ -221,53 +443,6 @@ export default function RequestAppointment() {
               <Box key={procedure}>
                 <Typography variant="h6">{procedureList.find(item => item._id === procedure).name}</Typography>
 
-                <Autocomplete
-                  multiple
-                  options={usersList.filter(user => user.role === 'doctor')}
-                  getOptionLabel={(option) => option.name}
-                  value={staffSelections[procedure]}
-                  onChange={handleChange(procedure, 'staff')}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Staff"
-                      variant="outlined"
-                      fullWidth
-
-                    />
-                  )}
-                />
-                <Autocomplete
-                  options={roomsList}
-                  getOptionLabel={(option) => option.name}
-                  value={staffSelections[procedure]}
-                  onChange={handleChange(procedure, 'roomId')}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Room"
-                      variant="outlined"
-                      fullWidth
-
-                    />
-                  )}
-                />
-                <Autocomplete
-                  multiple
-                  options={equipmentList}
-                  getOptionLabel={(option) => option.name}
-                  value={staffSelections[procedure]}
-                  onChange={handleChange(procedure, 'equipment')}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Equipment"
-                      variant="outlined"
-                      fullWidth
-
-                    />
-                  )}
-                />
 
                 <TextField
                   type="datetime-local"
@@ -283,20 +458,7 @@ export default function RequestAppointment() {
                   }}
                   required
                 />
-                <TextField
-                  type="datetime-local"
-                  label="Scheduled End Time"
-                  variant="outlined"
-                  fullWidth
-                  sx={{ mb: 2 }}
-                  name="scheduledEndTime"
-                  value={staffSelections[procedure]?.scheduledEndTime || ''}
-                  onChange={(e) => handleChange(procedure, 'scheduledEndTime')(e, e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  required
-                />
+
               </Box>
             ))}
           </Stack>

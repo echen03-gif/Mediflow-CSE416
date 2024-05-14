@@ -44,6 +44,8 @@ export default function AddItem() {
                 value={equipmentData.equipmentID}
                 onChange={handleChange}
                 type="number"
+                data-testid="equipment-id"
+
             />
             <TextField
                 label="Name"
@@ -52,6 +54,8 @@ export default function AddItem() {
                 fullWidth
                 value={equipmentData.name}
                 onChange={handleChange}
+                data-testid="name"
+
             />
             <TextField
                 select
@@ -60,6 +64,8 @@ export default function AddItem() {
                 fullWidth
                 value={equipmentData.type}
                 onChange={handleChange}
+                data-testid="type"
+
             >
                 {['surgical', 'diagnostic', 'general'].map((option) => (
                     <MenuItem key={option} value={option}>
@@ -74,6 +80,8 @@ export default function AddItem() {
                 fullWidth
                 value={equipmentData.status}
                 onChange={handleChange}
+                data-testid="status"
+
             >
                 {['available', 'reserved', 'in-use'].map((option) => (
                     <MenuItem key={option} value={option}>
@@ -88,8 +96,10 @@ export default function AddItem() {
                 fullWidth
                 value={equipmentData.location}
                 onChange={handleChange}
+                data-testid="location"
+
             />
-            <Button type="submit" variant="contained" sx={{ m: 1 }}>
+            <Button type="submit" variant="contained" sx={{ m: 1 }} data-testid="submit-button">
                 Submit
             </Button>
         </Box>

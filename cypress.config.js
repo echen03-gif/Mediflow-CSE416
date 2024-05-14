@@ -9,8 +9,9 @@ module.exports = defineConfig({
   },
 
   e2e: {
-    setupNodeEvents(on, config) {
-      // implement node event listeners here
+    baseUrl: "https://mediflow-lnmh.onrender.com",  // Frontend base URL
+    env: {
+      backendUrl: "https://mediflow-cse416.onrender.com"  // Backend base URL
     },
   },
 });

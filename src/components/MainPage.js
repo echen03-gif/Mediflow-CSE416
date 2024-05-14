@@ -49,6 +49,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { io } from "socket.io-client";
 import { DataProvider } from "./DataContext";
 export const socket = io("https://mediflow-cse416.onrender.com");
+import { initializeSocket, disconnectSocket, getSocket } from './socket';
+
 
 // Mock array of upcoming patients
 // const upcomingPatients = [
@@ -62,52 +64,95 @@ export default function MainPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true); // initially true if you want it open by default
   const navigate = useNavigate();
   const location = useLocation();
-  const [isAdmin, setIsAdmin] = useState(false);
-  // const [cookies, , removeCookies] = useCookies(['user']);
+  //const [isAdmin, setIsAdmin] = useState(false); 
+ // const [cookies, , removeCookies] = useCookies(['user']);
 
-  const activeRouteStyle = {
-    backgroundColor: "#FF8C00", // Example background color for active route
-    "&:hover": {
-      backgroundColor: "#ff7900", // Darker on hover for active route
-    },
-  };
+ const activeRouteStyle = {
+  backgroundColor: "#FF8C00",
+  "&:hover": {
+    backgroundColor: "#FFA500",
+  },
+};
 
   useEffect(() => {
     const checkSession = async () => {
-      const storedToken = sessionStorage.getItem("token");
-      const storedUser = sessionStorage.getItem("user");
+      const storedToken = sessionStorage.getItem('token');
+      const storedUser = sessionStorage.getItem('user');
+      const storedName = sessionStorage.getItem('name');
+
+
 
       if (!storedToken || !storedUser) {
         // If token or username is not found in sessionStorage, redirect to the login page
         navigate("/login");
       }
+      else{      
+        initializeSocket(storedUser, storedName);
+      }
 
-      socket.emit("userConnected", storedUser);
     };
 
     checkSession(); // Check session when component mounts
 
-    socket.on("chatReady", (data) => {
-      console.log(data);
-      if (!data.initiatedByMe) {
-        console.log("Data not initiated by me");
-        toast(`Click here to join the chat with ${data.otherUserId}`, {
-          onClick: () => navigate(`/main/chatscreen/${data.roomID}`),
-          autoClose: 5000,
+    const socket = getSocket();
+
+    if (socket) {
+      socket.on('notification', (data) => {
+        console.log(data.sender);
+        console.log(data.text);
+        const toastId = toast(`${data.sender} sent you a message: ${data.text}`, {
+          onClick: () => {
+            socket.emit('joinRoom', data.roomID);
+            navigate(`/main/chatscreen/${data.roomID}`);
+            toast.dismiss(toastId);
+          },
+          position: "bottom-right",
+          autoClose: 10000,
+          style: {
+            backgroundColor: "#4caf50",
+            color: "white"
+          },
+          progressStyle: {
+            background: "#ffffff",
+            height: '5px'
+          }
         });
-      } else {
-        navigate(`/main/chatscreen/${data.roomID}`);
-      }
-    });
+      });
+
+      socket.on("apptnotification", (data) => {
+        console.log('Appointment notification:', data);
+        toast(data, {
+          position: "bottom-right",
+          autoClose: 10000,
+          style: {
+            backgroundColor: "#4caf50",
+            color: "white"
+          },
+          progressStyle: {
+            background: "#ffffff",
+            height: '5px'
+          }
+        });
+      });
+    }
 
     return () => {
-      socket.off("chatReady");
+      if (socket) {
+        socket.off('notification');
+        socket.off("apptnotification");
+      }
     };
   }, [navigate]);
 
   const handleRefreshClick = (targetPath) => (event) => {
-    console.log("redirecting" + targetPath + location.pathname);
-
+    console.log("redirecting" + targetPath + location.pathname)
+    if(location.pathname.indexOf("chatscreen") >= 0){
+      const socket = getSocket()
+      const roomId = location.pathname.substring(location.pathname.lastIndexOf("/")+1);
+      console.log("you have left the chat screen of room id " + roomId);
+      socket.emit("leaveRoom", roomId);
+    }
+    
     if (location.pathname === targetPath) {
       event.preventDefault();
       window.location.href = targetPath;
@@ -116,7 +161,7 @@ export default function MainPage() {
 
   const handleLogout = () => {
     sessionStorage.clear();
-    socket.disconnect();
+    disconnectSocket();
     navigate("/login");
   };
 
@@ -151,7 +196,94 @@ export default function MainPage() {
             },
           }}
         >
-          <List
+          <ListItem>
+          <Box sx={{
+              marginBottom: 4, 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', // Ensures content is centered
+              width: '100%' // Ensures the box takes full width of its parent
+            }}>
+            {isDrawerOpen && (
+              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                MediFlow
+              </Typography>
+            )}
+            <img
+              src="/mediflowlogo.png" // Path to your logo image
+              alt="MediFlow Logo"
+              style={{ 
+                height: '6vh', 
+                marginRight: isDrawerOpen ? '1vw' : '0', // Adjust margin when text is shown
+                transition: 'margin-right 0.3s' // Smooth transition for margin change
+              }}
+            />
+
+          </Box>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/main/schedule"
+              onClick={handleRefreshClick("/main/schedule")}
+              sx={
+                location.pathname === "/main/schedule" ? activeRouteStyle : {}
+              }
+            >
+              <EventNoteIcon />
+              {isDrawerOpen && (
+                <ListItemText primary=" Schedule" sx={{ fontWeight: "bold" }} />
+              )}
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/main/inventory"
+              onClick={handleRefreshClick("/main/inventory")}
+              sx={
+                location.pathname === "/main/inventory" ? activeRouteStyle : {}
+              }
+            >
+              <Inventory2Icon />
+              {isDrawerOpen && <ListItemText primary=" Inventory" />}
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/main/staff"
+              onClick={handleRefreshClick("/main/staff")}
+              sx={location.pathname === "/main/staff" ? activeRouteStyle : {}}
+            >
+              <PeopleIcon />
+              {isDrawerOpen && <ListItemText primary=" Staff" />}
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/main/rooms"
+              onClick={handleRefreshClick("/main/rooms")}
+              sx={location.pathname === "/main/rooms" ? activeRouteStyle : {}}
+            >
+              <MeetingRoomIcon />
+              {isDrawerOpen && <ListItemText primary=" Rooms" />}
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/main/inbox"
+              onClick={handleRefreshClick("/main/inbox")}
+              sx={location.pathname === "/main/inbox" ? activeRouteStyle : {}}
+            >
+              <MailOutlineIcon />
+              {isDrawerOpen && <ListItemText primary=" Inbox" />}
+            </ListItemButton>
+          </ListItem>
+          <ListItem
+            disablePadding
             sx={{
               display: "flex",
               flexDirection: "column",
@@ -314,22 +446,20 @@ export default function MainPage() {
             </Typography> */}
             </Box>
 
-            <Avatar
-              alt="Remy Sharp"
-              src="https://mui.com/static/images/avatar/1.jpg"
-              component={Link}
-              to="/main/profile"
-              onClick={handleRefreshClick("/main/profile")}
-              sx={location.pathname === "/main/profile" ? activeRouteStyle : {}}
-            />
+          <Typography variant="h6" component="div">
+            {`${sessionStorage.getItem('name')}`}
+          </Typography>
+          <Avatar
+            src={`https://mediflow-cse416.onrender.com/uploads/${sessionStorage.getItem('pfp')}`}
+            component={Link}
+            to="/main/profile"
+            onClick={handleRefreshClick("/main/profile")}
+            sx={location.pathname === "/main/profile" ? activeRouteStyle : {}}
+          />
 
-            {/* User name */}
-            <Typography variant="h6" component="div">
-              Test User
-            </Typography>
-          </Toolbar>
-        </AppBar>
-      </Box>
+        </Toolbar>
+      </AppBar>
+    </Box>
     </DataProvider>
   );
 }

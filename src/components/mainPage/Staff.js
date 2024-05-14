@@ -32,6 +32,42 @@ const Staff = () => {
   }, [usersList, api, updateData]);
 
   // Function to handle search input changes
+  /*
+  // DB API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        let userId = sessionStorage.getItem('user');
+
+        const usersResponse = await axios.get("https://mediflow-cse416.onrender.com/users", {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
+        });
+
+        const doctors = usersResponse.data.filter(user => user.role !== "patient");
+
+        const usersWithStatus = doctors.map(doctor => {
+          return { ...doctor, status: getStatus(doctor.schedule) };
+        });
+
+        setUsers(usersWithStatus);
+
+        const userResponse = await axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
+        });
+        setIsAdmin(userResponse.data.role === 'admin');
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);*/
+
+  // Functions
   const handleSearch = (event) => {
     setSearch(event.target.value);
   };
@@ -48,12 +84,14 @@ const Staff = () => {
     const currentTime = now.getHours() * 60 + now.getMinutes(); // Current time in minutes since midnight
 
     const todaysSchedule = schedule[currentDay];
-    if (!todaysSchedule) return "NOT AVAILABLE";
-    for (let period of todaysSchedule) {
-      const [startHour, startMinute] = period.start.split(":").map(Number);
-      const [endHour, endMinute] = period.end.split(":").map(Number);
-      const shiftStart = startHour * 60 + startMinute;
-      const shiftEnd = endHour * 60 + endMinute;
+
+    if (!todaysSchedule) {
+      return "NOT AVAILABLE";
+    }
+
+    for (let i = 0; i < todaysSchedule.length; i++) {
+      const shiftStart = parseInt(todaysSchedule[i].start.split(':')[0]) * 60 + parseInt(todaysSchedule[i].start.split(':')[1]);  // Shift start time in minutes since midnight
+      const shiftEnd = parseInt(todaysSchedule[i].end.split(':')[0]) * 60 + parseInt(todaysSchedule[i].end.split(':')[1]);  // Shift end time in minutes since midnight
       if (currentTime >= shiftStart && currentTime <= shiftEnd) {
         return "ON DUTY";
       }
@@ -66,20 +104,26 @@ const Staff = () => {
     setFilter(status);
   };
 
+  // Display
   return (
     <Box pt={5} sx={{ flexGrow: 1, padding: 2 }}>
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <Typography variant="h4" gutterBottom>
-            Staff
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={navigateToAddStaff}
-          >
-            Add Staff
-          </Button>
+          	<h1>Staff</h1>
+
+          {
+            isAdmin && 
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={navigateToAddStaff}
+              style={{ marginBottom: "20px" }}
+              data-testid="add-staff-button"
+            >
+              Add Staff
+            </Button>
+          }
+          
           <TextField
             variant="outlined"
             margin="normal"
@@ -91,6 +135,7 @@ const Staff = () => {
             autoFocus
             value={search}
             onChange={handleSearch}
+            inputProps={{ 'data-testid': 'staff-search-input' }}
           />
           <Grid
             container
@@ -101,6 +146,8 @@ const Staff = () => {
               variant="contained"
               color="primary"
               onClick={() => handleFilterChange("ALL")}
+              style={{ margin: "0 5px" }}
+              data-testid="filter-all-button"
             >
               All
             </Button>
@@ -108,6 +155,8 @@ const Staff = () => {
               variant="contained"
               color="primary"
               onClick={() => handleFilterChange("ON DUTY")}
+              style={{ margin: "0 5px" }}
+              data-testid="filter-on-duty-button"
             >
               On Duty
             </Button>
@@ -115,6 +164,8 @@ const Staff = () => {
               variant="contained"
               color="primary"
               onClick={() => handleFilterChange("NOT AVAILABLE")}
+              style={{ margin: "0 5px" }}
+              data-testid="filter-not-available-button"
             >
               Not Available
             </Button>
@@ -127,17 +178,15 @@ const Staff = () => {
               staff.name.toLowerCase().includes(search.toLowerCase())
           )
           .map((staff) => (
-            <Grid item xs={3} key={staff.name}>
-              <Grid container spacing={1} justifyContent="center">
-                <Grid item key={staff.name} style={{ textAlign: "center" }}>
-                  <Avatar
-                    alt={staff.name}
-                    src={staff.photo || ""}
-                    style={{ width: "7vh", height: "7vh" }}
-                  />
-                  <Typography>{staff.name}</Typography>
-                </Grid>
-              </Grid>
+            <Grid item xs={3} key={staff.name} data-testid={`staff-member-${staff.name}`}>
+              <Box textAlign="center">
+                <Avatar
+                  alt={staff.name}
+                  src={`https://mediflow-cse416.onrender.com/uploads/${staff.profilePic.split('/').pop()}`}
+                  style={{ width: "7vh", height: "7vh", margin: "0 auto" }}
+                />
+                <Typography>{staff.name}</Typography>
+              </Box>
             </Grid>
           ))}
       </Grid>

@@ -41,10 +41,12 @@ function CreateProcess() {
         description: section.description,
         staffType: section.staffType,
         timeDuration: section.timeDuration,
+      }, {
         headers: {
           'Authorization': 'Bearer ' + sessionStorage.getItem('token')
         }
-      })
+      }).then(console.log("Added Appointment"))
+
     ));
 
     console.log("Added New Procedures", proceduresToAdd);
@@ -53,11 +55,12 @@ function CreateProcess() {
 
     await axios.post("https://mediflow-cse416.onrender.com/createProcess", {
       name: processName,
-      components: proceduresToAdd.map(proc => proc.data),
+      components: proceduresToAdd.map(proc => proc.data)
+    }, {
       headers: {
         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
       }
-    }).then(console.log("Added Process"));
+    }).then(console.log("Added Appointment"));
 
     navigate("/main/request");
   };

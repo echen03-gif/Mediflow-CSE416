@@ -17,11 +17,6 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-function isProductAvailable(productName, date) {
-	// For now, let's assume all rooms are available on even-numbered days.
-	return date.getDate() % 2 === 0;
-}
-
 function Inventory() {
 	const navigate = useNavigate();
 	const [page, setPage] = useState(0);
@@ -31,9 +26,11 @@ function Inventory() {
 	const [appointmentList, setAppointmentList] = useState([]);
 	const [appointmentIds, setAppointmentIds] = useState([]);
 	const [inventoryHeadList, setInventoryHead] = useState([]);
+	const [usersList, setUsersList] = useState([]);
 	const [equipmentList, setEquipmentList] = useState([]);
 	const [equipmentDB, setEquipmentDB] = useState([]);
 	const [roomList, setRooms] = useState([]);
+	const [isAdmin, setIsAdmin] = useState(false);
 
 	// DB API
 
@@ -57,19 +54,36 @@ function Inventory() {
 
 	// use api.get instead of axios.get
 	useEffect(() => {
-		api.get("/equipmentHead").then((res) => {
-			setInventoryHead(res.data);
-		});
-		api.get("/rooms").then((res) => {
-			setRooms(res.data);
-		});
-		api.get("/equipment").then((res) => {
-			setEquipmentDB(res.data);
-		});
-		api.get("/appointments").then((res) => {
-			setAppointmentList(res.data);
-		});
-	});
+		const fetchData = async () => {
+		  try {
+			let userId = sessionStorage.getItem('user');
+		
+			// Fetch users list
+			const usersResponse = await api.get("/users");
+			setUsersList(usersResponse.data);
+		
+			const inventoryHeadResponse = await api.get("/equipmentHead");
+			setInventoryHead(inventoryHeadResponse.data);
+		
+			const roomsResponse = await api.get("/rooms");
+			setRooms(roomsResponse.data);
+		
+			const equipmentResponse = await api.get("/equipment");
+			setEquipmentDB(equipmentResponse.data);
+		
+			const appointmentsResponse = await api.get("/appointments");
+			setAppointmentList(appointmentsResponse.data);
+		
+			const userResponse = await api.get(`/userID/${userId}`);
+			setIsAdmin(userResponse.data.role === 'admin');
+		  } catch (error) {
+			console.error('Error fetching data:', error);
+		  }
+		};
+	  
+		fetchData();
+	  }, []);
+	  
 
 	// Functions
 
@@ -98,6 +112,32 @@ function Inventory() {
 		}
 	};
 
+
+	function isProductAvailable(productName, date) {
+		
+		
+		const equipment = equipmentDB.find(equipment => equipment._id === productName);
+
+		const currentDate = new Date(date);
+		
+		const isAvailable = equipment.appointments.some(appointment => {
+
+			let appointmentData = appointmentList.find(appointmentId => appointmentId._id === appointment);
+			
+			return appointmentData.procedures.some(procedure => {
+				const start = new Date(procedure.scheduledStartTime);
+				const end = new Date(procedure.scheduledEndTime);
+
+				
+				return currentDate >= start && currentDate <= end;
+			});
+		});
+		
+	
+		return !isAvailable;
+	}
+	
+
 	const handleChangePage = (event, newPage) => {
 		setPage(newPage);
 	};
@@ -121,9 +161,7 @@ function Inventory() {
 		case "appointmentViewing":
 			return (
 				<Box sx={{ flexGrow: 1, padding: 2 }}>
-					<Typography variant="h4" gutterBottom>
-						Inventory
-					</Typography>
+				<h2>INVENTORY</h2>
 					<Box
 						sx={{
 							display: "flex",
@@ -131,7 +169,7 @@ function Inventory() {
 							marginBottom: 2,
 						}}
 					>
-						<TextField label="Search" variant="outlined" />
+						<TextField label="Search" variant="outlined" data-testid="search-input" />
 						<FormControl variant="outlined">
 							<TextField
 								id="date"
@@ -144,16 +182,21 @@ function Inventory() {
 								InputLabelProps={{
 									shrink: true,
 								}}
+								inputProps={{ 'data-testid': 'date-input' }}
 							/>
 						</FormControl>
 					</Box>
-					<Button
+					{isAdmin &&
+						<Button
 						variant="contained"
 						color="primary"
 						onClick={navigateToAddInventory}
+						data-testid="add-inventory-button"
 					>
 						Add Inventory
 					</Button>
+					}
+					
 					<TableContainer component={Paper} sx={{ height: 500 }}>
 						<Table aria-label="simple table">
 							<TableHead>
@@ -162,7 +205,7 @@ function Inventory() {
 									{/* Added this line */}
 									<TableCell>Appointment</TableCell>
 									<TableCell align="center">
-										ScheduledStartDate
+										Scheduled Dates
 									</TableCell>
 								</TableRow>
 							</TableHead>
@@ -183,7 +226,7 @@ function Inventory() {
 											page * rowsPerPage + rowsPerPage
 										)
 										.map((product) => (
-											<TableRow key={product}>
+											<TableRow key={product} data-testid={`appointment-row-${product}`}>
 												<TableCell
 													component="th"
 													scope="row"
@@ -192,37 +235,26 @@ function Inventory() {
 														paddingRight: "0",
 													}}
 												>
-													<div
-														style={{
-															width: "15px",
-															height: "30px",
-															backgroundColor:
-																isProductAvailable(
-																	product.name,
-																	selectedDate
-																)
-																	? "green"
-																	: "red",
-															marginRight: "10px",
-														}}
-													></div>
 												</TableCell>
 												<TableCell>
 													{
-														appointmentList.find(
+														usersList.find(userId => userId._id === appointmentList.find(
 															(appointment) =>
 																appointment._id ===
 																product
-														).patientName
+														).patient).name
 													}
 												</TableCell>
 												<TableCell align="center">
 													{
 														appointmentList.find(
-															(appointment) =>
-																appointment._id ===
-																product
-														).scheduledStartTime
+															(appointment) => appointment._id === product
+														).procedures.map(procedure => {
+															const date = new Date(procedure.scheduledStartTime);
+															const endDate = new Date(procedure.scheduledEndTime);
+															return `${date.getMonth() + 1}/${date.getDate()} - ${endDate.getMonth() + 1}/${endDate.getDate()}`;
+														}).join(", ")
+
 													}
 												</TableCell>
 											</TableRow>
@@ -245,6 +277,7 @@ function Inventory() {
 								page={page}
 								onPageChange={handleChangePage}
 								onRowsPerPageChange={handleChangeRowsPerPage}
+								data-testid="pagination"
 							/>
 						</Box>
 					</TableContainer>
@@ -254,9 +287,8 @@ function Inventory() {
 		case "equipmentViewing":
 			return (
 				<Box sx={{ flexGrow: 1, padding: 2 }}>
-					<Typography variant="h4" gutterBottom>
-						Inventory
-					</Typography>
+					<h2>INVENTORY</h2>
+
 					<Box
 						sx={{
 							display: "flex",
@@ -264,7 +296,7 @@ function Inventory() {
 							marginBottom: 2,
 						}}
 					>
-						<TextField label="Search" variant="outlined" />
+						<TextField label="Search" variant="outlined" data-testid="search-input" />
 						<FormControl variant="outlined">
 							<TextField
 								id="date"
@@ -277,16 +309,23 @@ function Inventory() {
 								InputLabelProps={{
 									shrink: true,
 								}}
+								inputProps={{ 'data-testid': 'date-input' }}
 							/>
 						</FormControl>
 					</Box>
-					<Button
+					
+					{
+						isAdmin && 
+						<Button
 						variant="contained"
 						color="primary"
 						onClick={navigateToAddInventory}
+						data-testid="add-inventory-button"
 					>
 						Add Inventory
 					</Button>
+					}
+					
 					<TableContainer component={Paper} sx={{ height: 500 }}>
 						<Table aria-label="simple table">
 							<TableHead>
@@ -317,7 +356,7 @@ function Inventory() {
 											page * rowsPerPage + rowsPerPage
 										)
 										.map((product) => (
-											<TableRow key={product}>
+											<TableRow key={product} data-testid={`equipment-row-${product}`}>
 												<TableCell
 													component="th"
 													scope="row"
@@ -332,7 +371,7 @@ function Inventory() {
 															height: "30px",
 															backgroundColor:
 																isProductAvailable(
-																	product.name,
+																	product,
 																	selectedDate
 																)
 																	? "green"
@@ -368,6 +407,7 @@ function Inventory() {
 															e.target.style.textDecoration =
 																"none";
 														}}
+														data-testid={`equipment-name-${product}`}
 													>
 														{
 															equipmentDB.find(
@@ -422,6 +462,7 @@ function Inventory() {
 								page={page}
 								onPageChange={handleChangePage}
 								onRowsPerPageChange={handleChangeRowsPerPage}
+								data-testid="pagination"
 							/>
 						</Box>
 					</TableContainer>
@@ -431,9 +472,8 @@ function Inventory() {
 		case "default":
 			return (
 				<Box sx={{ flexGrow: 1, padding: 2 }}>
-					<Typography variant="h4" gutterBottom>
-						Inventory
-					</Typography>
+					<h1>Inventory</h1>
+
 					<Box
 						sx={{
 							display: "flex",
@@ -441,7 +481,7 @@ function Inventory() {
 							marginBottom: 2,
 						}}
 					>
-						<TextField label="Search" variant="outlined" />
+						<TextField label="Search" variant="outlined" data-testid="search-input" />
 						<FormControl variant="outlined">
 							<TextField
 								id="date"
@@ -454,16 +494,22 @@ function Inventory() {
 								InputLabelProps={{
 									shrink: true,
 								}}
+								inputProps={{ 'data-testid': 'date-input' }}
 							/>
 						</FormControl>
 					</Box>
-					<Button
+					{
+						isAdmin &&
+						<Button
 						variant="contained"
 						color="primary"
 						onClick={navigateToAddInventory}
+						data-testid="add-inventory-button"
 					>
 						Add Inventory
 					</Button>
+					}
+					
 					<TableContainer component={Paper} sx={{ height: 500 }}>
 						<Table aria-label="simple table">
 							<TableHead>
@@ -486,7 +532,7 @@ function Inventory() {
 										page * rowsPerPage + rowsPerPage
 									)
 									.map((product) => (
-										<TableRow key={product.name}>
+										<TableRow key={product.name} data-testid={`inventory-row-${product.name}`}>
 											<TableCell
 												component="th"
 												scope="row"
@@ -495,20 +541,7 @@ function Inventory() {
 													paddingRight: "0",
 												}}
 											>
-												<div
-													style={{
-														width: "15px",
-														height: "30px",
-														backgroundColor:
-															isProductAvailable(
-																product.name,
-																selectedDate
-															)
-																? "green"
-																: "red",
-														marginRight: "10px",
-													}}
-												></div>
+
 											</TableCell>
 											<TableCell>
 												<Typography
@@ -530,6 +563,7 @@ function Inventory() {
 														e.target.style.textDecoration =
 															"none";
 													}}
+													data-testid={`product-name-${product.name}`}
 												>
 													{product.name}
 												</Typography>
@@ -559,6 +593,7 @@ function Inventory() {
 								page={page}
 								onPageChange={handleChangePage}
 								onRowsPerPageChange={handleChangeRowsPerPage}
+								data-testid="pagination"
 							/>
 						</Box>
 					</TableContainer>

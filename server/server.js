@@ -6,12 +6,22 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const { createServer } = require("node:http");
 const { Server } = require("socket.io");
+const multer = require('multer');
+const path = require('path');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const cron = require('node-cron');
+
+
+
+
 
 app.use(express.json());
+app.use(express.static('../public'));
 app.use(cookieParser());
 app.use(
     cors({
-        origin: ["https://mediflow-lnmh.onrender.com", "http://localhost:3000"], // Matches all subdomains of onrender.com
+        origin: ["https://mediflow-lnmh.onrender.com", "http://localhost:3000"], 
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     })
@@ -19,8 +29,9 @@ app.use(
 
 const verifyToken = (req, res, next) => {
     // Get token from request headers
-    const token =
-        req.headers.authorization && req.headers.authorization.split(" ")[1];
+    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
+
+    console.log("token " + token)
 
     if (!token) {
         return res
@@ -43,12 +54,45 @@ const verifyToken = (req, res, next) => {
 };
 
 app.use((req, res, next) => {
-    if (req.path === "/login") {
+    const skipPaths = ['/login', '/forgot-password'];
+    const isResetRoute = req.path.startsWith('/reset/') && req.method === 'POST';
+  
+    if (skipPaths.includes(req.path) || isResetRoute) {
         next(); // Skip the middleware for the '/login' route
     } else {
         verifyToken(req, res, next); // Apply the middleware to other routes
     }
 });
+
+//PROFILE PIC STUFF
+
+const storage = multer.diskStorage({
+    destination: '../public/uploads/',
+    filename: function(req, file, cb){
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits:{fileSize: 1000000}, 
+    fileFilter: function(req, file, cb){
+        checkFileType(file, cb);
+    }
+}).single('profilePic');
+
+function checkFileType(file, cb){
+
+    const filetypes = /jpeg|jpg|png|gif/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+
+    if(mimetype && extname){
+        return cb(null, true);
+    } else {
+        cb('Error: Images Only!');
+    }
+}
 
 const port = 8000;
 // The below URL is for npm start and local host
@@ -79,10 +123,21 @@ let Rooms = require("./models/room.js");
 let Communication = require("./models/communication.js");
 let Processes = require("./models/processes.js");
 let Appointment = require("./models/appointment.js");
+let Messages = require("./models/messages.js");
 const equipment = require("./models/equipment.js");
 const equipmentHead = require("./models/equipmentHead.js");
 
 // Define Backend Functions
+
+//Forgot password stuff
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: "mediflow416@gmail.com",
+      pass: "dvelemvixcjbdilq"
+    }
+  });
 
 // Socket io Stuff
 
@@ -107,7 +162,7 @@ io.on("connection", (socket) => {
 
     socket.on("userConnected", (userId) => {
         let x = userSocketMap.get(userId);
-
+    
         if (!x) {
             console.log("Saving socket from user: " + userId + " as " + socket.id);
             userSocketMap.set(userId, socket.id);
@@ -130,61 +185,154 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("chatStart", (recipientUserId) => {
-        let senderUserId = null;
-        //iterate over the map to find the userId for the current socket.id
-        for (let [key, value] of userSocketMap.entries()) {
-            if (value === socket.id) {
-                senderUserId = key;
-                break;
-            }
-        }
-        const roomKey = [senderUserId, recipientUserId].sort().join("-");
+    socket.on('joinRoom', (roomId) => {
+        console.log(`Client wants to join room: ${roomId}`);
+        socket.join(roomId);
+      });
 
-        if (userSocketMap.has(recipientUserId)) {
-            const recipientSocketId = userSocketMap.get(recipientUserId);
+    socket.on('leaveRoom', (roomId) => {
+        console.log(`Client wants to leave room: ${roomId}`);
+        socket.leave(roomId);
+      });
 
-            if (!chatRooms.has(roomKey)) {
-                chatRooms.set(roomKey, new Set([senderUserId, recipientUserId]));
-                console.log(`Created a new room for users: ${roomKey}`);
-            } else {
-                console.log(`Room already exists for users: ${roomKey}, reusing it.`);
-            }
 
-            socket.join(roomKey);
-            io.to(recipientSocketId).socketsJoin(roomKey);
 
-            socket.emit("chatReady", {
-                roomID: roomKey,
-                initiatedByMe: true,
-                message: `You started a chat with ${recipientUserId}`,
-            });
-            io.to(recipientSocketId).emit("chatReady", {
-                roomID: roomKey,
-                initiatedByMe: false,
-                message: `Chat started by ${senderUserId}`,
-            });
-
-            console.log(
-                `Both users ${senderUserId} and ${recipientUserId} have joined room: ${roomKey}`
-            );
-        } else {
-            console.log(`User ${recipientUserId} is not currently connected.`);
-            socket.emit("userOffline", { recipientUserId });
-        }
-    });
-
-    socket.on("sendMessage", ({ roomID, text, sender }) => {
-        const message = {
-            id: 0,
+    socket.on("sendMessage", async ({ roomID, text, sender, senderId }) => {
+        const message = new Messages({
+            roomID: roomID,
             text: text,
             sender: sender,
+            senderID: senderId,
             timestamp: new Date(),
-        };
+        });
 
-        io.in(roomID).emit("receiveMessage", message);
+        await message.save();
+
+        const numSocketsInRoom = io.sockets.adapter.rooms.get(roomID)?.size || 0;
+        if(numSocketsInRoom === 2){
+            io.in(roomID).emit("receiveMessage", message);
+        } else {
+            //This means tthat the other user is not in the chat room and should be sent a notification
+            //we gotta find the other socket first
+            const userIds = roomID.split("-");
+            const currentUserID = senderId;
+            const otherUserID = userIds.find(id => id !== currentUserID);
+            const otherSocketID = userSocketMap.get(otherUserID);
+            const otherSocket = io.sockets.sockets.get(otherSocketID);
+
+            console.log(sender)
+            console.log(text)
+            if(otherSocket){
+                otherSocket.emit('notification', {sender: sender, text: text, roomID: roomID});
+            }
+            
+            io.in(roomID).emit("receiveMessage", message);
+        }
+        
         console.log(`Message sent in room ${roomID}: ${text}`);
     });
+});
+
+const roundToNearestMinute = (date) => {
+    return new Date(Math.floor(date.getTime() / 60000) * 60000);
+};
+
+const addHours = (date, hours) => {
+    return new Date(date.getTime() + hours * 60 * 60 * 1000);
+};
+
+cron.schedule('* * * * *', async () => {
+    console.log(`[Cron Job] Running job at ${new Date().toLocaleString()}`);
+
+    const now = new Date();
+    console.log(now)
+    console.log(new Date(now.getTime() + 10 * 60 * 1000 + 60000))
+
+    try {
+        const upcomingAppointments = await Appointment.find({
+            'procedures.scheduledStartTime': {
+                $gte: now,
+                $lte: new Date(now.getTime() + 10 * 60 * 1000 + 60000), // Check up to 10 minutes + 1 minute buffer to ensure we cover the range
+            },
+            status: 'pending' // Only notify for pending appointments
+        }).populate('procedures.staff');
+
+        console.log(`[Cron Job] Found ${upcomingAppointments.length} upcoming appointments`);
+
+        for (const appointment of upcomingAppointments) {
+
+
+            const relevantProcedures = appointment.procedures.filter(procedure => {
+                const startTime = new Date(procedure.scheduledStartTime).getTime();
+                return startTime >= now.getTime() && startTime <= new Date(now.getTime() + 10 * 60 * 1000 + 60000).getTime();
+            });
+
+            for (const procedure of relevantProcedures) {
+
+                if (!procedure.notificationsSent) {
+                    procedure.notificationsSent = [];
+                }
+
+
+                //const startTime = addHours(new Date(procedure.scheduledStartTime), 4).getTime();
+                const startTime = new Date(procedure.scheduledStartTime).getTime()
+
+                // Calculate the difference in minutes
+                const diffInMinutes = Math.round((startTime - now.getTime()) / (60 * 1000));                    console.log(diffInMinutes)
+                console.log(diffInMinutes)
+
+
+                let updated = false;
+
+                for (const staff of procedure.staff) {
+                    const userSocketId = userSocketMap.get(staff._id.toString());
+
+                    if (diffInMinutes === 10 && !procedure.notificationsSent.includes('10-min')) {
+                        // Send 10-minute notification
+                        const message = `Reminder: You have a procedure scheduled in 10 minutes: ${procedure.name}.`;
+                        if (userSocketId) {
+                            io.to(userSocketId).emit('apptnotification', message);
+                            console.log(`[Cron Job] Sent 10-minute reminder to user ${staff._id}`);
+                        }
+                        procedure.notificationsSent.push('10-min');
+                        updated = true;
+                    }
+
+                    if (diffInMinutes === 5 && !procedure.notificationsSent.includes('5-min')) {
+                        // Send 5-minute notification
+                        const message = `Reminder: You have a procedure scheduled in 5 minutes: ${procedure.name}.`;
+                        if (userSocketId) {
+                            io.to(userSocketId).emit('apptnotification', message);
+                            console.log(`[Cron Job] Sent 5-minute reminder to user ${staff._id}`);
+                        }
+                        procedure.notificationsSent.push('5-min');
+                        updated = true;
+                    }
+
+                    if (diffInMinutes === 0 && !procedure.notificationsSent.includes('start')) {
+                        // Send start notification
+                        const message = `Your procedure is scheduled to start now: ${procedure.name}.`;
+                        if (userSocketId) {
+                            io.to(userSocketId).emit('apptnotification', message);
+                            console.log(`[Cron Job] Sent start reminder to user ${staff._id}`);
+                        }
+                        procedure.notificationsSent.push('start');
+                        updated = true;
+                    }
+                }
+
+                if (updated) {
+                    console.log('updated')
+                    await Appointment.updateOne(
+                        { 'procedures._id': procedure._id },
+                        { $set: { 'procedures.$.notificationsSent': procedure.notificationsSent } }
+                    ); // Save only once after all notifications are sent
+                }
+            }
+        }
+    } catch (error) {
+        console.log('[Cron Job] Error checking for upcoming appointments:', error);
+    }
 });
 
 // GET FUNCTIONS
@@ -196,6 +344,7 @@ app.get("/users", async (req, res) => {
 });
 
 app.get("/userID/:userId", async (req, res) => {
+    
     const { userId } = req.params;
 
     let user = await Users.findOne({ _id: userId });
@@ -223,6 +372,11 @@ app.get("/procedures", async (req, res) => {
     res.send(procedures);
 });
 
+app.get("/messages/:roomID", async (req, res) => {
+    const roomID = req.params.roomID;
+    let messages = await Messages.find({ roomID: roomID });
+    res.send(messages);
+});
 app.get("/equipment", async (req, res) => {
     let equipment = await Equipment.find();
 
@@ -259,6 +413,21 @@ app.get("/appointments", async (req, res) => {
     res.send(appointments);
 });
 
+
+app.get('/profileappt', async (req, res) => {
+    try {
+        let appointments = await Appointment.find()
+            .populate({
+                path: 'procedures.procedure', // Ensure this path matches the schema path
+                model: 'Procedure'
+            });
+        res.send(appointments);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error retrieving appointments.");
+    }
+});
+
 app.get("/appointments/pending", async (req, res) => {
     try {
         let pendingAppointments = await Appointment.find({ status: "pending" });
@@ -274,34 +443,80 @@ app.get("/appointments/pending", async (req, res) => {
 });
 
 app.get("/check-session", (req, res) => {
-    if (req.session.userId) {
+    console.log(req.session);
+    if (req.session.user) {
         res.send({ loggedIn: true });
     } else {
         res.send({ loggedIn: false });
     }
 });
 
+app.get('/processes/user/:userId', async (req, res) => {
+    console.log("here")
+    const { userId } = req.params;
+
+    try {
+        const user = await Users.findOne({_id: userId}).populate('processes');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user.processes);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+app.get('/procedures/user/:userId', async (req, res) => {
+
+    try {
+        const user = await Users.findOne({_id:req.params.userId}).populate({
+            path: 'processes',
+            populate: { path: 'components' }  
+        });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const procedures = user.processes.map(process => process.components).flat();
+        res.json(procedures);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+
+app.post('/profile-upload/:userId', async (req, res) => {
+    upload(req, res, async (error) => {
+        if (error) {
+            console.log("Error 1 " + error)
+            return res.status(500).json({ message: error });
+        }
+        if (!req.file) {
+            console.log("Error 2 " + error)
+
+            return res.status(400).json({ message: 'Please upload a file!' });
+        }
+
+        try {
+            const { userId } = req.params;
+
+            const user = await Users.findByIdAndUpdate(userId, { profilePic: req.file.path }, { new: true });
+            res.status(200).json({ message: 'Profile picture updated successfully!', imagePath: user.profilePic });
+        } catch (err) {
+            console.log("Error 3 " + err)
+
+            res.status(500).json({ message: "Error uploading!" });
+        }
+    });
+});
+
+
 app.post("/decode", async (req, res) => {
     const cookieHeader = req.body.cookies;
     console.log("Hopefully there are cookies");
     console.log(req.body.cookies);
-
-    // if (!cookieHeader) {
-    //     return res.status(400).send('No cookies found in the request.');
-    //   }
-
-    //   const cookies = cookieHeader.split('; ');
-    //   const jwtCookie = cookies.find(cookie => cookie.startsWith('user='));
-
-    //   if (!jwtCookie) {
-    //     return res.status(400).send('JWT cookie not found.');
-    //   }
-
-    //   const jwtToken = jwtCookie.split('=')[1];
-
-    //   // Decode the JWT token
-    //   const decodedToken = jwtDecode(jwtToken);
-    //   console.log('Decoded Token:', decodedToken);
 
     res.send(cookieHeader);
 });
@@ -329,7 +544,10 @@ app.post("/createUser", async (req, res) => {
         processes: [],
         role,
         staffID: req.body.staffID,
-        schedule: processedSchedule, // Use the processed schedule data
+        schedule: processedSchedule, 
+        resetPasswordToken: "",
+        resetPasswordExpire: new Date()
+
     });
 
     res.send(await newUser.save());
@@ -346,6 +564,7 @@ app.post("/createProcedure", async (req, res) => {
         procedureID: 0,
         requiredRoomType: req.body.requiredRoomType,
         staffType: req.body.staffType,
+    
     });
 
     res.send(await newProcedure.save());
@@ -411,15 +630,8 @@ app.post("/login", async (req, res) => {
             { expiresIn: "3h" }
         );
 
-        // res.cookie('token', token, {
-        //     path: "/",
-        //     //sameSite: 'None',
-        //     secure: false,
-        //     //domain: ".onrender.com",
-        //     httpOnly: true
-        // });
-
-        res.send({ success: true, user: user._id, name: user.name, token: token });
+    
+        res.send({ success: true, user: user._id, name: user.name, token: token, profilePic: user.profilePic });
     } else {
         console.log("Failed to Login");
         res.send({
@@ -428,16 +640,6 @@ app.post("/login", async (req, res) => {
         });
     }
 });
-
-// app.post('/logout', async (req, res) => {
-//     console.log("logging out")
-//     res.clearCookie('token', {
-//         path: "/",
-//         //domain: ".onrender.com",
-//         //sameSite: 'None',
-//         //secure: true
-//     }).sendStatus(200);
-// });
 
 app.post("/requestAppointment", async (req, res) => {
     const newAppointment = new Appointment({
@@ -450,6 +652,71 @@ app.post("/requestAppointment", async (req, res) => {
 
     res.send(await newAppointment.save());
 });
+
+app.post('/forgot-password', async (req, res) => {
+
+    const { email } = req.body;    
+
+    try {
+      const user = await Users.findOne({ email });
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+      const token = crypto.randomBytes(20).toString('hex');
+
+      user.resetPasswordToken = token;
+
+      user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+      
+      await user.save();
+  
+      const mailOptions = {
+        from: 'mediflow416@gmail.com',
+        to: user.email,
+        subject: 'Password Reset',
+        text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.
+        Please click on the following link, or paste this into your browser to complete the process:
+        https://mediflow-lnmh.onrender.com/reset/${token}`
+      };
+      
+
+      transporter.sendMail(mailOptions, (err, response) => {
+        if (err) {
+          console.log('There was an error: ', err);
+        } else {
+          res.status(200).json('Recovery email sent');
+        }
+      });
+    } catch (err) {
+        res.status(500).send('Server error');
+    }
+});
+
+app.post('/reset/:token', async (req, res) => {
+    try {
+
+        console.log(req.params.token)
+        const user = await Users.findOne({
+            resetPasswordToken: req.params.token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+    
+        if (!user) {
+            return res.status(400).send('Password reset token is invalid or has expired.');
+        }
+    
+        const saltRounds = 10;
+        const hashedPass = bcrypt.hashSync(req.body.password, saltRounds);
+        user.password = hashedPass
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+    
+        await user.save();
+        res.status(200).send('Password has been updated');
+        } catch (err) {
+            res.status(500).send('Server error');
+        }
+  });
 
 // PUT FUNCTIONS
 
@@ -497,7 +764,10 @@ app.put("/changeStaffAppointment", async (req, res) => {
 });
 
 app.put("/changeRoomAppointment", async (req, res) => {
-    let roomUpdate = await Rooms.findOne({ _id: req.body.roomName._id });
+
+    console.log(req.body.roomObject);
+    
+    let roomUpdate = await Rooms.findOne({ _id: req.body.roomObject._id });
 
     roomUpdate.appointments.push(req.body.appointment);
 
