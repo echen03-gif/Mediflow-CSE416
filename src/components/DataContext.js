@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useState, useContext, useEffect, useMemo } from "react";
 import axios from "axios";
 
 const DataContext = createContext();
@@ -13,25 +13,28 @@ export const DataProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [peopleList, setPeople] = useState([]);
 
-  const api = axios.create({
+  const api = useMemo(() => axios.create({
     baseURL: "https://mediflow-cse416.onrender.com",
     headers: {
       Authorization: "Bearer " + sessionStorage.getItem("token"),
     },
-  });
+  }), []);
 
   const updateData = (newData) => {
     setData((prevData) => ({ ...prevData, ...newData }));
   };
 
   const getStatus = (schedule) => {
+    if (!schedule) {
+      return "NOT AVAILABLE";
+    }
     console.log("schedule", schedule)
-    const now = new Date();
-    const currentDay = now.toLocaleString("default", { weekday: "long" });
+    let currentDay, now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes(); // Current time in minutes since midnight
+    currentDay = now.toLocaleString("default", { weekday: "long" });
 
     const todaysSchedule = schedule[currentDay];
-    //console.log(todaysSchedule, currentDay);
+    console.log(currentDay);
 
     if (!todaysSchedule) {
       return "NOT AVAILABLE";
