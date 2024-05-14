@@ -163,7 +163,7 @@ export default function Schedule() {
           paddingTop: "30px",
         }}
       >
-        <h2>SCHEDULE</h2>
+        <h1>Schedule</h1>
         <button
           style={{
             backgroundColor: "#1976D2",

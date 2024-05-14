@@ -18,11 +18,14 @@ app.use(express.json());
 app.use(express.static('../public'));
 app.use(cookieParser());
 app.use(
-    cors({
-        origin: ["https://mediflow-lnmh.onrender.com", "http://localhost:3000"], 
-        credentials: true,
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    })
+  cors({
+    origin: [
+      "https://mediflow-lnmh.onrender.com",
+      /^http:\/\/localhost(:\d+)?$/,
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  })
 );
 
 const verifyToken = (req, res, next) => {
@@ -346,6 +349,25 @@ app.get("/userID/:userId", async (req, res) => {
     const { userId } = req.params;
 
     let user = await Users.findOne({ _id: userId });
+
+    res.send(user);
+});
+
+app.get("/userAppointments/:userId", async (req, res) => {
+    
+    const { userId } = req.params;
+
+    const appointmentDetails = [];
+    const user = await Users.findOne({ _id: userId });
+    const appointments = user.appointments;
+    for(const appointmentId of appointments){
+        const appointment = await Appointment.findOne({ _id: appointmentId });
+
+        const processName = await Processes.findOne({ _id: appointment.process });
+        const patientName = await Users.findOne({_id: appointment.patient });
+
+        appointmentDetails.push({processName, patientName});
+    }
 
     res.send(user);
 });
