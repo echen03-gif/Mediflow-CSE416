@@ -40,7 +40,7 @@
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(to bottom, #FF8241, #FF5034);
+  background: linear-gradient(to bottom, #ff8241, #ff5034);
   height: 100vh;
   display: flex;
   align-items: center;
@@ -48,3 +48,50 @@ body {
   overflow: hidden;
 }
 
+.btn, .appt-btn {
+  background-color: #001c3a;
+  color: white;
+  border: none;
+  padding: 5px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 5px;
+  width: 150px; /* Set a fixed width for all buttons */
+  text-align: center; /* Center the text */
+}
+
+.btn {
+  background-color: #001c3a;
+}
+
+.btn:hover {
+  background-color: #0056b3;
+}
+
+.appt-btn {
+  background-color: #1976D2;
+}
+
+.appt-btn:hover {
+  background-color: #0056b3;
+}
+
+.app-btn-container, .btn-container {
+  flex: 1;  /* Each container takes up half the space */
+  display: flex;
+  justify-content: flex-start; /* Aligns items to the start of the flex container */
+}
+
+.app-btn-container button, .btn-container button {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+.schedule-btn-container {
+  display: flex;
+  width: 100%
+}
+
+.invisible {
+  visibility: hidden; /* Use !important to override inline styles */
+}

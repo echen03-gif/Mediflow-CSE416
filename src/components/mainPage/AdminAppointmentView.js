@@ -18,13 +18,14 @@ export default function AdminAppointmentView() {
 
   const fetchAppointments = async () => {
     const response = await axios.get(
-      "https://mediflow-cse416.onrender.com/api/appointments/pending",
+      "https://mediflow-cse416.onrender.com/appointments/pending",
       {
         headers: {
           Authorization: "Bearer " + sessionStorage.getItem("token"),
         },
       }
     );
+    console.log("appointments", response.data);
     setAppointments(response.data);
   };
 
@@ -50,7 +51,7 @@ export default function AdminAppointmentView() {
         {appointments.length > 0 ? (
           appointments.map((appointment) => (
             <ListItem
-              key={appointment.id}
+              key={appointment._id}
               divider
               secondaryAction={
                 <>
