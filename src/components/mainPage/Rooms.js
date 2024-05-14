@@ -154,9 +154,9 @@ function Rooms() {
       case 'appointmentViewing':
         return (
           <Box sx={{ height: '100%', overflow: 'auto' }}>
-            <Typography variant="h4" gutterBottom>
+            <h1>
               Room Availability
-            </Typography>
+            </h1>
             <Box
               sx={{
                 display: "flex",
@@ -246,9 +246,9 @@ function Rooms() {
       case 'default':
         return (
           <Box sx={{ height: '100%', overflow: 'auto' }}>
-            <Typography variant="h4" gutterBottom>
+            <h1>
               Room Availability
-            </Typography>
+            </h1>
             <Box
               sx={{
                 display: "flex",
