@@ -1,22 +1,19 @@
+// Updated LoginPage Component
 import React, { useState } from 'react';
 import { Container, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-//import { useCookies } from 'react-cookie';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
- // const [cookies, setCookies] = useCookies(['user']);
   const navigate = useNavigate();
- // console.log(cookies);
 
   const handleForgotPasswordClick = () => {
     navigate('/forgot-password');
   };
 
   const handleLogin = (event) => {
-    console.log("Handling Login")
     event.preventDefault();
     try {
       if (username === '' || password === '') {
@@ -24,29 +21,24 @@ export default function LoginPage() {
       } else {
         axios.post("https://mediflow-cse416.onrender.com/login", { username, password }, { withCredentials: true })
           .then(res => {
-            console.log(res.data)
             if (res.data.success) {
               sessionStorage.setItem('token', res.data.token);
               sessionStorage.setItem('user', res.data.user);
-              sessionStorage.setItem("name", res.data.name)
+              sessionStorage.setItem("name", res.data.name);
               if(res.data.profilePic){
-                sessionStorage.setItem("pfp", res.data.profilePic.split('/').pop())
+                sessionStorage.setItem("pfp", res.data.profilePic.split('/').pop());
               }
-
               navigate('/main/schedule');
             } else {
-              console.log("Error")
               document.getElementById('loginError').innerHTML = res.data.message;
             }
           })
           .catch(error => {
             document.getElementById('loginError').innerHTML = "Error, please try again!";
-            console.log(error);
           });
       }
     } catch (error) {
       document.getElementById('loginError').innerHTML = "Error, please try again!";
-      console.log(error);
     }
   };
 
@@ -73,6 +65,7 @@ export default function LoginPage() {
           sx={{ marginBottom: 2 }}
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          inputProps={{ 'data-testid': 'username-input' }}
         />
         <TextField
           label="Password"
@@ -82,6 +75,7 @@ export default function LoginPage() {
           sx={{ marginBottom: 2 }}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          inputProps={{ 'data-testid': 'password-input' }}
         />
         <Button
           type="submit"
@@ -95,12 +89,13 @@ export default function LoginPage() {
               background: '#FF5034',
             },
           }}
+          data-testid="login-button"
         >
           Login
         </Button>
       </form>
-      <Button color="secondary" onClick={handleForgotPasswordClick} >Forgot Password</Button>
-      <p id="loginError"></p>
+      <Button color="secondary" onClick={handleForgotPasswordClick} data-testid="forgot-password-button">Forgot Password</Button>
+      <p id="loginError" data-testid="login-error"></p>
     </Container>
   );
 }

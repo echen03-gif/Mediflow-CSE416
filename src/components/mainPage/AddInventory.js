@@ -124,6 +124,8 @@ const AddInventory = () => {
           autoFocus
           value={name}
           onChange={(e) => setName(e.target.value)}
+          data-testid="item-name"
+
         />
         <FormControl fullWidth margin="normal">
           <InputLabel id="location-label">Location</InputLabel>
@@ -133,6 +135,8 @@ const AddInventory = () => {
             value={equipmentLocation}
             label="Location"
             onChange={(e) => setLocation(e.target.value)}
+            data-testid="location"
+
           >
             {rooms.map((room) =>
               <MenuItem value={room}>{room.name}</MenuItem>
@@ -147,6 +151,8 @@ const AddInventory = () => {
             value={equipmentCategory}
             label="Category"
             onChange={(e) => setCategory(e.target.value)}
+            data-testid="category"
+
           >
             <MenuItem value={"Category 1"}>Category 1</MenuItem>
             <MenuItem value={"Category 2"}>Category 2</MenuItem>
@@ -157,6 +163,8 @@ const AddInventory = () => {
           fullWidth
           variant="contained"
           sx={{ mt: 3, mb: 2 }}
+          data-testid="submit-button"
+
         >
           Add Item
         </Button>

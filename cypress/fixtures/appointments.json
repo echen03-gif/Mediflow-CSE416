@@ -1,0 +1,4 @@
+[
+    { "_id": "appointment1", "patient": "user1", "procedures": [{ "scheduledStartTime": "2024-06-15T08:00:00Z", "scheduledEndTime": "2024-06-15T09:00:00Z" }] }
+  ]
+  

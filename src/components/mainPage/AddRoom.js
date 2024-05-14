@@ -65,6 +65,8 @@ const AddRoom = () => {
           autoFocus
           value={roomNumber}
           onChange={(e) => setRoomNumber(e.target.value)}
+          data-testid="room-number"
+
         />
         <FormControl fullWidth margin="normal">
           <InputLabel id="room-type-label">Room Type</InputLabel>
@@ -74,6 +76,8 @@ const AddRoom = () => {
             value={roomType}
             label="Room Type"
             onChange={(e) => setRoomType(e.target.value)}
+            data-testid="room-type"
+
           >
             <MenuItem value={"General"}>General</MenuItem>
             <MenuItem value={"ICU"}>ICU</MenuItem>
@@ -85,6 +89,8 @@ const AddRoom = () => {
           fullWidth
           variant="contained"
           sx={{ mt: 3, mb: 2 }}
+          data-testid="submit-button"
+
         >
           Add Room
         </Button>

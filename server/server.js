@@ -10,6 +10,8 @@ const multer = require('multer');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const cron = require('node-cron');
+
 
 
 
@@ -19,7 +21,7 @@ app.use(express.static('../public'));
 app.use(cookieParser());
 app.use(
     cors({
-        origin: ["https://mediflow-lnmh.onrender.com", "http://localhost:3000"], 
+        origin: ["https://mediflow-lnmh.onrender.com", "http://localhost", "http://localhost:3000"], 
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     })
@@ -231,6 +233,107 @@ io.on("connection", (socket) => {
     });
 });
 
+const roundToNearestMinute = (date) => {
+    return new Date(Math.floor(date.getTime() / 60000) * 60000);
+};
+
+const addHours = (date, hours) => {
+    return new Date(date.getTime() + hours * 60 * 60 * 1000);
+};
+
+cron.schedule('* * * * *', async () => {
+    console.log(`[Cron Job] Running job at ${new Date().toLocaleString()}`);
+
+    const now = new Date();
+    console.log(now)
+    console.log(new Date(now.getTime() + 10 * 60 * 1000 + 60000))
+
+    try {
+        const upcomingAppointments = await Appointment.find({
+            'procedures.scheduledStartTime': {
+                $gte: now,
+                $lte: new Date(now.getTime() + 10 * 60 * 1000 + 60000), // Check up to 10 minutes + 1 minute buffer to ensure we cover the range
+            },
+            status: 'pending' // Only notify for pending appointments
+        }).populate('procedures.staff');
+
+        console.log(`[Cron Job] Found ${upcomingAppointments.length} upcoming appointments`);
+
+        for (const appointment of upcomingAppointments) {
+
+
+            const relevantProcedures = appointment.procedures.filter(procedure => {
+                const startTime = new Date(procedure.scheduledStartTime).getTime();
+                return startTime >= now.getTime() && startTime <= new Date(now.getTime() + 10 * 60 * 1000 + 60000).getTime();
+            });
+
+            for (const procedure of relevantProcedures) {
+
+                if (!procedure.notificationsSent) {
+                    procedure.notificationsSent = [];
+                }
+
+
+                //const startTime = addHours(new Date(procedure.scheduledStartTime), 4).getTime();
+                const startTime = new Date(procedure.scheduledStartTime).getTime()
+
+                // Calculate the difference in minutes
+                const diffInMinutes = Math.round((startTime - now.getTime()) / (60 * 1000));                    console.log(diffInMinutes)
+                console.log(diffInMinutes)
+
+
+                let updated = false;
+
+                for (const staff of procedure.staff) {
+                    const userSocketId = userSocketMap.get(staff._id.toString());
+
+                    if (diffInMinutes === 10 && !procedure.notificationsSent.includes('10-min')) {
+                        // Send 10-minute notification
+                        const message = `Reminder: You have a procedure scheduled in 10 minutes: ${procedure.name}.`;
+                        if (userSocketId) {
+                            io.to(userSocketId).emit('apptnotification', message);
+                            console.log(`[Cron Job] Sent 10-minute reminder to user ${staff._id}`);
+                        }
+                        procedure.notificationsSent.push('10-min');
+                        updated = true;
+                    }
+
+                    if (diffInMinutes === 5 && !procedure.notificationsSent.includes('5-min')) {
+                        // Send 5-minute notification
+                        const message = `Reminder: You have a procedure scheduled in 5 minutes: ${procedure.name}.`;
+                        if (userSocketId) {
+                            io.to(userSocketId).emit('apptnotification', message);
+                            console.log(`[Cron Job] Sent 5-minute reminder to user ${staff._id}`);
+                        }
+                        procedure.notificationsSent.push('5-min');
+                        updated = true;
+                    }
+
+                    if (diffInMinutes === 0 && !procedure.notificationsSent.includes('start')) {
+                        // Send start notification
+                        const message = `Your procedure is scheduled to start now: ${procedure.name}.`;
+                        if (userSocketId) {
+                            io.to(userSocketId).emit('apptnotification', message);
+                            console.log(`[Cron Job] Sent start reminder to user ${staff._id}`);
+                        }
+                        procedure.notificationsSent.push('start');
+                        updated = true;
+                    }
+                }
+
+                if (updated) {
+                    console.log('updated')
+                    await Appointment.updateOne(
+                        { 'procedures._id': procedure._id },
+                        { $set: { 'procedures.$.notificationsSent': procedure.notificationsSent } }
+                    ); // Save only once after all notifications are sent
+                }
+            }
+        }
+    } catch (error) {
+        console.log('[Cron Job] Error checking for upcoming appointments:', error);
+    }
+});
 
 // GET FUNCTIONS
 
@@ -327,6 +430,21 @@ app.get("/appointments", async (req, res) => {
     let appointments = await Appointment.find();
 
     res.send(appointments);
+});
+
+
+app.get('/profileappt', async (req, res) => {
+    try {
+        let appointments = await Appointment.find()
+            .populate({
+                path: 'procedures.procedure', // Ensure this path matches the schema path
+                model: 'Procedure'
+            });
+        res.send(appointments);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error retrieving appointments.");
+    }
 });
 
 app.get("/appointments/pending", async (req, res) => {

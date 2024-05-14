@@ -47,8 +47,8 @@ import PendingAppointment from "./mainPage/AdminAppointmentView";
 
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { io } from 'socket.io-client';
-export const socket = io("https:///mediflow-cse416.onrender.com/");
+import { initializeSocket, disconnectSocket, getSocket } from './socket';
+
 
 
 // Mock array of upcoming patients
@@ -80,50 +80,76 @@ export default function MainPage() {
       const storedUser = sessionStorage.getItem('user');
       const storedName = sessionStorage.getItem('name');
 
+
+
       if (!storedToken || !storedUser) {
         // If token or username is not found in sessionStorage, redirect to the login page
         navigate('/login');
       }
+      else{      
+        initializeSocket(storedUser, storedName);
+      }
 
-      socket.emit('userConnected', storedUser, storedName);
 
     };
 
     checkSession(); // Check session when component mounts
 
-    socket.on('notification', (data) => {
-      console.log(data.sender);
-      console.log(data.text);
-      const toastId = toast(data.sender + " sent you a message: " + data.text, {
-        onClick: () => {
-          socket.emit('joinRoom', data.roomID);
-          navigate(`/main/chatscreen/${data.roomID}`);
-          toast.dismiss(toastId);
-        },
-        position: "bottom-right",
-        autoClose: 10000, 
-        style: {
+    const socket = getSocket();
+
+    if (socket) {
+      socket.on('notification', (data) => {
+        console.log(data.sender);
+        console.log(data.text);
+        const toastId = toast(`${data.sender} sent you a message: ${data.text}`, {
+          onClick: () => {
+            socket.emit('joinRoom', data.roomID);
+            navigate(`/main/chatscreen/${data.roomID}`);
+            toast.dismiss(toastId);
+          },
+          position: "bottom-right",
+          autoClose: 10000,
+          style: {
             backgroundColor: "#4caf50",
-            color: "white" 
-        },
-        progressStyle: {
-          background: "#ffffff", 
-          height: '5px' 
-        }
+            color: "white"
+          },
+          progressStyle: {
+            background: "#ffffff",
+            height: '5px'
+          }
+        });
       });
-    });
+
+      socket.on("apptnotification", (data) => {
+        console.log('Appointment notification:', data);
+        toast(data, {
+          position: "bottom-right",
+          autoClose: 10000,
+          style: {
+            backgroundColor: "#4caf50",
+            color: "white"
+          },
+          progressStyle: {
+            background: "#ffffff",
+            height: '5px'
+          }
+        });
+      });
+    }
 
     return () => {
-      socket.off('notification');
-
+      if (socket) {
+        socket.off('notification');
+        socket.off("apptnotification");
+      }
     };
-
   }, [navigate]);
  
 
   const handleRefreshClick = (targetPath) => (event) => {
     console.log("redirecting" + targetPath + location.pathname)
     if(location.pathname.indexOf("chatscreen") >= 0){
+      const socket = getSocket()
       const roomId = location.pathname.substring(location.pathname.lastIndexOf("/")+1);
       console.log("you have left the chat screen of room id " + roomId);
       socket.emit("leaveRoom", roomId);
@@ -138,7 +164,7 @@ export default function MainPage() {
   const handleLogout = () => {
 
     sessionStorage.clear();
-    socket.disconnect()
+    disconnectSocket();
     navigate("/login");
   };
 
@@ -180,12 +206,29 @@ export default function MainPage() {
           }}
         >
           <ListItem>
-            <Typography
-              variant="h5"
-              sx={{ marginBottom: 4, fontWeight: "bold" }}
-            >
-              {isDrawerOpen && "MediFlow"}🏥
-            </Typography>
+          <Box sx={{
+              marginBottom: 4, 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', // Ensures content is centered
+              width: '100%' // Ensures the box takes full width of its parent
+            }}>
+            {isDrawerOpen && (
+              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                MediFlow
+              </Typography>
+            )}
+            <img
+              src="/mediflowlogo.png" // Path to your logo image
+              alt="MediFlow Logo"
+              style={{ 
+                height: '6vh', 
+                marginRight: isDrawerOpen ? '1vw' : '0', // Adjust margin when text is shown
+                transition: 'margin-right 0.3s' // Smooth transition for margin change
+              }}
+            />
+
+          </Box>
           </ListItem>
           <ListItem disablePadding>
             <ListItemButton
