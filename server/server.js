@@ -243,8 +243,6 @@ io.on("connection", (socket) => {
             const otherSocketID = userSocketMap.get(otherUserID);
             const otherSocket = io.sockets.sockets.get(otherSocketID);
 
-            console.log(otherSocketID)
-            console.log(text)
             if(otherSocket){
                 otherSocket.emit('notification', {sender: sender, text: text, roomID: roomID});
             }
