@@ -205,12 +205,29 @@ export default function MainPage() {
           }}
         >
           <ListItem>
-            <Typography
-              variant="h5"
-              sx={{ marginBottom: 4, fontWeight: "bold" }}
-            >
-              {isDrawerOpen && "MediFlow"}🏥
-            </Typography>
+          <Box sx={{
+              marginBottom: 4, 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', // Ensures content is centered
+              width: '100%' // Ensures the box takes full width of its parent
+            }}>
+            {isDrawerOpen && (
+              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                MediFlow
+              </Typography>
+            )}
+            <img
+              src="/mediflowlogo.png" // Path to your logo image
+              alt="MediFlow Logo"
+              style={{ 
+                height: '6vh', 
+                marginRight: isDrawerOpen ? '1vw' : '0', // Adjust margin when text is shown
+                transition: 'margin-right 0.3s' // Smooth transition for margin change
+              }}
+            />
+
+          </Box>
           </ListItem>
           <ListItem disablePadding>
             <ListItemButton

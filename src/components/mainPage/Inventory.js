@@ -161,9 +161,7 @@ function Inventory() {
 		case "appointmentViewing":
 			return (
 				<Box sx={{ flexGrow: 1, padding: 2 }}>
-					<Typography variant="h4" gutterBottom>
-						Inventory
-					</Typography>
+				<h2>INVENTORY</h2>
 					<Box
 						sx={{
 							display: "flex",
@@ -289,9 +287,8 @@ function Inventory() {
 		case "equipmentViewing":
 			return (
 				<Box sx={{ flexGrow: 1, padding: 2 }}>
-					<Typography variant="h4" gutterBottom>
-						Inventory
-					</Typography>
+					<h2>INVENTORY</h2>
+
 					<Box
 						sx={{
 							display: "flex",
@@ -475,9 +472,8 @@ function Inventory() {
 		case "default":
 			return (
 				<Box sx={{ flexGrow: 1, padding: 2 }}>
-					<Typography variant="h4" gutterBottom>
-						Inventory
-					</Typography>
+					<h1>Inventory</h1>
+
 					<Box
 						sx={{
 							display: "flex",

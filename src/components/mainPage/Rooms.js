@@ -151,9 +151,7 @@ function isRoomAvailable(room, date) {
     case 'appointmentViewing':
       return (
         <Box sx={{ flexGrow: 1, padding: 2 }}>
-          <Typography variant="h4" gutterBottom>
-            Room Availability
-          </Typography>
+          <h1>Room Availability</h1>
           <Box
             sx={{
               display: "flex",
@@ -250,9 +248,8 @@ function isRoomAvailable(room, date) {
     case 'default':
       return (
         <Box sx={{ flexGrow: 1, padding: 2 }}>
-          <Typography variant="h4" gutterBottom>
-            Room Availability
-          </Typography>
+          <h1>Room Availability</h1>
+
           <Box
             sx={{
               display: "flex",
