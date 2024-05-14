@@ -14,8 +14,6 @@ const cron = require('node-cron');
 
 
 
-
-
 app.use(express.json());
 app.use(express.static('../public'));
 app.use(cookieParser());
