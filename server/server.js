@@ -664,17 +664,29 @@ app.post("/createEquipmentHead", async (req, res) => {
 });
 
 app.post("/createEquipment", async (req, res) => {
-  const newEquipment = new Equipment({
-    created: new Date(),
-    location: req.body.location,
-    name: req.body.name,
-    status: "Functional",
-    type: req.body.type,
-    updatedAt: new Date(),
-  });
 
-  res.send(await newEquipment.save());
+    console.log(req.body.name);
+    let equipmentHeadObject = await EquipmentHeads.findOne({ name: req.body.name });
+    console.log(equipmentHeadObject);
+
+    if (!equipmentHeadObject) {
+      return res.status(404).send({ error: "Equipment head not found" });
+    }
+
+    const newEquipment = new Equipment({
+      created: new Date(),
+      location: req.body.location,
+      name: req.body.name + " " + (equipmentHeadObject.equipment.length + 1),
+      status: "Functional",
+      type: req.body.type,
+      updatedAt: new Date(),
+    });
+
+    await newEquipment.save();
+    res.send(newEquipment);
+
 });
+
 
 app.post("/createRoom", async (req, res) => {
   const newRoom = new Rooms({
@@ -830,6 +842,7 @@ app.put("/updateAppointmentStatus", async (req, res) => {
 });
 
 app.put("/changeEquipmentHead", async (req, res) => {
+  
   let equipmentHeadUpdate = await equipmentHead.findOne({
     name: req.body.name,
   });

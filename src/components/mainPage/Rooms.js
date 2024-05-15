@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, FormControl, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Box, TablePagination, FormControl, Button, Alert } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import moment from 'moment-timezone';
 
@@ -21,6 +21,26 @@ function Rooms() {
   const [availabilityCache, setAvailabilityCache] = useState({});
   const [itemCount, setItemCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [notification, setNotification] = useState('');
+  
+  // DB API
+  const api = axios.create({
+    baseURL: "https://mediflow-cse416.onrender.com",
+  });
+
+  // Add an interceptor to add Authorization header to each request
+  api.interceptors.request.use(
+    (config) => {
+      const token = sessionStorage.getItem("token");
+      if (token) {
+        config.headers["Authorization"] = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
 
   // Caching functions
   const cacheData = (key, data) => {
@@ -28,19 +48,36 @@ function Rooms() {
       data,
       timestamp: new Date().getTime(),
     };
-    localStorage.setItem(key, JSON.stringify(cache));
+    sessionStorage.setItem(key, JSON.stringify(cache));
   };
 
   const getCachedData = (key, expiration = 3600000) => { // default expiration is 1 hour
-    const cached = localStorage.getItem(key);
+    const cached = sessionStorage.getItem(key);
     if (!cached) return null;
 
     const { data, timestamp } = JSON.parse(cached);
     if (new Date().getTime() - timestamp > expiration) {
-      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
       return null;
     }
     return data;
+  };
+
+  const fetchDataAndCompare = async (endpoint, key, setStateFunction) => {
+    try {
+      const cachedData = getCachedData(key);
+      const response = await api.get(endpoint);
+      const fetchedData = response.data;
+
+      if (!cachedData || JSON.stringify(cachedData) !== JSON.stringify(fetchedData)) {
+        cacheData(key, fetchedData);
+        setStateFunction(fetchedData);
+      } else {
+        setStateFunction(cachedData);
+      }
+    } catch (error) {
+      console.error(`Error fetching ${key}:`, error);
+    }
   };
 
   useEffect(() => {
@@ -48,68 +85,25 @@ function Rooms() {
       try {
         let userId = sessionStorage.getItem('user');
 
-        // Check cache first
-        let rooms = getCachedData("rooms");
-        let users = getCachedData("users");
-        let appointments = getCachedData("appointments");
-        let procedures = getCachedData("procedures");
-        let userRole = getCachedData(`userRole_${userId}`);
+        await fetchDataAndCompare('/rooms', 'rooms', (data) => {
+          setRooms(data);
+          setItemCount(data.length);
+        });
+        await fetchDataAndCompare('/users', 'users', setUsersList);
+        await fetchDataAndCompare('/appointments', 'appointments', setAppointmentList);
+        await fetchDataAndCompare('/procedures', 'procedures', setProcedureList);
 
-        if (!rooms) {
-          const roomsResponse = await axios.get('https://mediflow-cse416.onrender.com/rooms', {
-            headers: {
-              'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-            }
-          });
-          rooms = roomsResponse.data;
-          cacheData("rooms", rooms);
-        }
-        setRooms(rooms);
-        setItemCount(rooms.length);
+        const userRoleCacheKey = `userRole_${userId}`;
+        const cachedUserRole = getCachedData(userRoleCacheKey);
 
-        if (!users) {
-          const usersResponse = await axios.get('https://mediflow-cse416.onrender.com/users', {
-            headers: {
-              'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-            }
-          });
-          users = usersResponse.data;
-          cacheData("users", users);
+        if (!cachedUserRole) {
+          const userResponse = await api.get(`/userID/${userId}`);
+          const userRole = userResponse.data.role;
+          cacheData(userRoleCacheKey, userRole);
+          setIsAdmin(userRole === 'admin');
+        } else {
+          setIsAdmin(cachedUserRole === 'admin');
         }
-        setUsersList(users);
-
-        if (!appointments) {
-          const appointmentsResponse = await axios.get('https://mediflow-cse416.onrender.com/appointments', {
-            headers: {
-              'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-            }
-          });
-          appointments = appointmentsResponse.data;
-          cacheData("appointments", appointments);
-        }
-        setAppointmentList(appointments);
-
-        if (!procedures) {
-          const proceduresResponse = await axios.get('https://mediflow-cse416.onrender.com/procedures', {
-            headers: {
-              'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-            }
-          });
-          procedures = proceduresResponse.data;
-          cacheData("procedures", procedures);
-        }
-        setProcedureList(procedures);
-
-        if (!userRole) {
-          const userResponse = await axios.get(`https://mediflow-cse416.onrender.com/userID/${userId}`, {
-            headers: {
-              'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-            }
-          });
-          userRole = userResponse.data.role;
-          cacheData(`userRole_${userId}`, userRole);
-        }
-        setIsAdmin(userRole === 'admin');
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -152,12 +146,12 @@ function Rooms() {
 
   const viewSpecificAppointments = (room) => {
     if (room.appointments.length === 0) {
-     
+      setNotification(`No Appointments`);
     } else {
       setCurrentRoom(room);
       setPage(0);
       setAppointmentIds(room.appointments);
-      setItemCount(room.appointments.length); 
+      setItemCount(room.appointments.length);
       setRoomPage('appointmentViewing');
     }
   };
@@ -169,10 +163,6 @@ function Rooms() {
   function isRoomAvailable(room, date) {
     const dateKey = date.toISOString().split("T")[0];
     const roomKey = `${room._id}-${dateKey}`;
-
-    if (availabilityCache[roomKey] !== undefined) {
-      return availabilityCache[roomKey];
-    }
 
     if (appointmentList.length > 0) {
       const currentDate = date.getTime();
@@ -186,7 +176,6 @@ function Rooms() {
         });
       });
 
-      setAvailabilityCache(prev => ({ ...prev, [roomKey]: isAvailable }));
       return isAvailable;
     }
     return true;
@@ -284,7 +273,7 @@ function Rooms() {
                 <TablePagination
                   rowsPerPageOptions={[10]}
                   component="div"
-                  count={itemCount} 
+                  count={itemCount}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   onPageChange={handleChangePage}
@@ -301,6 +290,11 @@ function Rooms() {
             <h1>
               Room Availability
             </h1>
+            {notification && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {notification}
+              </Alert>
+            )}
             <Box
               sx={{
                 display: "flex",

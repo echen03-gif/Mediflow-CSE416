@@ -18,6 +18,7 @@ const AddRoom = () => {
   const [roomType, setRoomType] = useState("");
   const [rooms, setRooms] = useState([]);
   const navigate = useNavigate();
+  const departments = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Orthopedics"];
 
   // DB API
 
@@ -44,6 +45,10 @@ const AddRoom = () => {
       name: roomNumber,
       type: roomType,
       status: "Open"
+    }, {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
     }).then(console.log("Added room")).then(navigate("/main/rooms"));
   };
 
@@ -78,9 +83,9 @@ const AddRoom = () => {
             data-testid="room-type"
 
           >
-            <MenuItem value={"General"}>General</MenuItem>
-            <MenuItem value={"ICU"}>ICU</MenuItem>
-            <MenuItem value={"Surgery"}>Surgery</MenuItem>
+            {departments.map((department) => (
+              <MenuItem value={department}>{department}</MenuItem>
+            ))}
           </Select>
         </FormControl>
         <Button

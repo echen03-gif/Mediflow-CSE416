@@ -13,6 +13,7 @@ import {
 	TablePagination,
 	FormControl,
 	Button,
+	Alert
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +36,8 @@ function Inventory() {
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [currentEquipment, setCurrentEquipment] = useState('');
 	const [searchQuery, setSearchQuery] = useState('');
+	const [itemCount, setItemCount] = useState(0);
+	const [notification, setNotification] = useState('');
 
 	// DB API
 	const api = axios.create({
@@ -60,19 +63,36 @@ function Inventory() {
 			data,
 			timestamp: new Date().getTime(),
 		};
-		localStorage.setItem(key, JSON.stringify(cache));
+		sessionStorage.setItem(key, JSON.stringify(cache));
 	};
 
 	const getCachedData = (key, expiration = 3600000) => { // default expiration is 1 hour
-		const cached = localStorage.getItem(key);
+		const cached = sessionStorage.getItem(key);
 		if (!cached) return null;
 
 		const { data, timestamp } = JSON.parse(cached);
 		if (new Date().getTime() - timestamp > expiration) {
-			localStorage.removeItem(key);
+			sessionStorage.removeItem(key);
 			return null;
 		}
 		return data;
+	};
+
+	const fetchDataAndCompare = async (endpoint, key, setStateFunction) => {
+		try {
+			const cachedData = getCachedData(key);
+			const response = await api.get(endpoint);
+			const fetchedData = response.data;
+
+			if (!cachedData || JSON.stringify(cachedData) !== JSON.stringify(fetchedData)) {
+				cacheData(key, fetchedData);
+				setStateFunction(fetchedData);
+			} else {
+				setStateFunction(cachedData);
+			}
+		} catch (error) {
+			console.error(`Error fetching ${key}:`, error);
+		}
 	};
 
 	useEffect(() => {
@@ -80,63 +100,27 @@ function Inventory() {
 			try {
 				let userId = sessionStorage.getItem('user');
 
-				// Check cache first
-				let users = getCachedData("users");
-				let inventoryHead = getCachedData("inventoryHead");
-				let rooms = getCachedData("rooms");
-				let equipment = getCachedData("equipment");
-				let appointments = getCachedData("appointments");
-				let procedures = getCachedData("procedures");
-				let userRole = getCachedData(`userRole_${userId}`);
+				await fetchDataAndCompare("/users", "users", setUsersList);
+				await fetchDataAndCompare("/equipmentHead", "inventoryHead", (data) => {
+					setInventoryHead(data);
+					setItemCount(data.length);
+				});
+				await fetchDataAndCompare("/rooms", "rooms", setRooms);
+				await fetchDataAndCompare("/equipment", "equipment", setEquipmentDB);
+				await fetchDataAndCompare("/appointments", "appointments", setAppointmentList);
+				await fetchDataAndCompare('/procedures', "procedures", setProcedureList);
 
-				if (!users) {
-					const usersResponse = await api.get("/users");
-					users = usersResponse.data;
-					cacheData("users", users);
-				}
-				setUsersList(users);
+				const userRoleCacheKey = `userRole_${userId}`;
+				const cachedUserRole = getCachedData(userRoleCacheKey);
 
-				if (!inventoryHead) {
-					const inventoryHeadResponse = await api.get("/equipmentHead");
-					inventoryHead = inventoryHeadResponse.data;
-					cacheData("inventoryHead", inventoryHead);
-				}
-				setInventoryHead(inventoryHead);
-
-				if (!rooms) {
-					const roomsResponse = await api.get("/rooms");
-					rooms = roomsResponse.data;
-					cacheData("rooms", rooms);
-				}
-				setRooms(rooms);
-
-				if (!equipment) {
-					const equipmentResponse = await api.get("/equipment");
-					equipment = equipmentResponse.data;
-					cacheData("equipment", equipment);
-				}
-				setEquipmentDB(equipment);
-
-				if (!appointments) {
-					const appointmentsResponse = await api.get("/appointments");
-					appointments = appointmentsResponse.data;
-					cacheData("appointments", appointments);
-				}
-				setAppointmentList(appointments);
-
-				if (!procedures) {
-					const proceduresResponse = await api.get('/procedures');
-					procedures = proceduresResponse.data;
-					cacheData("procedures", procedures);
-				}
-				setProcedureList(procedures);
-
-				if (!userRole) {
+				if (!cachedUserRole) {
 					const userResponse = await api.get(`/userID/${userId}`);
-					userRole = userResponse.data.role;
-					cacheData(`userRole_${userId}`, userRole);
+					const userRole = userResponse.data.role;
+					cacheData(userRoleCacheKey, userRole);
+					setIsAdmin(userRole === 'admin');
+				} else {
+					setIsAdmin(cachedUserRole === 'admin');
 				}
-				setIsAdmin(userRole === 'admin');
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			}
@@ -146,29 +130,27 @@ function Inventory() {
 	}, []);
 
 	const switchInventoryPage = (equipment) => {
-		if (
-			inventoryHeadList.find(
-				(equipmentHead) => equipmentHead.name === equipment
-			).equipment.length === 0
-		) {
-		} else {
-			setEquipmentList(
-				inventoryHeadList.find(
-					(equipmentHead) => equipmentHead.name === equipment
-				).equipment
-			);
+		const equipmentData = inventoryHeadList.find(
+			(equipmentHead) => equipmentHead.name === equipment
+		);
+
+		if (equipmentData.equipment.length !== 0) {
+			setEquipmentList(equipmentData.equipment);
 			setInventoryPage("equipmentViewing");
 			setPage(0);
+			setItemCount(equipmentData.equipment.length);
 		}
 	};
 
 	const viewSpecificAppointments = (equipment) => {
-		if (equipment.appointments.length === 0) {
-		} else {
+		if (equipment.appointments.length !== 0) {
 			setAppointmentIds(equipment.appointments);
 			setCurrentEquipment(equipment);
 			setPage(0);
+			setItemCount(equipment.appointments.length);
 			setInventoryPage("appointmentViewing");
+		} else {
+			setNotification(`No Appointments`);
 		}
 	};
 
@@ -219,12 +201,24 @@ function Inventory() {
 		equipmentDB.find((equipment) => equipment._id === item).name.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
+
+	useEffect(() => {
+		if (inventoryPage === "default") {
+			setItemCount(filteredInventoryHeadList.length);
+		} else if (inventoryPage === "equipmentViewing") {
+			setItemCount(filteredEquipmentList.length);
+		} else if (inventoryPage === "appointmentViewing") {
+			setItemCount(appointmentIds.length);
+		}
+	}, [inventoryPage, filteredInventoryHeadList.length, filteredEquipmentList.length, appointmentIds.length]);
+
 	// Display
 	switch (inventoryPage) {
 		case "appointmentViewing":
 			return (
 				<Box sx={{ height: '100%', overflow: 'auto' }}>
 					<h2>INVENTORY</h2>
+
 					<Box
 						sx={{
 							display: "flex",
@@ -321,7 +315,7 @@ function Inventory() {
 							<TablePagination
 								rowsPerPageOptions={[10]}
 								component="div"
-								count={inventoryHeadList.length}
+								count={itemCount}
 								rowsPerPage={rowsPerPage}
 								page={page}
 								onPageChange={handleChangePage}
@@ -337,7 +331,11 @@ function Inventory() {
 			return (
 				<Box sx={{ height: '100%', overflow: 'auto' }}>
 					<h2>INVENTORY</h2>
-
+					{notification && (
+						<Alert severity="error" sx={{ mb: 2 }}>
+							{notification}
+						</Alert>
+					)}
 					<Box
 						sx={{
 							display: "flex",
@@ -378,7 +376,7 @@ function Inventory() {
 							<TableHead>
 								<TableRow>
 									<TableCell></TableCell>{" "}
-								
+
 									<TableCell>ID</TableCell>
 									<TableCell align="center">
 										Location
@@ -504,7 +502,7 @@ function Inventory() {
 							<TablePagination
 								rowsPerPageOptions={[10]}
 								component="div"
-								count={inventoryHeadList.length}
+								count={itemCount}
 								rowsPerPage={rowsPerPage}
 								page={page}
 								onPageChange={handleChangePage}
@@ -560,7 +558,7 @@ function Inventory() {
 							<TableHead>
 								<TableRow>
 									<TableCell></TableCell>{" "}
-									
+
 									<TableCell>Equipment</TableCell>
 									<TableCell align="center">
 										Quantity
@@ -568,7 +566,7 @@ function Inventory() {
 									<TableCell align="center">
 										Category
 									</TableCell>
-									</TableRow>
+								</TableRow>
 							</TableHead>
 							<TableBody>
 								{filteredInventoryHeadList
@@ -586,7 +584,6 @@ function Inventory() {
 													paddingRight: "0",
 												}}
 											>
-
 											</TableCell>
 											<TableCell>
 												<Typography
@@ -633,7 +630,7 @@ function Inventory() {
 							<TablePagination
 								rowsPerPageOptions={[10]}
 								component="div"
-								count={inventoryHeadList.length}
+								count={itemCount}
 								rowsPerPage={rowsPerPage}
 								page={page}
 								onPageChange={handleChangePage}
@@ -646,7 +643,7 @@ function Inventory() {
 			);
 
 		default:
-			return;
+			return null;
 	}
 }
 

@@ -33,6 +33,8 @@ const AddStaff = () => {
     Sunday: { start: "", end: "", isWorking: true },
   });
 
+  const staff = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Orthopedics", "Nurse"];
+
   // Functions
 
   const handleSubmit = (e) => {
@@ -55,11 +57,12 @@ const AddStaff = () => {
       email: email,
       password: password,
       role: position,
-      schedule: schedule}, {
-        headers: {
-          'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-        }
-      }).then(navigate("/main/staff"));
+      schedule: schedule
+    }, {
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      }
+    }).then(navigate("/main/staff"));
 
   };
 
@@ -151,10 +154,9 @@ const AddStaff = () => {
               data-testid="position"
 
             >
-              <MenuItem value={"Doctor"}>Doctor</MenuItem>
-              <MenuItem value={"Nurse"}>Nurse</MenuItem>
-              <MenuItem value={"Administrator"}>Administrator</MenuItem>
-              <MenuItem value={"Support Staff"}>Support Staff</MenuItem>
+              {staff.map((department, index) => (
+                <MenuItem key={index} value={department}>{department}</MenuItem>
+              ))}
             </Select>
           </FormControl>
           {Object.keys(shifts).map((day) => (
