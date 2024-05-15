@@ -182,7 +182,6 @@ describe('End to End Component Testing', () => {
 
     // Fill out the form fields
     cy.get('[data-testid="room-number"]').type('301');
-    cy.get('[data-testid="room-type"]').click().get('[data-value="General"]').click();
 
 
   });
@@ -204,7 +203,6 @@ describe('End to End Component Testing', () => {
 
     // Fill out the form fields
     cy.get('[data-testid="item-name"]').type('Defibrillator');
-    cy.get('[data-testid="category"]').click().get('[data-value="Category 1"]').click();
 
  
   });
@@ -232,7 +230,7 @@ describe('End to End Component Testing', () => {
     cy.get('[data-testid="email"]').type('johndoe@example.com');
     cy.get('[data-testid="password"]').type('password123');
     cy.get('[data-testid="date-of-birth"]').type('1980-01-01');
-    cy.get('[data-testid="position"]').click().get('[data-value="Doctor"]').click();
+
     cy.get('[data-testid="admin-switch"]').click();
 
     // Fill out shifts
