@@ -36,7 +36,7 @@ function Inbox() {
           const filteredPeople = res.data.filter(person => person._id !== currentUserId);
           console.log(filteredPeople)
           setPeople(filteredPeople);
-          const user = await axios.get(`https://mediflow-cse416.onrender.com/userAppointments/${currentUserId}`, {
+          const user = await axios.get(`https://mediflow-cse416.onrender.com/${currentUserId}`, {
                 headers: {
                     'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                 }
