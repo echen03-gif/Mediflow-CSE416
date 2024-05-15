@@ -36,7 +36,7 @@ function Inbox() {
           const filteredPeople = res.data.filter(person => person._id !== currentUserId);
           console.log(filteredPeople)
           setPeople(filteredPeople);
-          const user = await axios.get(`http://localhost:8000/userAppointments/${currentUserId}`, {
+          const user = await axios.get(`https://mediflow-cse416.onrender.com/${currentUserId}`, {
                 headers: {
                     'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                 }
@@ -83,7 +83,6 @@ function Inbox() {
 
   const handleRowClick = (personId) => {
     if (inboxType === 'general') {
-      //navigate to specific chatroom id based on Ids concatenated together alphabetically idk if this works but if it does im a genius
       const roomId = [personId, userId].sort().join("-");
       console.log("Joining a room with room id " + roomId);
       const socket = getSocket()
@@ -117,7 +116,6 @@ function Inbox() {
           <TableHead>
             {inboxType === 'general' &&
               <TableRow>
-              <TableCell>Profile</TableCell>
               <TableCell>Name</TableCell>
             </TableRow>
           }
@@ -133,23 +131,20 @@ function Inbox() {
           {
             inboxType === 'general' &&  
 
-            peopleList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((person) => (  // Correct: Using curly braces for the map function
+            peopleList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((person) => ( 
     <TableRow key={person._id} style={{ userSelect: 'none' }} data-testid="user-row">
       <ButtonBase
         onClick={() => handleRowClick(person._id)}
         style={{ display: 'contents' }} 
         disableRipple
       >
-        <TableCell>
-          <img src={`https://mediflow-cse416.onrender.com/uploads/${person.profilePic.split('/').pop()}`} alt={person.name} style={{ width: 50, borderRadius: '50%' }} />
-        </TableCell>
         <TableCell>{person.name}</TableCell>
       </ButtonBase>
     </TableRow>
   ))
 }
 {inboxType === 'process' &&  
-  apptList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((person) => (  // Correct: Using curly braces for the map function
+  apptList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((person) => ( 
   <TableRow key={person[0]} style={{ userSelect: 'none' }} data-testid="user-row">
     <ButtonBase
       onClick={() => handleRowClick(person[0])}
