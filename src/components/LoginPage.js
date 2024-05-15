@@ -19,6 +19,7 @@ export default function LoginPage() {
       if (username === '' || password === '') {
         document.getElementById('loginError').innerHTML = 'Invalid Input';
       } else {
+        document.getElementById('loginError').innerHTML = 'Processing, This may take up to 10 minutes';
         axios.post("https://mediflow-cse416.onrender.com/login", { username, password }, { withCredentials: true })
           .then(res => {
             if (res.data.success) {

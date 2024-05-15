@@ -20,6 +20,7 @@ const AddInventory = () => {
   const [equipmentCategory, setCategory] = useState("");
   const [equipmentHeadList, setEquipmentHead] = useState([]);
   const [rooms, setRooms] = useState([]);
+  const departments = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Orthopedics"];
 
   // DB API
 
@@ -51,20 +52,22 @@ const AddInventory = () => {
         location: equipmentLocation,
         name: name,
         type: equipmentCategory,
+
+      }, {
         headers: {
           'Authorization': 'Bearer ' + sessionStorage.getItem('token')
         }
-
       }).then(console.log("Added Equipment"));
 
       await axios.put("https://mediflow-cse416.onrender.com/changeEquipmentHead", {
 
         name: name,
-        equipment: newItem.data,
+        equipment: newItem.data
+
+      }, {
         headers: {
           'Authorization': 'Bearer ' + sessionStorage.getItem('token')
         }
-
       }).then(console.log("Updated Head"));
 
     }
@@ -73,11 +76,12 @@ const AddInventory = () => {
       await axios.post("https://mediflow-cse416.onrender.com/createEquipmentHead", {
 
         name: name,
-        type: equipmentCategory,
+        type: equipmentCategory
+
+      }, {
         headers: {
           'Authorization': 'Bearer ' + sessionStorage.getItem('token')
         }
-
       }).then(console.log("Added Equipment Head"));
 
 
@@ -85,20 +89,22 @@ const AddInventory = () => {
         location: equipmentLocation,
         name: name,
         type: equipmentCategory,
+
+      }, {
         headers: {
           'Authorization': 'Bearer ' + sessionStorage.getItem('token')
         }
-
       }).then(console.log("Added Equipment"));
 
       await axios.put("https://mediflow-cse416.onrender.com/changeEquipmentHead", {
 
         name: name,
         equipment: newItem.data,
+
+      }, {
         headers: {
           'Authorization': 'Bearer ' + sessionStorage.getItem('token')
         }
-
       }).then(console.log("Updated Head"));
 
     }
@@ -154,8 +160,9 @@ const AddInventory = () => {
             data-testid="category"
 
           >
-            <MenuItem value={"Category 1"}>Category 1</MenuItem>
-            <MenuItem value={"Category 2"}>Category 2</MenuItem>
+            {departments.map((department) => (
+              <MenuItem value={department}>{department}</MenuItem>
+            ))}
           </Select>
         </FormControl>
         <Button

@@ -131,11 +131,12 @@ export default function RequestAppointment() {
   const checkEquipmentSchedule = (equipment, scheduledStartTime, scheduledEndTime) => {
     const scheduledStart = new Date(scheduledStartTime);
     const scheduledEnd = new Date(scheduledEndTime);
-
+   
     for (let appointmentId of equipment.appointments) {
-
+      
       const appointment = appointmentsList.find(appt => appt._id === appointmentId);
 
+      
       for (let procedure of appointment.procedures) {
 
         if (procedure.equipment.includes(equipment._id)) {
@@ -144,12 +145,14 @@ export default function RequestAppointment() {
 
 
           if ((apptStart < scheduledEnd) && (apptEnd > scheduledStart)) {
+                    
             return false;
           }
         }
       }
     }
 
+    
     return true;
   };
 
@@ -158,7 +161,7 @@ export default function RequestAppointment() {
     const scheduledEnd = new Date(scheduledEndTime);
 
     for (let appointmentId of room.appointments) {
-
+      
       const appointment = appointmentsList.find(appt => appt._id === appointmentId);
 
       for (let procedure of appointment.procedures) {
@@ -211,15 +214,24 @@ export default function RequestAppointment() {
 
       for (let equipmentName of equipmentListName) {
 
+        
         let equipmentHead = equipmentHeadList.find(equipment => equipment.name === equipmentName);
 
-        let fullEquipmentList = equipmentHead.equipment.sort((a, b) => a.appointments.length - b.appointments.length)
-
+        if(equipmentHead === null || equipmentHead === undefined){
+          checkAvaliability = false;
+          setNotification(`No Avaliable Equipment of ${equipmentName}`);
+          return;
+        }
+        
+        console.log(equipmentHead)
+        let fullEquipmentList = equipmentHead.equipment.sort((a, b) => equipmentList.find(equipmentSearch => equipmentSearch._id === a).appointments.length - equipmentList.find(equipmentSearch => equipmentSearch._id === b).appointments.length)
+        
         for (let equipmentId of fullEquipmentList) {
 
           let checkEquipment = equipmentList.find(equipmentSearch => equipmentSearch._id === equipmentId);
-
+         
           if (checkEquipmentSchedule(checkEquipment, scheduledStartTime, scheduledEndTime) && checkEquipment.type === procedure.staffType) {
+            
             selectedEquipment.push(checkEquipment);
             break;
           }
@@ -238,14 +250,21 @@ export default function RequestAppointment() {
         }
       }
 
+      console.log(selectedEquipment);
+      console.log(equipmentListName);
+      console.log(procedure.requiredRoomType);
+      console.log(selectedRoom);
       if (selectedStaff.length !== numStaff || selectedEquipment.length !== equipmentListName.length) {
+
         checkAvaliability = false;
         NonAvaliableProcedures.push(procedure.name);
+        setNotification(`There are not enough available staff, room, or equipment at the selected time for ${NonAvaliableProcedures.join(", ")}`);
 
       }
       else if (procedure.requiredRoomType != null && selectedRoom == null) {
         checkAvaliability = false;
         NonAvaliableProcedures.push(procedure.name);
+        setNotification(`There are not enough available staff, room, or equipment at the selected time for ${NonAvaliableProcedures.join(", ")}`);
 
       }
 
@@ -263,6 +282,10 @@ export default function RequestAppointment() {
         };
     });
 
+    if(!checkAvaliability){
+      return;
+
+    }
     for (let i = 0; i < procedures.length - 1; i++) {
       let current = moment(procedures[i].scheduledStartTime);
       let next = moment(procedures[i + 1].scheduledStartTime);
@@ -277,12 +300,12 @@ export default function RequestAppointment() {
     for (let i = 0; i < procedures.length; i++) {
       let currentStart = moment(procedures[i].scheduledStartTime);
       let currentEnd = moment(procedures[i].scheduledEndTime);
-    
+
       for (let j = 0; j < procedures.length; j++) {
         if (i !== j) {
           let otherStart = moment(procedures[j].scheduledStartTime);
           let otherEnd = moment(procedures[j].scheduledEndTime);
-    
+
           if (currentStart.isBefore(otherEnd) && currentEnd.isAfter(otherStart)) {
             checkAvaliability = false;
             setNotification(`Invalid! Procedure ${procedureList.find(procedure => procedure._id === procedures[i].procedure).name} overlaps with procedure ${procedureList.find(procedure => procedure._id === procedures[j].procedure).name}`);
@@ -290,11 +313,6 @@ export default function RequestAppointment() {
           }
         }
       }
-    }
-   
-    if (!checkAvaliability) {
-      setNotification(`There are not enough available staff, room, or equipment at the selected time for ${NonAvaliableProcedures.join(", ")}`);
-      return;
     }
 
     setNotification('');
@@ -351,6 +369,19 @@ export default function RequestAppointment() {
       )
     ]);
 
+    const adminUsers = usersList.filter(user => user.role === 'admin');
+
+    adminUsers.forEach(admin => {
+      axios.put("https://mediflow-cse416.onrender.com/changeStaffAppointment", {
+        staffName: admin,
+        appointment: newAppointment.data,
+      }, {
+        headers: {
+          'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        }
+      })
+    });
+
 
     await Promise.all(Array.from(uniqueRoomIds).map(room => {
       console.log(room);
@@ -388,20 +419,20 @@ export default function RequestAppointment() {
 
       if (field === "scheduledStartTime") {
         const duration = procedureList.find(p => p._id === procedureId)?.estimatedDuration || 0;
-      
+
         const startTime = moment.tz(newValue, "YYYY-MM-DDTHH:mm", 'America/New_York');
-    
+
         const endTime = startTime.clone().add(duration, 'minutes');
-    
+
         const formattedEndTime = endTime.format('YYYY-MM-DDTHH:mm');
-      
+
         console.log(newValue);
         console.log(formattedEndTime);
-      
+
         updatedSettings['scheduledEndTime'] = formattedEndTime;
       }
-      
-      
+
+
 
       return {
         ...prev,

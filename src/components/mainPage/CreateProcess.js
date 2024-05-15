@@ -25,6 +25,8 @@ function CreateProcess() {
     },
   ]);
   const [isFormValid, setIsFormValid] = useState(false); // State to track form validity
+  const departments = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Orthopedics"];
+  const staff = ["Cardiology", "Radiology", "Oncology", "Neurology", "Pediatrics", "Orthopedics", "Nurse"];
 
   // Functions
 
@@ -150,6 +152,8 @@ function CreateProcess() {
                   <MenuItem value={"Pre Op"}>Pre Op</MenuItem>
                   <MenuItem value={"Surgery"}>Surgery</MenuItem>
                   <MenuItem value={"Recovery"}>Recovery</MenuItem>
+                  <MenuItem value={"Op"}>Operation</MenuItem>
+                  <MenuItem value={"Custom"}>Custom</MenuItem>
                 </Select>
               </FormControl>
               <FormControl fullWidth margin="normal" sx={{ mt: 1 }}>
@@ -202,9 +206,9 @@ function CreateProcess() {
                   }
                   variant="outlined"
                 >
-                  <MenuItem value={"General"}>General</MenuItem>
-                  <MenuItem value={"ICU"}>ICU</MenuItem>
-                  <MenuItem value={"Surgery"}>Surgery</MenuItem>
+                  {departments.map((department) => (
+                    <MenuItem key={index} value={department}>{department}</MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl fullWidth margin="normal" sx={{ mt: 1 }}>
@@ -220,9 +224,9 @@ function CreateProcess() {
                   }
                   variant="outlined"
                 >
-                  <MenuItem value={"Doctor"}>Doctor</MenuItem>
-                  <MenuItem value={"Surgeon"}>Surgeon</MenuItem>
-                  <MenuItem value={"Nurse"}>Nurse</MenuItem>
+                  {staff.map((department, index) => (
+                <MenuItem key={index} value={department}>{department}</MenuItem>
+              ))}
                 </Select>
               </FormControl>
 
